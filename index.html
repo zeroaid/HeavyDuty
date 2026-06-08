@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Heavy Duty">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.json">
+<title>Heavy Duty</title>
+<style>
+/* ── Reset & Tokens ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg:         #080808;
+  --surface-1:  #111111;
+  --surface-2:  #1a1a1a;
+  --surface-3:  #222222;
+  --border:     rgba(255,255,255,0.07);
+  --border-hi:  rgba(255,255,255,0.14);
+  --text:       #ffffff;
+  --text-2:     #9a9a9a;
+  --text-3:     #525252;
+  --accent:     #cc1111;
+  --accent-2:   rgba(204,17,17,0.13);
+  --accent-3:   rgba(204,17,17,0.06);
+  --green:      #22c55e;
+  --green-bg:   rgba(34,197,94,0.1);
+  --red:        #cc1111;
+  --red-bg:     rgba(204,17,17,0.12);
+  --r-sm:       10px;
+  --r-md:       16px;
+  --r-lg:       20px;
+  --r-xl:       28px;
+  --nav-h:      72px;
+  --safe-b:     env(safe-area-inset-bottom, 0px);
+}
+
+html { height: 100%; background: #000; }
+body {
+  height: 100%; background: #000; color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px; line-height: 1.4; overflow: hidden;
+}
+
+/* ── Layout ─────────────────────────────────────────── */
+#app { position: fixed; inset: 0; bottom: calc(var(--nav-h) + var(--safe-b)); overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+.screen { display: none; animation: fadeIn 0.18s ease; }
+.screen.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ── Nav Bar ─────────────────────────────────────────── */
+#nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: calc(var(--nav-h) + var(--safe-b));
+  padding-bottom: var(--safe-b);
+  background: #000;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  border-top: 1px solid var(--border);
+  display: flex; z-index: 200;
+}
+#nav::after {
+  content: ''; position: absolute; bottom: -40px; left: 0; right: 0;
+  height: 40px; background: rgba(14,14,14,0.95);
+}
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; background: none; border: none; color: var(--text-3);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.3px; cursor: pointer;
+  transition: color 0.2s; padding-top: 4px;
+}
+.nav-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.15s; }
+.nav-btn.active { color: var(--accent); }
+.nav-btn.active svg { transform: scale(1.1); }
+.nav-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); margin-top: 2px; opacity: 0; transition: opacity 0.2s; }
+.nav-btn.active .nav-dot { opacity: 1; }
+
+/* ── Page Shell ──────────────────────────────────────── */
+.page-top { padding: 56px 20px 8px; }
+.page-title { font-size: 32px; font-weight: 800; letter-spacing: -0.8px; }
+.page-subtitle { font-size: 14px; color: var(--text-2); margin-top: 2px; }
+
+/* ── Section Labels ──────────────────────────────────── */
+.sec { padding: 24px 20px 8px; }
+.sec-label { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 1px; }
+
+/* ── Hero Card (Next Workout) ────────────────────────── */
+.hero {
+  margin: 12px 20px;
+  background: linear-gradient(145deg, #1a0000, #141414 60%);
+  border: 1px solid rgba(204,17,17,0.25);
+  border-radius: var(--r-xl); padding: 22px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(204,17,17,0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.hero-title { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; margin-bottom: 3px; }
+.hero-sub { font-size: 13px; color: var(--text-2); margin-bottom: 18px; }
+.hero-exs { margin-bottom: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
+.hero-ex { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.hero-ex:last-child { border-bottom: none; }
+.hero-ex-name { font-size: 14px; font-weight: 500; }
+.hero-ex-last { font-size: 13px; color: var(--text-2); text-align: right; }
+.hero-ex-last strong { color: var(--accent); font-size: 14px; }
+
+/* ── Primary Button ──────────────────────────────────── */
+.btn-cta {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 16px; border-radius: var(--r-lg);
+  background: var(--accent); color: #fff;
+  border: none; font-size: 16px; font-weight: 700; letter-spacing: 0.5px;
+  cursor: pointer; transition: transform 0.1s, opacity 0.1s;
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
+.btn-cta:active { transform: scale(0.97); opacity: 0.9; }
+.btn-cta svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; }
+
+/* ── Stat Chips ──────────────────────────────────────── */
+.stat-row { display: flex; gap: 10px; margin: 0 20px; }
+.stat-chip { flex: 1; background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-md); padding: 14px 12px; text-align: center; }
+.stat-val { font-size: 24px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+.stat-lbl { font-size: 11px; color: var(--text-3); margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── History Cards ───────────────────────────────────── */
+.hist-card {
+  margin: 8px 20px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 16px;
+  cursor: pointer; transition: background 0.15s, border-color 0.15s;
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.hist-card:active { background: var(--surface-2); border-color: var(--border-hi); }
+.badge {
+  width: 44px; height: 44px; border-radius: var(--r-sm); flex-shrink: 0;
+  background: var(--accent-2); border: 1px solid rgba(240,165,0,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: var(--accent); letter-spacing: 0.5px;
+}
+.hist-body { flex: 1; min-width: 0; }
+.hist-type { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.hist-date { font-size: 12px; color: var(--text-2); margin-bottom: 8px; }
+.hist-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+.pill { background: var(--surface-2); border-radius: 6px; padding: 3px 8px; font-size: 12px; color: var(--text-2); white-space: nowrap; }
+.pill strong { color: var(--accent); }
+.hist-arrow { color: var(--text-3); flex-shrink: 0; margin-top: 2px; }
+.hist-arrow svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
+
+/* ── Detail View ─────────────────────────────────────── */
+.detail-hero {
+  padding: 20px; background: var(--surface-1);
+  border-bottom: 1px solid var(--border); margin-bottom: 12px;
+}
+.detail-badge { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.detail-badge .badge { width: 36px; height: 36px; font-size: 11px; }
+.detail-type { font-size: 12px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.8px; }
+.detail-date { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 4px; }
+.detail-meta { font-size: 13px; color: var(--text-2); }
+.ex-row {
+  margin: 6px 20px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 16px;
+}
+.ex-row-name { font-size: 12px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.ex-row-val { font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: -1px; line-height: 1; }
+.ex-row-unit { font-size: 15px; font-weight: 600; color: var(--text-2); margin-left: 4px; }
+.ex-row-note { font-size: 13px; color: var(--text-3); margin-top: 8px; font-style: italic; }
+.ex-row-rp {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 10px;
+  background: rgba(204,17,17,0.1); border: 1px solid rgba(204,17,17,0.25);
+  border-radius: 6px; padding: 5px 10px;
+}
+.ex-row-rp-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); }
+.ex-row-rp-sets { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: 0.3px; }
+.detail-note-box { margin: 12px 20px; background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-md); padding: 16px; font-size: 14px; color: var(--text-2); line-height: 1.6; font-style: italic; }
+
+/* ── Belt Toggle ─────────────────────────────────────── */
+.belt-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0 6px; }
+.belt-row-label { font-size: 13px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.5px; }
+.belt-switch { width: 44px; height: 26px; border-radius: 13px; background: var(--surface-3); border: 1px solid var(--border); position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+.belt-switch.on { background: var(--accent); border-color: var(--accent); }
+.belt-switch-thumb { width: 20px; height: 20px; border-radius: 50%; background: #fff; position: absolute; top: 2px; left: 2px; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+.belt-switch.on .belt-switch-thumb { transform: translateX(18px); }
+.belt-weight-field { overflow: hidden; max-height: 0; transition: max-height 0.25s ease; }
+.belt-weight-field.open { max-height: 80px; }
+
+/* ── Log Form ────────────────────────────────────────── */
+.form-hero {
+  padding: 20px; background: linear-gradient(145deg, #1a0000, #141414 60%);
+  border-bottom: 1px solid rgba(204,17,17,0.2); margin-bottom: 4px;
+}
+.form-hero-tag { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.form-hero-title { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; }
+
+.form-section { padding: 16px 20px 0; }
+.form-row { display: flex; gap: 12px; }
+.form-field { flex: 1; }
+.form-field label { display: block; font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+
+input, textarea {
+  width: 100%; background: var(--surface-2); border: 1.5px solid var(--border);
+  border-radius: var(--r-sm); color: var(--text); font-size: 16px;
+  padding: 13px 14px; outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  -webkit-appearance: none; appearance: none;
+}
+input:focus, textarea:focus { border-color: var(--accent); background: var(--surface-3); }
+input::placeholder, textarea::placeholder { color: var(--text-3); }
+textarea { resize: none; height: 90px; line-height: 1.5; }
+
+.ex-form-card {
+  margin: 14px 20px 0;
+  background: var(--surface-1); border: 1.5px solid var(--border);
+  border-radius: var(--r-lg); overflow: hidden;
+  transition: border-color 0.15s;
+}
+.ex-form-card:focus-within { border-color: rgba(240,165,0,0.4); }
+.ex-form-head { padding: 14px 16px 12px; border-bottom: 1px solid var(--border); }
+.ex-form-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.ex-form-hint { font-size: 12px; color: var(--text-3); }
+.ex-form-hint strong { color: var(--accent); font-weight: 600; }
+.ex-form-body { padding: 14px 16px; }
+.ex-form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.ex-form-row:last-child { margin-bottom: 0; }
+
+.btn-save {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: calc(100% - 40px); margin: 20px 20px 32px;
+  padding: 18px; border-radius: var(--r-lg);
+  background: var(--accent); color: #fff;
+  border: none; font-size: 15px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; cursor: pointer; transition: transform 0.1s, opacity 0.1s;
+}
+.btn-save:active { transform: scale(0.97); opacity: 0.9; }
+
+/* ── Back button ─────────────────────────────────────── */
+.back-row { display: flex; align-items: center; padding: 56px 20px 0; }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--accent); font-size: 16px; font-weight: 600; cursor: pointer; padding: 0; }
+.back-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
+.back-cancel { background: none; border: none; color: var(--accent); font-size: 16px; font-weight: 600; cursor: pointer; padding: 0; }
+
+/* ── Settings ────────────────────────────────────────── */
+.settings-section { margin: 12px 20px; }
+.settings-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+.settings-card + .settings-card { margin-top: 10px; }
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px; border-bottom: 1px solid var(--border); cursor: pointer;
+  transition: background 0.15s;
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row:active { background: var(--surface-2); }
+.settings-row-left { display: flex; align-items: center; gap: 14px; }
+.settings-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.settings-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.settings-row-title { font-size: 15px; font-weight: 600; }
+.settings-row-sub { font-size: 12px; color: var(--text-2); margin-top: 1px; }
+.settings-row-arrow svg { width: 16px; height: 16px; fill: none; stroke: var(--text-3); stroke-width: 2.5; stroke-linecap: round; }
+
+.settings-stat { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.settings-stat:last-child { border-bottom: none; }
+.settings-stat-label { font-size: 14px; color: var(--text-2); }
+.settings-stat-val { font-size: 15px; font-weight: 700; color: var(--text); }
+.settings-stat-link:active { background: rgba(255,255,255,0.04); }
+
+.btn-danger-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px; cursor: pointer; transition: background 0.15s;
+}
+.btn-danger-row:active { background: var(--surface-2); }
+.btn-danger-row span { font-size: 15px; font-weight: 600; color: var(--red); }
+
+/* ── Toast ───────────────────────────────────────────── */
+#toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-8px);
+  background: var(--surface-3); border: 1px solid var(--border-hi);
+  color: var(--text); padding: 11px 20px; border-radius: 100px;
+  font-size: 14px; font-weight: 600; z-index: 600;
+  opacity: 0; transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none; white-space: nowrap;
+  display: flex; align-items: center; gap: 8px;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast .t-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── Bottom Sheet (Dialog) ───────────────────────────── */
+#sheet-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 400; backdrop-filter: blur(4px); }
+#sheet-bg.show { display: block; }
+#sheet {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 500;
+  background: var(--surface-2); border-radius: 24px 24px 0 0;
+  padding: 0 0 calc(24px + var(--safe-b));
+  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+}
+#sheet.show { transform: translateY(0); }
+.sheet-handle { width: 36px; height: 4px; background: var(--border-hi); border-radius: 2px; margin: 12px auto 20px; }
+.sheet-title { font-size: 18px; font-weight: 800; padding: 0 20px 6px; letter-spacing: -0.3px; }
+.sheet-msg { font-size: 14px; color: var(--text-2); padding: 0 20px 20px; line-height: 1.5; }
+.sheet-btn { display: block; width: calc(100% - 40px); margin: 8px 20px 0; padding: 16px; border-radius: var(--r-md); border: none; font-size: 16px; font-weight: 700; cursor: pointer; text-align: center; transition: opacity 0.15s; }
+.sheet-btn:active { opacity: 0.8; }
+.sheet-btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+.sheet-btn-cancel { background: var(--surface-3); color: var(--text-2); }
+
+/* ── Misc ────────────────────────────────────────────── */
+.gap { height: 20px; }
+.gap-sm { height: 10px; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 0 20px; }
+.empty { text-align: center; padding: 60px 20px; color: var(--text-3); font-size: 15px; }
+.footer-note { text-align: center; padding: 24px 20px; color: var(--text-3); font-size: 12px; line-height: 1.6; }
+
+/* ── "View All" link ─────────────────────────────────── */
+.link-row { text-align: center; padding: 14px; }
+.link-btn { background: none; border: none; color: var(--accent); font-size: 14px; font-weight: 600; cursor: pointer; }
+
+/* ── PB badge ────────────────────────────────────────── */
+.pb-flag { display: inline-block; background: var(--green-bg); color: var(--green); font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 6px; border: 1px solid rgba(34,197,94,0.2); letter-spacing: 0.5px; text-transform: uppercase; margin-left: 6px; vertical-align: middle; }
+
+/* ── Legacy badge variant ────────────────────────────── */
+.badge-legacy {
+  background: rgba(148,163,184,0.08) !important;
+  border-color: rgba(148,163,184,0.18) !important;
+  color: #94a3b8 !important;
+}
+
+/* ── Method section headers ──────────────────────────── */
+.method-header {
+  margin: 20px 20px 6px;
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.method-header:active { opacity: 0.75; }
+.method-consolidated {
+  background: rgba(204,17,17,0.07);
+  border: 1px solid rgba(204,17,17,0.18);
+}
+.method-legacy {
+  background: rgba(148,163,184,0.05);
+  border: 1px solid rgba(148,163,184,0.12);
+}
+.method-header-inner { display: flex; align-items: flex-start; gap: 12px; }
+.method-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0; margin-top: 4px;
+}
+.method-dot-red  { background: var(--accent); box-shadow: 0 0 6px rgba(204,17,17,0.6); }
+.method-dot-grey { background: #94a3b8; }
+.method-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.method-sub   { font-size: 11px; color: var(--text-3); letter-spacing: 0.3px; }
+.method-chevron {
+  margin-left: auto; flex-shrink: 0; align-self: center;
+  width: 18px; height: 18px; color: var(--text-3);
+  transition: transform 0.25s ease;
+}
+.method-chevron.open { transform: rotate(90deg); }
+.method-body { overflow: hidden; transition: max-height 0.35s ease; }
+.method-body.collapsed { max-height: 0 !important; }
+
+/* ── History filter bar ──────────────────────────────── */
+.hist-filter-bar {
+  display: flex; gap: 8px; padding: 0 20px 12px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.hist-filter-bar::-webkit-scrollbar { display: none; }
+.hist-filter-btn {
+  flex-shrink: 0; padding: 6px 14px; border-radius: 16px;
+  font-size: 13px; font-weight: 600; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--text-2);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.hist-filter-btn.active {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+
+/* ── Heavy Duty Logo ─────────────────────────────────── */
+.hd-logo-wrap { padding: 52px 24px 16px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.hd-logo-img {
+  display: block; width: 200px; margin-bottom: 12px;
+  filter: invert(1) contrast(2) brightness(1.05);
+}
+.hd-wordmark {
+  font-family: 'Impact', 'Arial Narrow', 'Arial Black', sans-serif;
+  font-size: 42px; font-weight: 900; letter-spacing: 5px;
+  color: #ffffff; text-transform: uppercase; line-height: 0.95;
+  text-shadow: 0 0 40px rgba(204,17,17,0.3);
+}
+.hd-wordmark span { color: var(--accent); }
+.hd-rule { width: 40px; height: 2px; background: var(--accent); margin: 14px 0 12px; border-radius: 2px; }
+.hd-sub {
+  font-size: 13px; line-height: 1.6; color: var(--text-2);
+  font-style: italic; font-weight: 400; max-width: 300px;
+  letter-spacing: 0.01em;
+}
+/* ── Exercise Guide ──────────────────────────────────── */
+.guide-card {
+  margin: 6px 20px; border-radius: var(--r-md);
+  background: var(--surface-1); border: 1px solid var(--border);
+  overflow: hidden;
+}
+.guide-card-head {
+  padding: 16px 16px 12px;
+  background: linear-gradient(135deg, rgba(204,17,17,0.08), transparent);
+  border-bottom: 1px solid var(--border);
+}
+.guide-ex-name { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.guide-muscles { font-size: 12px; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+.guide-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+.guide-prog-pill {
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+  color: var(--text-3); letter-spacing: 0.3px;
+}
+.guide-card-body { padding: 14px 16px 16px; }
+.guide-quote {
+  font-size: 12px; font-style: italic; color: var(--text-3);
+  line-height: 1.55; margin-bottom: 12px; padding-left: 10px;
+  border-left: 2px solid var(--accent);
+}
+.guide-cues { padding-left: 16px; margin-bottom: 14px; }
+.guide-cues li { font-size: 13px; color: var(--text-2); line-height: 1.6; margin-bottom: 4px; }
+.guide-yt-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 600; color: #fff;
+  background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.25);
+  padding: 7px 14px; border-radius: 16px; text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.guide-yt-link:active { background: rgba(255,0,0,0.2); }
+.guide-card-tech .guide-card-head { background: linear-gradient(135deg, rgba(255,255,255,0.03), transparent); }
+.guide-tech-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); margin-top: 4px; }
+.guide-warning { font-size: 12px; color: #f59e0b; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 6px; padding: 8px 10px; margin-bottom: 12px; line-height: 1.5; }
+
+.hd-logo-img { cursor: pointer; }
+.yt-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 16px; padding: 9px 18px; border-radius: 20px;
+  background: rgba(255,0,0,0.12); border: 1px solid rgba(255,0,0,0.3);
+  color: #fff; font-size: 13px; font-weight: 600; letter-spacing: 0.3px;
+  text-decoration: none; -webkit-tap-highlight-color: transparent;
+}
+.yt-btn:active { background: rgba(255,0,0,0.22); }
+.yt-btn svg { flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="s-home"     class="screen active"></div>
+  <div id="s-history"  class="screen"></div>
+  <div id="s-log"      class="screen"></div>
+  <div id="s-detail"   class="screen"></div>
+  <div id="s-settings" class="screen"></div>
+  <div id="s-guide"    class="screen"></div>
+</div>
+
+<nav id="nav">
+  <button class="nav-btn active" data-tab="home" onclick="go('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+    <div class="nav-dot"></div>
+  </button>
+  <button class="nav-btn" data-tab="history" onclick="go('history')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    History
+    <div class="nav-dot"></div>
+  </button>
+  <button class="nav-btn" data-tab="guide" onclick="go('guide')">
+    <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    Guide
+    <div class="nav-dot"></div>
+  </button>
+  <button class="nav-btn" data-tab="settings" onclick="go('settings')">
+    <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+    Settings
+    <div class="nav-dot"></div>
+  </button>
+</nav>
+
+<div id="toast"><span class="t-dot" id="t-dot"></span><span id="t-msg"></span></div>
+<div id="sheet-bg" onclick="hideSheet()"></div>
+<div id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="sh-title"></div>
+  <div class="sheet-msg" id="sh-msg"></div>
+  <button class="sheet-btn sheet-btn-danger" id="sh-ok"></button>
+  <button class="sheet-btn sheet-btn-cancel" onclick="hideSheet()">Cancel</button>
+</div>
+
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+
+const ROT = ['A1','B1','A2','B2'];
+const WK = {
+  // ── Consolidated Method ──
+  A1:{ label:'A1: Upper Body (Primary)',   short:'A1', desc:'Bench Press & Pull Downs', method:'consolidated', exs:['Smith Close Grip Bench Press','Close Palm Grip Pull Downs'] },
+  B1:{ label:'B1: Lower Body (Primary)',   short:'B1', desc:'Squats & Deadlifts',      method:'consolidated', exs:['Smith Squat','Deadlifts'] },
+  A2:{ label:'A2: Upper Body (Alternate)', short:'A2', desc:'Dips & Pull-ups',         method:'consolidated', exs:['Dips','Close Grip Pull Ups'] },
+  B2:{ label:'B2: Lower Body (Alternate)', short:'B2', desc:'Leg Press & Leg Curl',    method:'consolidated', exs:['Leg Press','Seated Leg Curl'] },
+  // ── Legacy Method ──
+  LA:{ label:'Workout A', short:'A', desc:'Upper Body · Legacy', method:'legacy', exs:['Smith Squat','Deadlifts','Smith Close Grip Bench Press','Close Palm Grip Pull Downs','Dips','Wide Grip Pull Ups'] },
+  LB:{ label:'Workout B', short:'B', desc:'Leg Day · Legacy',    method:'legacy', exs:['Leg Press','Leg Extension','Seated Leg Curl','Close Palm Grip Pull Downs','Dips','Wide Grip Pull Ups'] },
+};
+
+// ══════════════════════════════════════════════════════
+//  LEGACY SEED  (July 2023 – May 2025 · A/B format)
+// ══════════════════════════════════════════════════════
+
+// lw(id, date, type, bw, bf, [[name,weight,reps,note?],...], sessionNote)
+const lw = (id,date,type,bw,bf,exArr,note='') => ({
+  id, date, type, method:'legacy', bw, bf,
+  ex: exArr.map(([n,w,r,nt=''])=>({n,w:w||0,r:r||null,note:nt})), note
+});
+
+const LEGACY_SEED = [
+  lw('l001','2023-07-15','LA',null,null,[['Smith Squat',60,null],['Deadlifts',60,null],['Close Palm Grip Pull Downs',90,null],['Smith Close Grip Bench Press',100,null],['Pull Ups',0,null],['Dips',0,null]],'Week 3 — first logged session.'),
+  lw('l002','2023-07-17','LB',null,null,[['Leg Press',230,6,'superset'],['Leg Extension',72.5,8,'superset'],['Close Palm Grip Pull Downs',90,8],['Pull Ups',0,3],['Dips',0,24]],''),
+  lw('l003','2023-07-21','LA',91,null,[['Smith Squat',70,3],['Deadlifts',70,11],['Close Palm Grip Pull Downs',90,4],['Dips',0,30],['Wide Grip Pull Ups',0,5]],''),
+  lw('l004','2023-07-26','LB',90.6,null,[['Leg Press',240,11]],'Injured my lower left rib! Be careful!'),
+  lw('l005','2023-08-29','LB',90,null,[['Dips',0,25],['Wide Grip Pull Ups',0,4],['Pull Ups',0,5],['Seated Leg Curl',42.5,20],['Peck Deck',50,35],['Leg Extension',42.5,25]],'Gym being refurbished. Bodyweight session.'),
+  lw('l006','2023-09-04','LA',90.3,null,[['Smith Squat',50,7],['Deadlifts',40,33],['Smith Close Grip Bench Press',50,33],['Close Palm Grip Pull Downs',50,16],['Dips',0,24],['Close Grip Pull Ups',0,2]],''),
+  lw('l007','2023-09-10','LB',90,null,[['Leg Press',100,23],['Close Palm Grip Pull Downs',70,17],['Leg Extension',57.5,18],['Seated Leg Curl',57.5,8],['Dips',0,25],['Wide Grip Pull Ups',0,3]],''),
+  lw('l008','2023-09-21','LA',90,null,[['Deadlifts',85,21],['Smith Squat',80,25],['Close Palm Grip Pull Downs',90,7],['Smith Close Grip Bench Press',100,3],['Dips',0,37],['Wide Grip Pull Ups',0,2]],''),
+  lw('l009','2023-09-24','LB',90.4,null,[['Leg Press',150,20],['Close Palm Grip Pull Downs',100,4],['Leg Extension',65,8],['Seated Leg Curl',65,4],['Dips',0,35],['Wide Grip Pull Ups',0,4]],''),
+  lw('l010','2023-09-27','LA',89.9,null,[['Deadlifts',95,18],['Smith Squat',90,19],['Smith Close Grip Bench Press',100,2],['Dips',0,40],['Wide Grip Pull Ups',0,5]],''),
+  lw('l011','2023-10-03','LB',89.5,null,[['Leg Press',190,15],['Close Palm Grip Pull Downs',100,4],['Leg Extension',72.5,15],['Seated Leg Curl',72.5,6],['Dips',0,38],['Wide Grip Pull Ups',0,5]],''),
+  lw('l012','2023-10-07','LA',89.1,null,[['Deadlifts',105,10],['Smith Squat',100,9],['Smith Close Grip Bench Press',100,3],['Dips',0,38],['Wide Grip Pull Ups',0,6]],''),
+  lw('l013','2023-10-11','LB',89.6,null,[['Leg Press',200,14],['Close Palm Grip Pull Downs',100,3],['Leg Extension',77.5,14],['Seated Leg Curl',72.5,8],['Dips',0,37],['Wide Grip Pull Ups',0,2]],'Left index finger cut and throbbing.'),
+  lw('l014','2023-10-15','LA',89.8,null,[['Deadlifts',115,8],['Smith Squat',110,8],['Smith Close Grip Bench Press',100,4],['Dips',0,35],['Wide Grip Pull Ups',0,5]],''),
+  lw('l015','2023-10-19','LB',90,null,[['Leg Press',210,17],['Close Palm Grip Pull Downs',100,4],['Leg Extension',77.5,10],['Seated Leg Curl',77.5,7],['Dips',0,36],['Wide Grip Pull Ups',0,4]],''),
+  lw('l016','2023-10-23','LA',null,null,[['Deadlifts',125,8],['Smith Squat',110,8],['Smith Close Grip Bench Press',100,5],['Dips',0,39],['Wide Grip Pull Ups',0,5]],'Scales being calibrated.'),
+  lw('l017','2023-10-27','LB',89.5,null,[['Leg Press',220,13],['Close Palm Grip Pull Downs',100,4],['Leg Extension',80,8],['Seated Leg Curl',80,4],['Dips',0,33],['Wide Grip Pull Ups',0,4]],''),
+  lw('l018','2023-10-31','LA',89.7,null,[['Deadlifts',135,6],['Smith Squat',110,12],['Smith Close Grip Bench Press',110,3],['Dips',0,37],['Wide Grip Pull Ups',0,5]],''),
+  lw('l019','2023-11-04','LB',89.8,null,[['Leg Press',240,11],['Close Palm Grip Pull Downs',100,4],['Leg Extension',87.5,9],['Seated Leg Curl',87.5,3],['Dips',0,34],['Wide Grip Pull Ups',0,5]],''),
+  lw('l020','2023-11-08','LA',89.4,null,[['Deadlifts',135,8],['Smith Squat',120,6],['Smith Close Grip Bench Press',100,5],['Dips',0,40],['Wide Grip Pull Ups',0,7]],''),
+  lw('l021','2023-11-13','LB',91.3,null,[['Leg Press',250,11],['Close Palm Grip Pull Downs',100,5],['Leg Extension',90,6],['Seated Leg Curl',90,3],['Dips',0,35],['Wide Grip Pull Ups',0,3]],''),
+  lw('l022','2023-11-17','LA',90.3,null,[['Deadlifts',145,5],['Smith Squat',120,5],['Smith Close Grip Bench Press',110,2],['Dips',0,38],['Wide Grip Pull Ups',0,5]],''),
+  lw('l023','2023-11-21','LB',90.5,null,[['Leg Press',260,7],['Close Palm Grip Pull Downs',100,5],['Leg Extension',90,null,'broken'],['Seated Leg Curl',92.5,3],['Dips',0,34],['Wide Grip Pull Ups',0,5]],'Leg extension machine broken.'),
+  lw('l024','2023-11-25','LA',89.5,null,[['Deadlifts',145,6],['Smith Squat',106,6],['Smith Close Grip Bench Press',106,2],['Dips',0,38],['Wide Grip Pull Ups',0,6]],''),
+  lw('l025','2023-11-29','LB',89.4,null,[['Leg Press',270,10],['Close Palm Grip Pull Downs',100,6],['Leg Extension',90,null,'broken'],['Seated Leg Curl',95,3],['Dips',0,40],['Wide Grip Pull Ups',0,5]],''),
+  lw('l026','2023-12-04','LA',88.5,null,[['Deadlifts',155,5],['Smith Squat',106,6],['Smith Close Grip Bench Press',86,3],['Dips',0,39],['Wide Grip Pull Ups',0,5]],'Post drinking weekend with not enough sleep!'),
+  lw('l027','2023-12-08','LB',88.8,null,[['Leg Press',280,7],['Close Palm Grip Pull Downs',110,4],['Leg Extension',95,4],['Seated Leg Curl',95,4],['Dips',0,37],['Wide Grip Pull Ups',0,4]],''),
+  lw('l028','2023-12-14','LA',88,null,[['Deadlifts',165,5],['Smith Squat',106,5],['Smith Close Grip Bench Press',106,3],['Dips',0,40],['Wide Grip Pull Ups',0,8]],'Ill with nasty cold earlier this week.'),
+  lw('l029','2023-12-18','LB',87.9,null,[['Leg Press',290,6],['Close Palm Grip Pull Downs',110,5],['Leg Extension',95,4],['Seated Leg Curl',95,3],['Dips',0,40],['Wide Grip Pull Ups',0,4]],''),
+  lw('l030','2023-12-23','LA',88.3,null,[['Deadlifts',165,4],['Smith Squat',106,7],['Smith Close Grip Bench Press',106,4],['Dips',0,37],['Wide Grip Pull Ups',0,7]],''),
+  lw('l031','2023-12-27','LB',89.2,null,[['Leg Press',290,7],['Close Palm Grip Pull Downs',110,5],['Leg Extension',95,4],['Seated Leg Curl',95,2],['Dips',0,40],['Wide Grip Pull Ups',0,4]],''),
+  lw('l032','2023-12-31','LA',89.2,null,[['Deadlifts',165,5],['Smith Squat',116,6],['Smith Close Grip Bench Press',106,3],['Wide Grip Pull Ups',0,8],['Dips',0,38]],''),
+  lw('l033','2024-01-04','LB',89.8,null,[['Leg Press',300,7],['Close Palm Grip Pull Downs',110,4],['Leg Extension',95,5],['Seated Leg Curl',95,2],['Dips',0,39],['Wide Grip Pull Ups',0,3]],''),
+  lw('l034','2024-01-08','LA',90.2,null,[['Deadlifts',165,6],['Smith Squat',126,6],['Smith Close Grip Bench Press',106,3],['Wide Grip Pull Ups',0,6],['Dips',0,45]],''),
+  lw('l035','2024-01-13','LB',88.3,null,[['Leg Press',310,6],['Close Palm Grip Pull Downs',110,3],['Leg Extension',95,7],['Seated Leg Curl',95,5],['Dips',0,38],['Wide Grip Pull Ups',0,6]],''),
+  lw('l036','2024-01-18','LA',89.5,null,[['Deadlifts',165,5],['Smith Squat',116,8],['Smith Close Grip Bench Press',86,5],['Wide Grip Pull Ups',0,7],['Dips',0,39]],''),
+  lw('l037','2024-01-23','LB',89.8,null,[['Leg Press',320,5],['Close Palm Grip Pull Downs',110,4],['Leg Extension',95,5],['Seated Leg Curl',95,5],['Dips',0,39],['Wide Grip Pull Ups',0,5]],''),
+  lw('l038','2024-01-29','LA',90.2,null,[['Deadlifts',155,9],['Smith Squat',106,9],['Smith Close Grip Bench Press',106,4],['Wide Grip Pull Ups',0,6],['Dips',0,44]],''),
+  lw('l039','2024-02-03','LB',88,null,[['Leg Press',320,5],['Close Palm Grip Pull Downs',110,5],['Leg Extension',95,7],['Seated Leg Curl',87.5,2],['Dips',0,43],['Wide Grip Pull Ups',0,5]],''),
+  lw('l040','2024-02-07','LA',89.6,null,[['Deadlifts',165,6],['Smith Squat',106,21],['Smith Close Grip Bench Press',106,5],['Wide Grip Pull Ups',0,6],['Dips',0,38]],''),
+  lw('l041','2024-02-13','LB',88.2,null,[['Leg Press',340,6],['Close Palm Grip Pull Downs',110,6],['Leg Extension',80,2],['Seated Leg Curl',95,6],['Dips',0,42],['Wide Grip Pull Ups',0,7]],''),
+  lw('l042','2024-02-18','LA',86,null,[['Deadlifts',165,5],['Smith Squat',106,11],['Smith Close Grip Bench Press',106,4],['Wide Grip Pull Ups',0,7],['Dips',0,44]],''),
+  lw('l043','2024-02-23','LB',85.8,null,[['Leg Press',350,6],['Close Palm Grip Pull Downs',110,3],['Leg Extension',90,8],['Seated Leg Curl',90,5],['Dips',0,39],['Wide Grip Pull Ups',0,6]],''),
+  lw('l044','2024-02-27','LA',85.2,null,[['Deadlifts',165,3],['Smith Squat',116,8],['Smith Close Grip Bench Press',106,4],['Wide Grip Pull Ups',0,7],['Dips',0,43]],''),
+  lw('l045','2024-03-03','LB',85.2,null,[['Leg Press',360,5],['Close Palm Grip Pull Downs',110,5],['Leg Extension',92.5,9],['Seated Leg Curl',92.5,3],['Wide Grip Pull Ups',0,5],['Dips',0,45]],''),
+  lw('l046','2024-03-07','LA',85.6,null,[['Deadlifts',165,2],['Smith Squat',116,7],['Smith Close Grip Bench Press',106,5],['Wide Grip Pull Ups',0,9],['Dips',0,41]],''),
+  lw('l047','2024-03-11','LB',87,null,[['Leg Press',360,6],['Close Palm Grip Pull Downs',110,5],['Leg Extension',95,11],['Seated Leg Curl',92.5,4],['Wide Grip Pull Ups',0,7],['Dips',0,35]],''),
+  lw('l048','2024-03-15','LA',86.8,null,[['Deadlifts',165,3],['Smith Squat',106,14],['Smith Close Grip Bench Press',106,3],['Wide Grip Pull Ups',0,6],['Dips',0,43]],''),
+  lw('l049','2024-03-19','LB',null,null,[['Leg Press',370,6],['Close Palm Grip Pull Downs',110,3],['Leg Extension',102.5,12],['Seated Leg Curl',92.5,5],['Wide Grip Pull Ups',0,5],['Dips',0,47]],''),
+  lw('l050','2024-03-25','LA',87.3,null,[['Deadlifts',165,3],['Smith Squat',116,11],['Smith Close Grip Bench Press',106,5],['Wide Grip Pull Ups',0,5],['Dips',0,36]],''),
+  lw('l051','2024-03-30','LB',86.7,null,[['Leg Press',370,5],['Close Palm Grip Pull Downs',110,4],['Leg Extension',105,7],['Seated Leg Curl',102.5,4],['Wide Grip Pull Ups',0,4],['Dips',0,38]],''),
+  lw('l052','2024-04-03','LA',88,null,[['Deadlifts',165,3],['Smith Squat',116,9],['Smith Close Grip Bench Press',106,5],['Wide Grip Pull Ups',0,5],['Dips',0,39]],''),
+  lw('l053','2024-04-08','LB',88.8,null,[['Leg Press',370,5],['Close Palm Grip Pull Downs',110,5],['Leg Extension',105,8],['Seated Leg Curl',102.5,3],['Wide Grip Pull Ups',0,3],['Dips',0,39]],''),
+  lw('l054','2024-04-15','LA',88.4,null,[['Deadlifts',165,5],['Smith Squat',106,20],['Smith Close Grip Bench Press',106,5],['Wide Grip Pull Ups',0,6],['Dips',0,42]],''),
+  lw('l055','2024-04-22','LB',88.2,null,[['Leg Press',370,7],['Close Palm Grip Pull Downs',110,5],['Leg Extension',105,8],['Seated Leg Curl',80,2],['Wide Grip Pull Ups',0,5],['Dips',0,37]],'Brand new machines in downstairs gym.'),
+  lw('l056','2024-04-29','LA',88.4,null,[['Deadlifts',165,3],['Smith Squat',106,20],['Smith Close Grip Bench Press',106,4],['Dips',0,40],['Wide Grip Pull Ups',0,6]],''),
+  lw('l057','2024-05-15','LB',89.6,null,[['Leg Press',340,14],['Close Palm Grip Pull Downs',90,8],['Leg Extension',80,17],['Seated Leg Curl',65,15],['Wide Grip Pull Ups',0,4],['Dips',0,34]],'Lower back injured May 6th. First session back.'),
+  lw('l058','2024-05-22','LA',90.1,null,[['Deadlifts',125,7],['Smith Squat',106,20],['Smith Close Grip Bench Press',101,7],['Dips',0,28],['Wide Grip Pull Ups',0,4]],''),
+  lw('l059','2024-05-29','LB',89.1,null,[['Leg Press',340,13],['Close Palm Grip Pull Downs',90,6],['Leg Extension',80,17],['Seated Leg Curl',65,15],['Wide Grip Pull Ups',0,4],['Dips',0,37]],''),
+  lw('l060','2024-06-10','LA',88.5,null,[['Deadlifts',135,6],['Smith Squat',106,20],['Smith Close Grip Bench Press',101,7],['Dips',0,36],['Wide Grip Pull Ups',0,5]],'First day back after the driving trip in Europe.'),
+  lw('l061','2024-06-14','LB',88.4,null,[['Leg Press',340,15],['Close Palm Grip Pull Downs',100,6],['Leg Extension',80,17],['Seated Leg Curl',65,14],['Dips',0,37],['Wide Grip Pull Ups',0,5]],''),
+  lw('l062','2024-06-21','LA',88.6,null,[['Deadlifts',145,5],['Smith Squat',106,20],['Smith Close Grip Bench Press',101,7],['Wide Grip Pull Ups',0,5],['Dips',0,32]],''),
+  lw('l063','2024-06-27','LB',88.3,null,[['Leg Press',340,16],['Close Palm Grip Pull Downs',100,6],['Leg Extension',80,20],['Seated Leg Curl',65,16],['Dips',0,33],['Wide Grip Pull Ups',0,5]],''),
+  lw('l064','2024-07-02','LA',89.2,null,[['Deadlifts',145,6],['Smith Squat',106,20],['Smith Close Grip Bench Press',101,5],['Wide Grip Pull Ups',0,3],['Dips',0,36]],''),
+  lw('l065','2024-07-09','LB',89.1,null,[['Leg Press',340,15],['Close Palm Grip Pull Downs',100,7],['Leg Extension',82.5,18],['Seated Leg Curl',65,18],['Dips',0,32],['Wide Grip Pull Ups',0,4]],''),
+  lw('l066','2024-07-16','LA',90.7,null,[['Deadlifts',155,4],['Smith Squat',107,20],['Smith Close Grip Bench Press',87,6],['Wide Grip Pull Ups',0,5],['Dips',0,34]],''),
+  lw('l067','2024-07-20','LB',91.1,null,[['Leg Press',340,16],['Close Palm Grip Pull Downs',110,3],['Leg Extension',82.5,16],['Seated Leg Curl',65,15],['Dips',0,35],['Wide Grip Pull Ups',0,1]],''),
+  lw('l068','2024-07-27','LA',92,null,[['Deadlifts',155,6],['Smith Squat',107,20],['Smith Close Grip Bench Press',107,5],['Wide Grip Pull Ups',0,4],['Dips',0,33]],''),
+  lw('l069','2024-07-31','LB',90.4,null,[['Leg Press',340,16],['Close Palm Grip Pull Downs',110,5],['Leg Extension',82.5,20],['Seated Leg Curl',65,14],['Dips',0,31],['Wide Grip Pull Ups',0,4]],''),
+  lw('l070','2024-08-05','LA',90.6,null,[['Deadlifts',155,6],['Smith Squat',107,21],['Smith Close Grip Bench Press',87,8],['Wide Grip Pull Ups',0,6],['Dips',0,29]],''),
+  lw('l071','2024-08-10','LB',90.6,null,[['Leg Press',340,15],['Close Palm Grip Pull Downs',110,5],['Leg Extension',85,20],['Seated Leg Curl',65,10],['Dips',0,31],['Wide Grip Pull Ups',0,3]],''),
+  lw('l072','2024-08-16','LA',90.4,null,[['Deadlifts',160,5],['Smith Squat',111,20],['Smith Close Grip Bench Press',102,5],['Wide Grip Pull Ups',0,5],['Dips',0,35]],''),
+  lw('l073','2024-08-21','LB',90,null,[['Leg Press',340,14],['Close Palm Grip Pull Downs',100,5],['Leg Extension',87.5,16],['Seated Leg Curl',65,14],['Dips',0,8,'right wrist hurts'],['Wide Grip Pull Ups',0,2]],'Right wrist hurts — only 8 dips.'),
+  lw('l074','2024-08-26','LA',90.5,null,[['Deadlifts',160,6],['Smith Squat',119,20],['Smith Close Grip Bench Press',107,3],['Wide Grip Pull Ups',0,5],['Dips',0,33]],''),
+  lw('l075','2024-09-02','LB',90,null,[['Leg Press',340,16],['Close Palm Grip Pull Downs',110,4],['Leg Extension',87.5,20],['Seated Leg Curl',57.5,8],['Dips',0,30],['Wide Grip Pull Ups',0,6]],''),
+  lw('l076','2024-09-10','LA',89.4,null,[['Deadlifts',165,3],['Smith Squat',102,20],['Smith Close Grip Bench Press',102,6],['Wide Grip Pull Ups',0,6],['Dips',0,35]],''),
+  lw('l077','2024-09-15','LB',90.7,null,[['Leg Press',340,19],['Close Palm Grip Pull Downs',110,5],['Leg Extension',90,18],['Seated Leg Curl',65,16],['Dips',0,35],['Wide Grip Pull Ups',0,4]],''),
+  lw('l078','2024-10-06','LA',91.9,null,[['Deadlifts',155,6],['Smith Squat',107,20],['Smith Close Grip Bench Press',102,4],['Wide Grip Pull Ups',0,5],['Dips',0,31]],''),
+  lw('l079','2024-10-11','LB',90.3,null,[['Leg Press',340,15],['Close Palm Grip Pull Downs',110,4],['Leg Extension',90,18],['Seated Leg Curl',65,14],['Dips',0,33]],''),
+  lw('l080','2024-10-17','LA',90.7,null,[['Deadlifts',155,5],['Smith Squat',107,20],['Smith Close Grip Bench Press',87,9],['Wide Grip Pull Ups',0,5],['Dips',0,30]],''),
+  lw('l081','2024-10-22','LB',90,null,[['Leg Press',340,18],['Close Palm Grip Pull Downs',110,4],['Leg Extension',90,17],['Seated Leg Curl',65,18],['Dips',0,32],['Wide Grip Pull Ups',0,4]],''),
+  lw('l082','2024-11-04','LA',89.5,null,[['Deadlifts',155,6],['Smith Squat',107,20],['Smith Close Grip Bench Press',92,6],['Dips',0,35],['Wide Grip Pull Ups',0,6]],''),
+  lw('l083','2024-11-09','LB',89,null,[['Leg Press',340,20],['Close Palm Grip Pull Downs',110,5],['Leg Extension',90,20],['Seated Leg Curl',65,17],['Dips',0,31],['Wide Grip Pull Ups',0,7]],''),
+  lw('l084','2024-11-13','LA',88.8,null,[['Deadlifts',155,7],['Smith Squat',107,20],['Smith Close Grip Bench Press',97,6],['Dips',0,32],['Wide Grip Pull Ups',0,5]],''),
+  lw('l085','2024-11-18','LB',88.7,null,[['Leg Press',350,20],['Close Palm Grip Pull Downs',90,13],['Leg Extension',92.5,19],['Seated Leg Curl',65,7],['Dips',0,35],['Wide Grip Pull Ups',0,3]],''),
+  lw('l086','2024-11-25','LA',89.2,null,[['Deadlifts',160,5],['Smith Squat',117,20],['Smith Close Grip Bench Press',97,6],['Dips',0,38],['Wide Grip Pull Ups',0,6]],''),
+  lw('l087','2024-11-29','LB',87.9,null,[['Leg Press',360,16],['Close Palm Grip Pull Downs',90,11],['Leg Extension',95,17],['Seated Leg Curl',65,15],['Dips',0,2,'right wrist hurts'],['Wide Grip Pull Ups',0,0,'wrist pain']],'Right wrist hurting badly — 2 dips only.'),
+  lw('l088','2024-12-03','LA',87.8,null,[['Deadlifts',165,3],['Smith Squat',117,20],['Smith Close Grip Bench Press',97,6],['Dips',0,34],['Wide Grip Pull Ups',0,5]],''),
+  lw('l089','2024-12-07','LB',88.5,null,[['Leg Press',360,19],['Close Palm Grip Pull Downs',100,6],['Leg Extension',95,18],['Seated Leg Curl',65,18],['Dips',0,36],['Wide Grip Pull Ups',0,4]],''),
+  lw('l090','2024-12-11','LA',87.9,null,[['Deadlifts',165,5],['Smith Squat',117,20],['Smith Close Grip Bench Press',97,5],['Dips',0,32],['Wide Grip Pull Ups',0,7]],''),
+  lw('l091','2024-12-22','LB',87.5,null,[['Leg Press',360,20],['Close Palm Grip Pull Downs',100,6],['Leg Extension',95,20],['Seated Leg Curl',65,17],['Dips',0,34],['Wide Grip Pull Ups',0,0]],'Threw up all the water I drank during this session. Order of exercises matters — don\'t rush or mix up the routine.'),
+  lw('l092','2024-12-30','LA',88.4,null,[['Deadlifts',155,5],['Smith Squat',117,20],['Smith Close Grip Bench Press',87,7],['Dips',0,30],['Wide Grip Pull Ups',0,6]],''),
+  lw('l093','2025-01-03','LB',86.9,null,[['Leg Press',370,20],['Close Palm Grip Pull Downs',100,9],['Leg Extension',97.5,17],['Seated Leg Curl',65,18],['Dips',0,32],['Wide Grip Pull Ups',0,5]],''),
+  lw('l094','2025-01-07','LA',86.7,null,[['Deadlifts',155,6],['Smith Squat',107,20],['Smith Close Grip Bench Press',97,5],['Dips',0,34],['Wide Grip Pull Ups',0,7]],''),
+  lw('l095','2025-01-10','LB',86.3,null,[['Leg Press',370,0,'left knee pain'],['Close Palm Grip Pull Downs',100,6],['Leg Extension',97.5,7],['Seated Leg Curl',65,15],['Dips',0,32],['Wide Grip Pull Ups',0,5]],'Left knee in pain — skipped leg press.'),
+  lw('l096','2025-01-20','LA',85.5,null,[['Deadlifts',155,8],['Smith Squat',107,20],['Smith Close Grip Bench Press',87,8],['Dips',0,32],['Wide Grip Pull Ups',0,9]],''),
+  lw('l097','2025-01-26','LB',85.2,null,[['Leg Press',370,18],['Close Palm Grip Pull Downs',100,6],['Leg Extension',97.5,19],['Seated Leg Curl',65,18],['Dips',0,33],['Wide Grip Pull Ups',0,0]],''),
+  lw('l098','2025-01-29','LA',85,null,[['Deadlifts',157.5,6],['Smith Squat',107,20],['Smith Close Grip Bench Press',92,6],['Dips',0,36],['Wide Grip Pull Ups',0,6]],''),
+  lw('l099','2025-02-03','LB',85.4,null,[['Leg Press',370,17],['Close Palm Grip Pull Downs',110,5],['Leg Extension',97.5,18],['Seated Leg Curl',65,17],['Dips',0,24],['Wide Grip Pull Ups',0,6]],''),
+  lw('l100','2025-02-07','LA',84.9,null,[['Deadlifts',160,6],['Smith Squat',107,20],['Smith Close Grip Bench Press',97,5],['Dips',0,35],['Wide Grip Pull Ups',0,9]],''),
+  lw('l101','2025-02-12','LB',84.2,null,[['Leg Press',370,19],['Close Palm Grip Pull Downs',100,6],['Leg Extension',97.5,20],['Seated Leg Curl',65,14],['Dips',0,34],['Wide Grip Pull Ups',0,8]],''),
+  lw('l102','2025-02-16','LA',84.6,null,[['Deadlifts',160,6],['Smith Squat',107,20],['Smith Close Grip Bench Press',87,6],['Dips',0,33],['Wide Grip Pull Ups',0,4]],''),
+  lw('l103','2025-02-24','LB',84.1,null,[['Leg Press',370,20],['Close Palm Grip Pull Downs',100,6],['Leg Extension',100,19],['Seated Leg Curl',65,16],['Dips',0,29],['Wide Grip Pull Ups',0,9]],''),
+  lw('l104','2025-03-02','LA',83,null,[['Deadlifts',160,5],['Smith Squat',107,20],['Smith Close Grip Bench Press',87,7],['Dips',0,31],['Wide Grip Pull Ups',0,9]],''),
+  lw('l105','2025-03-08','LB',83.4,null,[['Leg Press',370,20],['Close Palm Grip Pull Downs',100,6],['Leg Extension',100,15],['Seated Leg Curl',65,18],['Dips',0,36],['Wide Grip Pull Ups',0,6]],''),
+  lw('l106','2025-03-16','LA',82.7,null,[['Deadlifts',160,6],['Smith Squat',112,20],['Smith Close Grip Bench Press',87,6],['Dips',0,31],['Wide Grip Pull Ups',0,8]],''),
+  lw('l107','2025-03-20','LB',81.8,null,[['Leg Press',370,20],['Close Palm Grip Pull Downs',110,6],['Leg Extension',100,17],['Seated Leg Curl',65,17],['Dips',0,39],['Wide Grip Pull Ups',0,5]],''),
+  lw('l108','2025-03-25','LA',81.4,null,[['Deadlifts',160,7],['Smith Squat',117,20],['Smith Close Grip Bench Press',87,7],['Dips',0,28],['Wide Grip Pull Ups',0,8]],''),
+  lw('l109','2025-03-30','LB',82.9,18.7,[['Leg Press',370,20],['Close Palm Grip Pull Downs',100,7],['Leg Extension',100,11,'right knee pain'],['Seated Leg Curl',65,19],['Dips',0,36],['Wide Grip Pull Ups',0,7]],'Awful couple of days re: diet. Right knee in pain on leg extension.'),
+  lw('l110','2025-04-04','LA',81.3,null,[['Deadlifts',160,5],['Smith Squat',92,20],['Smith Close Grip Bench Press',87,6],['Dips',0,36],['Wide Grip Pull Ups',0,8]],'Not sleeping well. Feeling weak.'),
+  lw('l111','2025-04-10','LB',81.2,17.3,[['Leg Press',370,20],['Close Palm Grip Pull Downs',110,4],['Leg Extension',100,20],['Seated Leg Curl',65,15],['Dips',0,40],['Wide Grip Pull Ups',0,6]],''),
+  lw('l112','2025-04-16','LA',81.1,null,[['Deadlifts',160,5],['Smith Squat',117,20],['Smith Close Grip Bench Press',97,7],['Dips',0,43],['Wide Grip Pull Ups',0,5]],''),
+  // Transition / deload phase (April–May 2025)
+  lw('l113','2025-04-20','LB',80.6,18.6,[['Leg Press',260,30],['Close Palm Grip Pull Downs',70,14],['Leg Extension',70,19],['Seated Leg Curl',45,21],['Close Grip Pull Ups',0,10],['Dips',0,37]],'Deload week — Workout B.'),
+  lw('l114','2025-04-24','LA',81.6,null,[['Deadlifts',115,25],['Smith Squat',87,32],['Smith Close Grip Bench Press',67,16],['Close Grip Pull Ups',0,9],['Dips',0,24]],'Deload week — Workout A. Not to full failure on deadlifts due to reps. Rest done to failure.'),
+  lw('l115','2025-04-29','LA',81.9,null,[['Deadlifts',167.5,2],['Smith Squat',107,30],['Smith Close Grip Bench Press',87,15,'rest-pause: 6+5+4'],['Close Grip Pull Ups',0,13,'rest-pause: 5+5+3'],['Dips',0,28]],'Rest-pause cycle begins.'),
+  lw('l116','2025-05-03','LB',80.8,null,[['Leg Press',370,21],['Close Palm Grip Pull Downs',90,14,'rest-pause: 6+6+2'],['Leg Extension',100,16],['Seated Leg Curl',65,14],['Dips',0,32]],'Knees hurting on leg extension — removed from rotation going forward.'),
+  lw('l117','2025-05-07','LA',81.6,null,[['Deadlifts',167.5,3],['Smith Squat',117,30],['Smith Close Grip Bench Press',77,6,'rest-pause, reduced weight for clean technique'],['Close Grip Pull Ups',0,8],['Dips',0,20,'2 sec pause each rep']],'Reduced bench weight for clean technique. Added 4-min cross-trainer cool-down.'),
+  lw('l118','2025-05-11','LB',81.5,17.9,[['Leg Press',380,20],['Close Palm Grip Pull Downs',100,6,'rest-pause'],['Seated Leg Curl',65,13],['Dips',0,14,'2 sec hold per rep']],'Knees much better. Slight joint pain at higher leg press weight.'),
+  lw('l119','2025-05-14','LA',81.6,null,[['Deadlifts',167.5,3,'2 sec negatives'],['Smith Squat',119.5,30],['Smith Close Grip Bench Press',82,5,'rest-pause'],['Close Grip Pull Ups',0,11],['Dips',0,18,'2 sec hold per rep']],'Poor sleep — maybe 4hrs. All reps clean regardless of energy.'),
+  lw('l120','2025-05-18','LB',80.4,null,[['Leg Press',380,20],['Close Palm Grip Pull Downs',110,4,'rest-pause'],['Seated Leg Curl',65,15],['Dips',0,20,'2 sec negative per rep']],'Everything feels good today. No issues.'),
+  lw('l121','2025-05-25','LA',82.5,null,[['Deadlifts',167.5,3,'2 sec negatives'],['Smith Squat',122,24],['Smith Close Grip Bench Press',82,6,'rest-pause'],['Close Grip Pull Ups',0,12],['Dips',0,8,'right wrist aching']],'Right wrist aching on dips. Felt pump from last session — not enough rest days. Mentzer was right: 7-14 days recovery. Claude estimates optimal rest = 9 days.'),
+];
+
+const SEED = [
+  {id:'s01',date:'2025-06-16',type:'A1',method:'consolidated',bw:80.4,bf:null,ex:[{n:'Smith Close Grip Bench Press',w:87,r:6,note:''},{n:'Close Palm Grip Pull Downs',w:90,r:6,note:''}],note:'Right wrist still not fully recovered but able to get enough reps in after three weeks.'},
+  {id:'s02',date:'2025-06-26',type:'B1',bw:80.0,bf:null,ex:[{n:'Smith Squat',w:87,r:35,note:''},{n:'Deadlifts',w:160,r:2,note:''}],note:'Post Ibiza, got back Tuesday. Body aching.'},
+  {id:'s03',date:'2025-07-04',type:'A2',bw:80.2,bf:null,ex:[{n:'Dips',w:0,r:20,note:'2 sec negatives'},{n:'Close Grip Pull Ups',w:0,r:8,note:'2 sec negatives'}],note:"With the negatives it's really pumped my chest."},
+  {id:'s04',date:'2025-07-11',type:'B2',bw:79.8,bf:null,ex:[{n:'Leg Press',w:390,r:18,note:''},{n:'Seated Leg Curl',w:65,r:17,note:''}],note:'Managed to hit a PB today.'},
+  {id:'s05',date:'2025-07-17',type:'A1',bw:80.1,bf:null,ex:[{n:'Smith Close Grip Bench Press',w:87,r:7,note:''},{n:'Close Palm Grip Pull Downs',w:90,r:9,note:'2 sec negatives'}],note:'Not slept well due to stress and humidity. Chest feels good.'},
+  {id:'s06',date:'2025-07-27',type:'B1',bw:79.3,bf:null,ex:[{n:'Smith Squat',w:117,r:33,note:''},{n:'Deadlifts',w:160,r:7,note:'2 sec negatives'}],note:'Feeling strong today. Extra two rest days — worth it.'},
+  {id:'s07',date:'2025-08-05',type:'A2',bw:80.0,bf:null,ex:[{n:'Dips',w:0,r:22,note:'2 sec negatives'},{n:'Close Grip Pull Ups',w:0,r:9,note:'2 sec negatives'}],note:"Weight up but doesn't look like it in the mirror. Chest pumped."},
+  {id:'s08',date:'2025-08-10',type:'B2',bw:80.1,bf:null,ex:[{n:'Leg Press',w:400,r:20,note:''},{n:'Seated Leg Curl',w:65,r:19,note:''}],note:'Hit another PB. 7-9 days really is the optimal recovery period.'},
+  {id:'s09',date:'2025-08-18',type:'A1',bw:80.5,bf:null,ex:[{n:'Smith Close Grip Bench Press',w:87,r:7,note:''},{n:'Close Palm Grip Pull Downs',w:100,r:7,note:'2 sec negatives'}],note:'Slightly tired. Could have used one more rest day.'},
+  {id:'s10',date:'2025-09-25',type:'B1',bw:81.8,bf:null,ex:[{n:'Smith Squat',w:97,r:36,note:''},{n:'Deadlifts',w:120,r:10,note:'2 sec negatives, Olympic bar'}],note:'Recovering from a broken right rib. Good session back after over a month off.'},
+  {id:'s11',date:'2025-10-05',type:'A2',bw:81.4,bf:null,ex:[{n:'Dips',w:0,r:22,note:'2 sec negatives'},{n:'Close Grip Pull Ups',w:0,r:8,note:'2 sec negatives'}],note:'Chest feels pumped and managed to do more reps on the dips.'},
+  {id:'s12',date:'2025-10-13',type:'B2',bw:83.2,bf:null,ex:[{n:'Leg Press',w:350,r:23,note:'Right knee not 100%, reduced weight'},{n:'Seated Leg Curl',w:65,r:19,note:''}],note:'Right knee not 100% so went for 350kg. No pain.'},
+  {id:'s13',date:'2025-10-21',type:'A1',bw:83.5,bf:null,ex:[{n:'Smith Close Grip Bench Press',w:87,r:9,note:''},{n:'Close Palm Grip Pull Downs',w:110,r:5,note:'2 sec negatives, close grip'}],note:'Weight increase concern but looking better in the mirror. Good session.'},
+  {id:'s14',date:'2025-10-28',type:'B1',bw:83.4,bf:null,ex:[{n:'Smith Squat',w:107,r:42,note:''},{n:'Deadlifts',w:140,r:7,note:'2 sec negatives'}],note:'Felt great today. Slept well and less stressed.'},
+  {id:'s15',date:'2025-11-05',type:'A2',bw:83.9,bf:null,ex:[{n:'Dips',w:0,r:21,note:'2 sec negatives'},{n:'Close Grip Pull Ups',w:0,r:9,note:'2 sec negatives'}],note:'Right wrist hurting. Chest feels pumped.'},
+  {id:'s16',date:'2025-11-12',type:'B2',bw:83.6,bf:null,ex:[{n:'Leg Press',w:400,r:24,note:''},{n:'Seated Leg Curl',w:67.5,r:17,note:''}],note:'Hit PBs today. Slight DOMs due to extra cycling.'},
+  {id:'s17',date:'2025-11-19',type:'A1',bw:83.5,bf:null,ex:[{n:'Smith Close Grip Bench Press',w:102,r:7,note:''},{n:'Close Palm Grip Pull Downs',w:100,r:5,note:'2 sec negatives'}],note:'Slept at wrong angle, back feels off. No muscle pain. Pushed through.'},
+  {id:'s18',date:'2025-11-26',type:'B1',bw:null,bf:null,ex:[{n:'Smith Squat',w:111,r:19,note:'with risers, new technique'},{n:'Deadlifts',w:165,r:10,note:'2 sec negatives'}],note:'New technique on Smith Squat with risers. Definitely feeling stronger.'},
+  {id:'s19',date:'2025-12-03',type:'A2',bw:84.8,bf:null,ex:[{n:'Dips',w:0,r:21,note:'2 sec negatives'},{n:'Close Grip Pull Ups',w:0,r:8,note:'2 sec negatives'}],note:'Feeling strong. Chest and upper body feels good.'},
+  {id:'s20',date:'2025-12-10',type:'B2',bw:84.1,bf:null,ex:[{n:'Leg Press',w:410,r:20,note:''},{n:'Seated Leg Curl',w:67.5,r:19,note:''}],note:'Hit a PB. No issues to report.'},
+  {id:'s21',date:'2025-12-17',type:'A1',bw:83.6,bf:null,ex:[{n:'Smith Close Grip Bench Press',w:101,r:6,note:''},{n:'Close Palm Grip Pull Downs',w:100,r:6,note:'2 sec negatives'}],note:"Didn't sleep well but felt strong enough."},
+  {id:'s22',date:'2025-12-27',type:'B1',bw:85.0,bf:null,ex:[{n:'Smith Squat',w:127,r:17,note:'with riser'},{n:'Deadlifts',w:170,r:3,note:'2 sec negatives'}],note:'Christmas weight. Feel completely drained.'},
+  {id:'s23',date:'2026-01-04',type:'A2',bw:85.2,bf:null,ex:[{n:'Dips',w:5,r:15,note:'2 sec neg, +5kg belt (first time)'},{n:'Close Grip Pull Ups',w:5,r:4,note:'2 sec neg, +5kg belt'}],note:'Used the weight belt with 5kg for the first time. Upper chest pumped.'},
+  {id:'s24',date:'2026-01-11',type:'B2',bw:85.3,bf:null,ex:[{n:'Leg Press',w:420,r:20,note:'compound first'},{n:'Seated Leg Curl',w:70,r:14,note:''}],note:'Compound first then isolation — much better order. Legs shaking. Very productive.'},
+  {id:'s25',date:'2026-01-17',type:'A1',bw:84.6,bf:null,ex:[{n:'Smith Close Grip Bench Press',w:77,r:6,note:'40° incline, new bench setup'},{n:'Close Palm Grip Pull Downs',w:110,r:4,note:'2 sec negatives'}],note:'Changed to 40° angle as Mentzer taught. Massive difference. All 6 reps clean to complete failure.'},
+  {id:'s26',date:'2026-01-25',type:'B1',bw:84.5,bf:null,ex:[{n:'Smith Squat',w:null,r:null,note:'abandoned'},{n:'Deadlifts',w:170,r:1,note:'abandoned — coming down with cold'}],note:'Coming down with a cold. Abandoned session after sweating profusely.'},
+  {id:'s27',date:'2026-02-04',type:'B1',bw:85.2,bf:null,ex:[{n:'Smith Squat',w:127,r:20,note:''},{n:'Deadlifts',w:125,r:8,note:'2 sec negatives'}],note:'Tried 170kg (1 rep), 165kg (1 rep). Slight lower back discomfort. 170kg may be upper limit.'},
+  {id:'s28',date:'2026-02-14',type:'A2',bw:84.0,bf:null,ex:[{n:'Dips',w:5,r:18,note:'2 sec neg, +5kg belt'},{n:'Close Grip Pull Ups',w:5,r:6,note:'2 sec neg, +5kg belt'}],note:'Feel good. Hit more reps on both. Lost weight but feel stronger. Chest pumped.'},
+  {id:'s29',date:'2026-02-21',type:'B2',bw:84.7,bf:null,ex:[{n:'Leg Press',w:430,r:20,note:''},{n:'Seated Leg Curl',w:70,r:18,note:'2 sec negatives'}],note:'Feel good, hit another PB.'},
+  {id:'s30',date:'2026-02-27',type:'A1',bw:84.5,bf:null,ex:[{n:'Smith Close Grip Bench Press',w:77,r:5,note:''},{n:'Close Palm Grip Pull Downs',w:100,r:5,note:'2 sec negatives'}],note:'Should have waited extra days but felt good.'},
+  {id:'s31',date:'2026-03-08',type:'B1',bw:85.0,bf:null,ex:[{n:'Smith Squat',w:129.5,r:19,note:'2 sec negatives'},{n:'Deadlifts',w:165,r:3,note:'2 sec negatives'}],note:'Deadlifts heavy. Getting back on track. Implemented Mentzer warm-up protocol.'},
+  {id:'s32',date:'2026-03-15',type:'A2',bw:85.1,bf:null,ex:[{n:'Dips',w:5,r:18,note:'2 sec neg, +5kg belt'},{n:'Close Grip Pull Ups',w:5,r:7,note:'+5kg belt'}],note:'Increased body weight, managed one extra rep on pull ups. Upper body pumped.'},
+  {id:'s33',date:'2026-03-22',type:'B2',bw:85.2,bf:null,ex:[{n:'Leg Press',w:440,r:20,note:''},{n:'Seated Leg Curl',w:70,r:20,note:''}],note:'Hit two PBs. Legs feel absolutely worked out!'},
+  {id:'s34',date:'2026-03-31',type:'A1',bw:85.7,bf:null,ex:[{n:'Smith Close Grip Bench Press',w:77,r:3,note:'2 sec negatives'},{n:'Close Palm Grip Pull Downs',w:100,r:7,note:'2 sec negatives'}],note:'Tired and jet lagged due to daylight savings.'},
+  {id:'s35',date:'2026-04-17',type:'A1',bw:85.7,bf:null,ex:[{n:'Smith Close Grip Bench Press',w:77,r:6,note:''},{n:'Close Palm Grip Pull Downs',w:100,r:8,note:'2 sec negatives'}],note:'7:15am session. Eating cleanly this week. The 2-week break helped — results speak for themselves.'},
+  {id:'s36',date:'2026-04-26',type:'B1',bw:86.1,bf:null,ex:[{n:'Smith Squat',w:132,r:23,note:'2 sec negatives'},{n:'Deadlifts',w:165,r:4,note:'2 sec negatives'}],note:'Feel tired but pushed through. Heading in the right direction with deadlifts.'},
+  {id:'s37',date:'2026-05-03',type:'A2',bw:85.4,bf:null,ex:[{n:'Dips',w:5,r:19,note:'2 sec neg, +5kg belt'},{n:'Close Grip Pull Ups',w:5,r:7,note:'+5kg belt'}],note:'Hit another PB with additional weight. Chest pumped.'},
+  {id:'s38',date:'2026-05-10',type:'B2',bw:84.9,bf:null,ex:[{n:'Leg Press',w:450,r:22,note:''},{n:'Seated Leg Curl',w:72.5,r:15,note:'2 sec negatives'}],note:'Legs absolutely done in today. Hit more PBs again!'},
+  {id:'s39',date:'2026-05-17',type:'A1',bw:85.5,bf:null,ex:[{n:'Smith Close Grip Bench Press',w:77,r:7,note:'2 sec negatives'},{n:'Close Palm Grip Pull Downs',w:100,r:8,note:'2 sec negatives'}],note:"Didn't sleep until 4am. Feel good but could have done better with more sleep."},
+  {id:'s40',date:'2026-05-25',type:'B1',bw:86.8,bf:null,ex:[{n:'Smith Squat',w:137,r:20,note:''},{n:'Deadlifts',w:145,r:5,note:'2 sec negatives'}],note:'Managed 3 reps at 165kg then dropped weight. Need to work back up. Legs and body battered!'},
+  {id:'s41',date:'2026-05-31',type:'A2',bw:86.5,bf:null,ex:[{n:'Dips',w:5,r:17,note:'2 sec neg, +5kg belt'},{n:'Close Grip Pull Ups',w:5,r:8,note:'2 sec neg, +5kg belt'}],note:'Look better in the mirror at this weight. The indirect effect in full flow.'},
+  {id:'s42',date:'2026-06-07',type:'B2',bw:86.6,bf:null,ex:[{n:'Leg Press',w:470,r:28,note:'rest-pause: 22 + 6'},{n:'Seated Leg Curl',w:72.5,r:18,note:'2 sec negatives'}],note:'Rest-pause on leg press — rush of blood like never before, nearly puked! PBs on both. Body battered.'},
+];
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+
+const BW_EX = new Set(['Dips','Close Grip Pull Ups','Wide Grip Pull Ups','Pull Ups','Chin Ups']);
+
+const QUOTES = [
+  "In order to lead the orchestra, you must turn your back on the crowd.",
+  "The more intensely you train, the less frequently you need to.",
+  "A high-intensity workout exhausts the body's limited recovery ability. Doing more is not doing better.",
+  "Muscles grow during rest, not during training. Stop confusing activity with productivity.",
+  "One set taken to absolute failure is worth more than twenty mediocre sets.",
+  "The purpose of training is to stimulate growth — not to demonstrate it.",
+  "Science, logic and reason must always prevail over tradition and emotion.",
+  "If your workout isn't brief, brutal and basic, it isn't Heavy Duty.",
+  "Strength is the foundation of everything. Build it ruthlessly, then rest ruthlessly.",
+  "More is not better. Better is better.",
+];
+
+let workouts = [];
+let cur = 'home', prev = 'home', logType = 'A1', detailId = null;
+
+function load() {
+  const allSeed = [
+    ...LEGACY_SEED,
+    ...SEED.map(x=>({...x, method: x.method||'consolidated'})),
+  ];
+  try {
+    const saved = JSON.parse(localStorage.getItem('hit_v2') || 'null');
+    if (saved) {
+      const normalised = saved.map(w => normaliseBelt({
+        ...w,
+        method: w.method || (ROT.includes(w.type) ? 'consolidated' : 'legacy')
+      }));
+      const ids = new Set(normalised.map(w=>w.id));
+      const merged = [...normalised];
+      allSeed.forEach(w=>{ if(!ids.has(w.id)) merged.push(w); });
+      workouts = merged;
+    } else {
+      workouts = allSeed.map(normaliseBelt);
+    }
+  } catch { workouts = allSeed; }
+  save();
+}
+function normaliseBelt(w) {
+  return {
+    ...w,
+    ex: w.ex.map(e => {
+      if (!BW_EX.has(e.n) || e.belt !== undefined) return e;
+      const belt = /\+?\s*[0-9.]+\s*kg\s*belt/i.test(e.note || '');
+      return { ...e, belt };
+    })
+  };
+}
+function save() { localStorage.setItem('hit_v2', JSON.stringify(workouts)); }
+
+// ══════════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════════
+
+const uid = () => 'w' + Date.now() + Math.random().toString(36).slice(2,5);
+const today = () => new Date().toISOString().split('T')[0];
+const asc = () => [...workouts].sort((a,b)=>a.date.localeCompare(b.date));
+const desc = () => [...workouts].sort((a,b)=>b.date.localeCompare(a.date));
+
+function fmtDate(s) {
+  if (!s) return '';
+  return new Date(s+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+}
+function fmtShort(s) {
+  if (!s) return '';
+  return new Date(s+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'});
+}
+function daysAgo(s) {
+  if (!s) return null;
+  return Math.floor((Date.now()-new Date(s+'T12:00:00'))/864e5);
+}
+function nextType() {
+  const s = asc().filter(w=>w.method==='consolidated');
+  if (!s.length) return 'A1';
+  return ROT[(ROT.indexOf(s[s.length-1].type)+1)%4];
+}
+function lastFor(name, skipId) {
+  for (const w of desc()) {
+    if (w.id===skipId) continue;
+    for (const e of w.ex) if (e.n===name && e.r!=null) return {date:w.date,w:e.w,r:e.r};
+  }
+  return null;
+}
+function isPB(workout, exName) {
+  const cur = workout.ex.find(e=>e.n===exName);
+  if (!cur || !cur.w || !cur.r) return false;
+  for (const w of asc()) {
+    if (w.date >= workout.date) break;
+    for (const e of w.ex) {
+      if (e.n===exName && e.w!=null && e.r!=null) {
+        if (cur.w > e.w || (cur.w===e.w && cur.r > e.r)) continue;
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+// ══════════════════════════════════════════════════════
+//  ROUTING
+// ══════════════════════════════════════════════════════
+
+function go(screen, opts={}, fromPop=false) {
+  prev = cur; cur = screen;
+  if (!fromPop) {
+    history.pushState({ screen, opts }, '');
+  }
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+screen).classList.add('active');
+  document.getElementById('s-'+screen).scrollTop = 0;
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const t = document.querySelector(`[data-tab="${screen}"]`);
+  if (t) t.classList.add('active');
+  if (screen==='home')     renderHome();
+  if (screen==='history')  renderHistory();
+  if (screen==='log')      renderLog(opts.type||logType);
+  if (screen==='detail')   renderDetail(opts.id||detailId);
+  if (screen==='settings') renderSettings();
+  if (screen==='guide')    renderGuide();
+}
+
+window.addEventListener('popstate', e => {
+  const state = e.state;
+  if (state && state.screen) {
+    go(state.screen, state.opts || {}, true);
+  } else {
+    go('home', {}, true);
+  }
+});
+
+// ══════════════════════════════════════════════════════
+//  HOME
+// ══════════════════════════════════════════════════════
+
+function renderHome() {
+  const nt = nextType(), wk = WK[nt], s = asc(), last = s[s.length-1];
+  const exRows = wk.exs.map(en => {
+    const p = lastFor(en, null);
+    const lastStr = p ? `<strong>${p.w>0?p.w+'kg':'BW'}</strong> × ${p.r}` : '—';
+    return `<div class="hero-ex"><span class="hero-ex-name">${en}</span><span class="hero-ex-last">${lastStr}</span></div>`;
+  }).join('');
+
+  let sub = 'No previous workouts';
+  if (last) {
+    const d = daysAgo(last.date);
+    sub = `Last: ${WK[last.type].short} · ${fmtShort(last.date)} · <strong style="color:var(--text)">${d} day${d!==1?'s':''} ago</strong>`;
+  }
+
+  const lbw = desc().find(w=>w.bw);
+  const consolidatedCount = workouts.filter(w=>w.method==='consolidated').length;
+  const lastConsolidated = asc().filter(w=>w.method==='consolidated').slice(-1)[0];
+  const statChips = `
+    <div class="stat-chip"><div class="stat-val">${consolidatedCount}</div><div class="stat-lbl">Sessions</div></div>
+    <div class="stat-chip"><div class="stat-val">${lastConsolidated?daysAgo(lastConsolidated.date):'—'}</div><div class="stat-lbl">Days Rest</div></div>
+    ${lbw?`<div class="stat-chip"><div class="stat-val">${lbw.bw}</div><div class="stat-lbl">kg BW</div></div>`:''}
+  `;
+
+  const recent = asc().slice(-3).reverse().map(w=>{
+    const pills = w.ex.filter(e=>e.r).map(e=>`<span class="pill">${e.n.split(' ').slice(-1)[0]}: <strong>${e.w>0?e.w+'kg':'BW'} ×${e.r}</strong></span>`).join('');
+    return `<div class="hist-card" onclick="go('detail',{id:'${w.id}'})">
+      <div class="badge">${w.type}</div>
+      <div class="hist-body">
+        <div class="hist-type">${WK[w.type].desc}</div>
+        <div class="hist-date">${fmtDate(w.date)}${w.bw?` · ${w.bw}kg`:''}</div>
+        <div class="hist-pills">${pills}</div>
+      </div>
+      <div class="hist-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('s-home').innerHTML = `
+    <div class="hd-logo-wrap">
+      <img class="hd-logo-img" src="heavy-duty-logo.png" alt="Heavy Duty"
+           onclick="go('home')"
+           onerror="this.style.display='none';document.getElementById('hd-fb').style.display='block'">
+      <div id="hd-fb" style="display:none">
+        <div class="hd-wordmark">HEAVY <span>DUTY</span></div>
+      </div>
+      <div class="hd-rule"></div>
+      <div class="hd-sub">"${QUOTES[Math.floor(Math.random()*QUOTES.length)]}"</div>
+      <a class="yt-btn" href="https://www.youtube.com/channel/UCfQ4gtZm_kUdnxmLIZ5VE6A" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.5 6.2s-.2-1.6-.9-2.3c-.9-.9-1.9-.9-2.3-1C17.6 2.7 12 2.7 12 2.7s-5.6 0-8.3.2c-.4.1-1.4.1-2.3 1-.7.7-.9 2.3-.9 2.3S.2 8 .2 9.8v1.7c0 1.8.3 3.6.3 3.6s.2 1.6.9 2.3c.9.9 2 .9 2.6 1 1.9.2 8 .2 8 .2s5.6 0 8.3-.2c.4-.1 1.4-.1 2.3-1 .7-.7.9-2.3.9-2.3s.3-1.8.3-3.6V9.8c0-1.8-.3-3.6-.3-3.6zM9.7 15.5V8.1l6.3 3.7-6.3 3.7z"/></svg>
+        Heavy Duty College
+      </a>
+    </div>
+
+    <div class="hero">
+      <div class="hero-tag">Next Workout</div>
+      <div class="hero-title">${wk.label}</div>
+      <div class="hero-sub">${sub}</div>
+      <div class="hero-exs">${exRows}</div>
+      <button class="btn-cta" onclick="go('log',{type:'${nt}'})">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Start ${nt} Workout
+      </button>
+    </div>
+
+    <div class="stat-row">${statChips}</div>
+
+    <div class="sec"><div class="sec-label">Recent Sessions</div></div>
+    ${recent}
+    <div class="link-row"><button class="link-btn" onclick="go('history')">View all history →</button></div>
+    <div class="gap"></div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+//  HISTORY
+// ══════════════════════════════════════════════════════
+
+function histCard(w) {
+  const wk = WK[w.type] || {desc: w.type, method: w.method||'consolidated'};
+  const isLegacy = w.method === 'legacy';
+  const pills = w.ex.filter(e=>e.r).map(e=>`<span class="pill">${e.n.split(' ').slice(-1)[0]}: <strong>${e.w>0?e.w+'kg':'BW'} ×${e.r}</strong></span>`).join('');
+  return `<div class="hist-card" onclick="go('detail',{id:'${w.id}'})">
+    <div class="badge ${isLegacy?'badge-legacy':''}">${w.type}</div>
+    <div class="hist-body">
+      <div class="hist-type">${wk.desc}</div>
+      <div class="hist-date">${fmtDate(w.date)}${w.bw?` · ${w.bw} kg`:''}</div>
+      <div class="hist-pills">${pills}</div>
+    </div>
+    <div class="hist-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+  </div>`;
+}
+
+const histCollapsed = { consolidated: true, legacy: true };
+let histFilter = 'all'; // 'all' | 'A1'|'B1'|'A2'|'B2' | 'LA'|'LB'
+
+function goToHistorySection(key) {
+  histCollapsed[key] = false;
+  histFilter = 'all';
+  go('history');
+  requestAnimationFrame(() => {
+    const el = document.getElementById('hist-body-' + key);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+function toggleSection(key) {
+  histCollapsed[key] = !histCollapsed[key];
+  const body = document.getElementById('hist-body-'+key);
+  const chev = document.getElementById('hist-chev-'+key);
+  if (histCollapsed[key]) {
+    body.style.maxHeight = '0';
+    body.classList.add('collapsed');
+    chev.classList.remove('open');
+  } else {
+    body.style.maxHeight = '99999px';
+    body.classList.remove('collapsed');
+    chev.classList.add('open');
+  }
+}
+
+function setHistFilter(f) {
+  histFilter = f;
+  renderHistory();
+}
+
+function renderHistory() {
+  const allConsolidated = desc().filter(w=>w.method==='consolidated');
+  const allLegacy       = desc().filter(w=>w.method==='legacy');
+
+  if (!allConsolidated.length && !allLegacy.length) {
+    document.getElementById('s-history').innerHTML = `<div class="page-top"><div class="page-title">History</div></div><div class="empty">No workouts logged yet.</div>`;
+    return;
+  }
+
+  const consolidated = histFilter==='all' ? allConsolidated : allConsolidated.filter(w=>w.type===histFilter);
+  const legacy       = histFilter==='all' ? allLegacy       : allLegacy.filter(w=>w.type===histFilter);
+
+  const chevSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+
+  const filterBtns = ['all','A1','B1','A2','B2','LA','LB'].map(f => {
+    const label = f === 'all' ? 'All' : f === 'LA' ? 'A' : f === 'LB' ? 'B (L)' : f;
+    return `<button class="hist-filter-btn ${histFilter===f?'active':''}" onclick="setHistFilter('${f}')">${label}</button>`;
+  }).join('');
+
+  document.getElementById('s-history').innerHTML = `
+    <div class="page-top">
+      <div class="page-title">History</div>
+      <div class="page-subtitle">${workouts.length} sessions total</div>
+    </div>
+
+    <div class="hist-filter-bar">${filterBtns}</div>
+
+    <div class="method-header method-consolidated" onclick="toggleSection('consolidated')">
+      <div class="method-header-inner">
+        <span class="method-dot method-dot-red"></span>
+        <div>
+          <div class="method-title">Consolidated Method</div>
+          <div class="method-sub">${consolidated.length} session${consolidated.length!==1?'s':''} · June 2025 – present · A1/B1/A2/B2</div>
+        </div>
+        <div class="method-chevron ${histCollapsed.consolidated?'':'open'}" id="hist-chev-consolidated">${chevSvg}</div>
+      </div>
+    </div>
+    <div class="method-body ${histCollapsed.consolidated?'collapsed':''}" id="hist-body-consolidated"
+         style="max-height:${histCollapsed.consolidated?'0':'99999px'}">
+      ${consolidated.length ? consolidated.map(histCard).join('') : '<div class="empty" style="padding:20px">No sessions match this filter.</div>'}
+    </div>
+
+    <div class="method-header method-legacy" onclick="toggleSection('legacy')">
+      <div class="method-header-inner">
+        <span class="method-dot method-dot-grey"></span>
+        <div>
+          <div class="method-title">Legacy Training Method</div>
+          <div class="method-sub">${legacy.length} session${legacy.length!==1?'s':''} · July 2023 – May 2025 · A / B format</div>
+        </div>
+        <div class="method-chevron ${histCollapsed.legacy?'':'open'}" id="hist-chev-legacy">${chevSvg}</div>
+      </div>
+    </div>
+    <div class="method-body ${histCollapsed.legacy?'collapsed':''}" id="hist-body-legacy"
+         style="max-height:${histCollapsed.legacy?'0':'99999px'}">
+      ${legacy.length ? legacy.map(histCard).join('') : '<div class="empty" style="padding:20px">No sessions match this filter.</div>'}
+    </div>
+
+    <div class="gap"></div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+//  DETAIL
+// ══════════════════════════════════════════════════════
+
+function renderDetail(id) {
+  detailId = id;
+  const w = workouts.find(x=>x.id===id);
+  if (!w) { go('history'); return; }
+  const wk = WK[w.type];
+  const metaParts = [w.bw?`${w.bw} kg body weight`:null, w.bf?`${w.bf}% body fat`:null].filter(Boolean);
+  const backTo = prev==='home'?'home':'history';
+
+  const exRows = w.ex.map(e => {
+    const note = e.note || '';
+    const rpMatch = note.match(/rest[\s-]?pause[:\s]+([0-9]+\s*[+&]\s*[0-9]+(?:\s*[+&]\s*[0-9]+)*)/i);
+    const rpSets = rpMatch ? rpMatch[1].replace(/\s+/g,'') : null;
+    const otherNote = note.replace(/rest[\s-]?pause[:\s]*[0-9+\s&]+/i, '').trim();
+
+    const isBW = BW_EX.has(e.n);
+    // Belt detection: explicit flag (new data) OR note contains "+Xkg belt" (legacy data)
+    const noteBelt = note.match(/\+?\s*([0-9.]+)\s*kg\s*belt/i);
+    const hasBelt = e.belt === true || (isBW && !!noteBelt);
+    const beltW = e.belt === true ? e.w : (noteBelt ? parseFloat(noteBelt[1]) : 0);
+    const addedW = hasBelt ? beltW : (e.w > 0 ? e.w : 0);
+    const totalW = isBW && hasBelt && w.bw ? Math.round((w.bw + addedW) * 10) / 10 : null;
+
+    let weightDisplay, unitDisplay;
+    if (isBW && hasBelt && w.bw) {
+      weightDisplay = totalW;
+      unitDisplay = `kg <span style="font-size:12px;color:var(--text-3);font-weight:500">(BW ${w.bw} + ${addedW}kg belt)</span> × ${e.r != null ? e.r + ' reps' : '—'}`;
+    } else if (isBW) {
+      weightDisplay = 'BW';
+      unitDisplay = ` × ${e.r != null ? e.r + ' reps' : '—'}`;
+    } else {
+      weightDisplay = e.w > 0 ? e.w : 'BW';
+      unitDisplay = `${e.w > 0 ? ' kg' : ''} × ${e.r != null ? e.r + ' reps' : '—'}`;
+    }
+
+    return `<div class="ex-row">
+      <div class="ex-row-name">${e.n}</div>
+      <div class="ex-row-val">${weightDisplay}<span class="ex-row-unit">${unitDisplay}</span></div>
+      ${rpSets?`<div class="ex-row-rp"><span class="ex-row-rp-label">Rest-Pause</span><span class="ex-row-rp-sets">${rpSets}</span></div>`:''}
+      ${otherNote?`<div class="ex-row-note">${otherNote}</div>`:''}
+    </div>`;
+  }).join('');
+
+  document.getElementById('s-detail').innerHTML = `
+    <div class="back-row">
+      <button class="back-btn" onclick="go('${backTo}')">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        ${backTo==='home'?'Home':'History'}
+      </button>
+    </div>
+
+    <div class="detail-hero">
+      <div class="detail-badge">
+        <div class="badge">${w.type}</div>
+        <div>
+          <div class="detail-type">${wk.label}</div>
+        </div>
+      </div>
+      <div class="detail-date">${fmtDate(w.date)}</div>
+      ${metaParts.length?`<div class="detail-meta">${metaParts.join(' · ')}</div>`:''}
+    </div>
+
+    ${exRows}
+
+    ${w.note?`<div class="detail-note-box">"${w.note}"</div>`:''}
+
+    <div style="padding:16px 20px 32px">
+      <button class="sheet-btn sheet-btn-danger" style="width:100%;padding:15px;border-radius:var(--r-md)" onclick="confirmDelete('${w.id}')">Delete Workout</button>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+//  LOG FORM
+// ══════════════════════════════════════════════════════
+
+function renderLog(type) {
+  logType = type;
+  const wk = WK[type];
+
+  const blocks = wk.exs.map((en,i) => {
+    const p = lastFor(en, null);
+    const isBW = BW_EX.has(en);
+    const dw = p && p.w > 0 ? p.w : '';
+    const lastBelt = p && p.belt && p.w > 0;
+    const hintHtml = p
+      ? `Last: <strong>${isBW ? (p.belt && p.w > 0 ? 'BW +'+p.w+'kg belt' : 'BW') : (p.w>0?p.w+'kg':'BW')} × ${p.r} reps</strong> · ${fmtShort(p.date)}`
+      : 'No previous data';
+    return `
+      <div class="ex-form-card">
+        <div class="ex-form-head">
+          <div class="ex-form-name">${en}</div>
+          <div class="ex-form-hint">${hintHtml}</div>
+        </div>
+        <div class="ex-form-body">
+          ${isBW ? `
+          <div class="belt-row">
+            <span class="belt-row-label">Weight Belt</span>
+            <div class="belt-switch ${lastBelt?'on':''}" id="bts${i}" onclick="toggleBeltSwitch(${i})"><div class="belt-switch-thumb"></div></div>
+          </div>
+          <div class="belt-weight-field ${lastBelt?'open':''}" id="bwf${i}">
+            <div class="form-field" style="padding-bottom:8px">
+              <label>Belt weight kg</label>
+              <input type="number" id="ew${i}" value="${lastBelt?dw:''}" inputmode="decimal" step="0.5" placeholder="e.g. 5">
+            </div>
+          </div>
+          <div class="ex-form-row">
+            <div class="form-field">
+              <label>Reps</label>
+              <input type="number" id="er${i}" inputmode="numeric" placeholder="—">
+            </div>
+          </div>` : `
+          <div class="ex-form-row">
+            <div class="form-field">
+              <label>Weight kg</label>
+              <input type="number" id="ew${i}" value="${dw}" inputmode="decimal" step="0.5" placeholder="0 = bodyweight">
+            </div>
+            <div class="form-field">
+              <label>Reps</label>
+              <input type="number" id="er${i}" inputmode="numeric" placeholder="—">
+            </div>
+          </div>`}
+          <div class="form-field">
+            <label>Notes</label>
+            <input type="text" id="en${i}" placeholder="2 sec negatives, rest-pause…" autocomplete="off">
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('s-log').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:56px 20px 0">
+      <button class="back-cancel" onclick="go('home')">Cancel</button>
+    </div>
+
+    <div class="form-hero">
+      <div class="form-hero-tag">${type} · ${wk.desc}</div>
+      <div class="form-hero-title">${wk.label}</div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-row">
+        <div class="form-field">
+          <label>Date</label>
+          <input type="date" id="ldate" value="${today()}">
+        </div>
+        <div class="form-field">
+          <label>Body Weight kg</label>
+          <input type="number" id="lbw" inputmode="decimal" step="0.1" placeholder="kg">
+        </div>
+      </div>
+    </div>
+    <div class="form-section" style="padding-bottom:0">
+      <div class="form-field">
+        <label>Body Fat % <span style="font-weight:400;text-transform:none;color:var(--text-3)">(optional)</span></label>
+        <input type="number" id="lbf" inputmode="decimal" step="0.1" placeholder="%">
+      </div>
+    </div>
+
+    ${blocks}
+
+    <div style="padding:16px 20px 0">
+      <div class="form-field">
+        <label>Session Notes</label>
+        <textarea id="lnote" placeholder="How did it feel? Energy, pain, PBs, sleep quality…"></textarea>
+      </div>
+    </div>
+
+    <button class="btn-save" onclick="saveWorkout()">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Save Workout
+    </button>
+  `;
+}
+
+function toggleBeltSwitch(i) {
+  const sw = document.getElementById('bts'+i);
+  const field = document.getElementById('bwf'+i);
+  const on = sw.classList.toggle('on');
+  if (on) { field.classList.add('open'); }
+  else { field.classList.remove('open'); document.getElementById('ew'+i).value = ''; }
+}
+
+function saveWorkout() {
+  const wk = WK[logType];
+  const date = document.getElementById('ldate').value;
+  if (!date) { toast('Please enter a date', true); return; }
+  const bw = parseFloat(document.getElementById('lbw').value)||null;
+  const bf = parseFloat(document.getElementById('lbf').value)||null;
+  const note = document.getElementById('lnote').value.trim();
+  const ex = wk.exs.map((en,i)=>{
+    const isBW = BW_EX.has(en);
+    const beltOn = isBW && document.getElementById('bts'+i)?.classList.contains('on');
+    return {
+      n: en,
+      w: parseFloat(document.getElementById('ew'+i)?.value)||0,
+      r: parseInt(document.getElementById('er'+i).value)||null,
+      note: document.getElementById('en'+i).value.trim(),
+      ...(isBW && { belt: beltOn }),
+    };
+  });
+  workouts.push({id:uid(),date,type:logType,method:WK[logType].method,bw,bf,ex,note});
+  save(); toast('Workout saved!', false); go('home');
+}
+
+// ══════════════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════════════
+
+function renderSettings() {
+  const s = asc(), first = s[0], last = s[s.length-1];
+  const cCount = workouts.filter(w=>w.method==='consolidated').length;
+  const lCount = workouts.filter(w=>w.method==='legacy').length;
+  const typeButtons = ROT.map(t=>`
+    <div class="settings-row" onclick="go('log',{type:'${t}'})">
+      <div class="settings-row-left">
+        <div class="settings-icon" style="background:var(--accent-2);color:var(--accent)">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div>
+          <div class="settings-row-title">${WK[t].label}</div>
+          <div class="settings-row-sub">${WK[t].desc}</div>
+        </div>
+      </div>
+      <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </div>`).join('');
+
+  document.getElementById('s-settings').innerHTML = `
+    <div class="page-top"><div class="page-title">Settings</div><div class="page-subtitle">Brief · Brutal · Basic. Train to failure. Then rest. That's it.</div></div>
+
+    <div class="sec"><div class="sec-label">Your Stats</div></div>
+    <div style="margin:0 20px">
+      <div class="settings-card">
+        <div class="settings-stat"><span class="settings-stat-label">Total sessions</span><span class="settings-stat-val">${workouts.length}</span></div>
+        <div class="settings-stat settings-stat-link" onclick="goToHistorySection('consolidated')" style="cursor:pointer">
+          <span class="settings-stat-label" style="display:flex;align-items:center;gap:6px">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;box-shadow:0 0 5px rgba(204,17,17,0.6)"></span>Consolidated Method
+          </span>
+          <span class="settings-stat-val" style="display:flex;align-items:center;gap:6px">${cCount} <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+        <div class="settings-stat settings-stat-link" onclick="goToHistorySection('legacy')" style="cursor:pointer">
+          <span class="settings-stat-label" style="display:flex;align-items:center;gap:6px">
+            <span style="width:7px;height:7px;border-radius:50%;background:#94a3b8;display:inline-block"></span>Legacy Method
+          </span>
+          <span class="settings-stat-val" style="display:flex;align-items:center;gap:6px">${lCount} <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+        ${first?`<div class="settings-stat settings-stat-link" onclick="go('detail',{id:'${first.id}'})" style="cursor:pointer">
+          <span class="settings-stat-label">First session</span>
+          <span class="settings-stat-val" style="display:flex;align-items:center;gap:6px">${fmtShort(first.date)} <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>`:''}
+        ${last?`<div class="settings-stat settings-stat-link" onclick="go('detail',{id:'${last.id}'})" style="cursor:pointer">
+          <span class="settings-stat-label">Latest session</span>
+          <span class="settings-stat-val" style="display:flex;align-items:center;gap:6px">${fmtShort(last.date)} <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>`:''}
+        ${last?.bw?`<div class="settings-stat"><span class="settings-stat-label">Last body weight</span><span class="settings-stat-val">${last.bw} kg</span></div>`:''}
+      </div>
+    </div>
+
+    <div class="sec"><div class="sec-label">Log Custom Workout</div></div>
+    <div style="margin:0 20px"><div class="settings-card">${typeButtons}</div></div>
+
+    <div class="sec"><div class="sec-label">Data</div></div>
+    <div style="margin:0 20px">
+      <div class="settings-card">
+        <div class="settings-row" onclick="exportData()">
+          <div class="settings-row-left">
+            <div class="settings-icon" style="background:var(--green-bg);color:var(--green)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+            <div><div class="settings-row-title">Export JSON Backup</div><div class="settings-row-sub">Save all your workout data</div></div>
+          </div>
+          <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="settings-row" onclick="document.getElementById('import-file').click()">
+          <div class="settings-row-left">
+            <div class="settings-icon" style="background:rgba(99,102,241,0.1);color:#818cf8"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div><div class="settings-row-title">Import JSON</div><div class="settings-row-sub">Restore from a backup</div></div>
+          </div>
+          <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec"><div class="sec-label">Danger Zone</div></div>
+    <div style="margin:0 20px">
+      <div class="settings-card">
+        <div class="btn-danger-row" onclick="confirmReset()">
+          <span>Reset to Original Data</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      <svg style="display:block;margin:0 auto 10px" viewBox="0 0 110 20" width="110" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0"   y="6"  width="3"  height="8"  rx="1"   fill="#cc1111"/>
+        <rect x="4"   y="3"  width="6"  height="14" rx="1.5" fill="#cc1111"/>
+        <rect x="11"  y="5"  width="3"  height="10" rx="1"   fill="#9a0e0e"/>
+        <rect x="14"  y="8"  width="82" height="4"  rx="0.5" fill="#555"/>
+        <rect x="96"  y="5"  width="3"  height="10" rx="1"   fill="#9a0e0e"/>
+        <rect x="100" y="3"  width="6"  height="14" rx="1.5" fill="#cc1111"/>
+        <rect x="107" y="6"  width="3"  height="8"  rx="1"   fill="#cc1111"/>
+      </svg>
+      <strong style="color:#fff;letter-spacing:2px;font-size:11px">HEAVY DUTY</strong><br>
+      Brief · Brutal · Basic.<br>
+      Data stored in this browser — export regularly.
+    </div>
+    <div class="gap"></div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+//  DATA OPS
+// ══════════════════════════════════════════════════════
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(workouts,null,2)],{type:'application/json'});
+  const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:`HIT-log-${today()}.json`});
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('Backup exported!', false);
+}
+
+function handleImport(evt) {
+  const file = evt.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) throw 0;
+      const ids = new Set(workouts.map(w=>w.id));
+      let n = 0;
+      data.forEach(w=>{ if(!ids.has(w.id)){workouts.push(w);n++;} });
+      save(); toast(`Imported ${n} session${n!==1?'s':''}`, false); renderSettings();
+    } catch { toast('Invalid JSON file', true); }
+  };
+  r.readAsText(file); evt.target.value='';
+}
+
+function confirmDelete(id) {
+  showSheet('Delete this workout?', 'This action cannot be undone.', 'Delete', () => {
+    workouts = workouts.filter(w=>w.id!==id);
+    save(); hideSheet(); toast('Workout deleted', false); go('history');
+  });
+}
+
+function confirmReset() {
+  showSheet('Reset all data?', 'This will remove any workouts you\'ve added and restore the original 42-session history.', 'Reset Data', () => {
+    workouts = SEED.map(x=>({...x}));
+    save(); hideSheet(); toast('Data reset', false); renderSettings();
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  SHEET & TOAST
+// ══════════════════════════════════════════════════════
+
+function showSheet(title, msg, okLabel, onOk) {
+  document.getElementById('sh-title').textContent = title;
+  document.getElementById('sh-msg').textContent = msg;
+  const ok = document.getElementById('sh-ok');
+  ok.textContent = okLabel; ok.onclick = onOk;
+  document.getElementById('sheet-bg').classList.add('show');
+  requestAnimationFrame(()=>document.getElementById('sheet').classList.add('show'));
+}
+function hideSheet() {
+  document.getElementById('sheet').classList.remove('show');
+  document.getElementById('sheet-bg').classList.remove('show');
+}
+
+let _tid;
+function toast(msg, err) {
+  const t = document.getElementById('toast');
+  document.getElementById('t-dot').style.background = err?'var(--red)':'var(--green)';
+  document.getElementById('t-msg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(_tid);
+  _tid = setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════
+//  GUIDE
+// ══════════════════════════════════════════════════════
+
+const EXERCISES = [
+  {
+    name: 'Smith Close Grip Bench Press',
+    muscles: 'Chest · Triceps · Anterior Deltoid',
+    program: ['A1 – Consolidated'],
+    cues: [
+      'Grip shoulder-width or slightly narrower',
+      'Lower slowly to mid-chest — 4 seconds down',
+      'Press to lockout with full tricep contraction',
+      'One all-out set to momentary muscular failure',
+    ],
+    mentzer: 'The close grip bench produces the most complete chest contraction achievable on a press movement.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+chest',
+  },
+  {
+    name: 'Close Palm Grip Pull Downs',
+    muscles: 'Latissimus Dorsi · Biceps · Rear Deltoid',
+    program: ['A1 – Consolidated', 'Workout A – Legacy', 'Workout B – Legacy'],
+    cues: [
+      'Use a close, palms-facing grip',
+      'Initiate with the elbows — pull them down and back',
+      'Full stretch at the top, full contraction at the bottom',
+      'Control the negative — 4 seconds back to start',
+    ],
+    mentzer: 'Pull-downs done with a close palm grip maximise lat recruitment and eliminate unnecessary bicep bias.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+pulldowns',
+  },
+  {
+    name: 'Smith Squat',
+    muscles: 'Quadriceps · Glutes · Hamstrings',
+    program: ['B1 – Consolidated', 'Workout A – Legacy'],
+    cues: [
+      'Feet slightly forward of the bar — not directly under',
+      'Descend until thighs are parallel or below',
+      'Maintain upright torso; do not lean forward excessively',
+      'Drive through the heels on the ascent',
+    ],
+    mentzer: 'The squat is the king of lower body exercises. Nothing stimulates overall muscle growth like a properly performed squat.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+squat',
+  },
+  {
+    name: 'Deadlifts',
+    muscles: 'Entire Posterior Chain · Traps · Forearms',
+    program: ['B1 – Consolidated', 'Workout A – Legacy'],
+    cues: [
+      'Hip-width stance, bar over mid-foot',
+      'Hinge at the hips — do not round the lower back',
+      'Drive the floor away; keep bar close to the body',
+      'Stand fully upright; squeeze glutes at lockout',
+    ],
+    mentzer: 'I consider deadlifts the most productive exercise in existence. The systemic stimulation is unmatched by any other movement.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+deadlift',
+  },
+  {
+    name: 'Dips',
+    muscles: 'Chest · Triceps · Anterior Deltoid',
+    program: ['A2 – Consolidated', 'Workout A – Legacy', 'Workout B – Legacy'],
+    cues: [
+      'Lean slightly forward to emphasise the chest',
+      'Lower until upper arms are parallel to the floor',
+      'Add a weight belt once bodyweight reps exceed 15',
+      '2-second negative — control the descent fully',
+    ],
+    mentzer: 'Dips are the upper body squat. They demand everything from the pressing muscles simultaneously.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+dips',
+  },
+  {
+    name: 'Close Grip Pull Ups',
+    muscles: 'Latissimus Dorsi · Biceps · Rear Deltoid',
+    program: ['A2 – Consolidated'],
+    cues: [
+      'Palms facing you (supinated) for maximum lat stretch',
+      'Dead hang at the bottom — full extension',
+      'Pull until chin clears the bar; squeeze at the top',
+      'Add belt weight when bodyweight reps exceed 8–10',
+    ],
+    mentzer: 'Pull-ups with a close grip provide the deepest lat stretch of any back exercise you can perform.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+pull+ups',
+  },
+  {
+    name: 'Leg Press',
+    muscles: 'Quadriceps · Glutes · Hamstrings',
+    program: ['B2 – Consolidated', 'Workout B – Legacy'],
+    cues: [
+      'Feet shoulder-width, mid-platform',
+      'Lower until knees approach the chest — full range',
+      'Press to near-lockout; keep constant tension',
+      'Do not lock out — maintain muscle tension throughout',
+    ],
+    mentzer: 'The leg press allows heavier loads than the squat, making it ideal for pushing leg development beyond what the spine will permit.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+leg+press',
+  },
+  {
+    name: 'Seated Leg Curl',
+    muscles: 'Hamstrings',
+    program: ['B2 – Consolidated', 'Workout B – Legacy'],
+    cues: [
+      'Fully extend at the start — stretch is the key',
+      'Curl through the full range of motion',
+      '2-second hold at peak contraction',
+      'Raise the seat pad to maximise stretch on the hamstring',
+    ],
+    mentzer: 'Leg curls performed with a 2-second negative and peak contraction produce hamstring development unmatched by compound work alone.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+leg+curl',
+  },
+  {
+    name: 'Wide Grip Pull Ups',
+    muscles: 'Latissimus Dorsi · Teres Major · Biceps',
+    program: ['Workout A – Legacy', 'Workout B – Legacy'],
+    cues: [
+      'Grip wider than shoulder-width, palms facing away',
+      'Full dead hang — do not cheat the bottom',
+      'Pull until the bar reaches upper chest level',
+      'Slow the negative — 3–4 seconds on the way down',
+    ],
+    mentzer: 'Wide-grip pull-ups are unrivalled for developing lat width — the flare that creates the V-taper.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+pull+ups',
+  },
+  {
+    name: 'Leg Extension',
+    muscles: 'Quadriceps (Isolation)',
+    program: ['Workout B – Legacy'],
+    cues: [
+      'Adjust pad to rest just above the ankle',
+      'Extend fully and hold for 1–2 seconds at the top',
+      'Lower slowly — 3 seconds back to start',
+      'Keep hips pressed firmly into the seat',
+    ],
+    mentzer: 'Leg extensions pre-exhaust the quads so that the subsequent compound movement reaches deeper into the muscle fibres.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+leg+extension',
+  },
+];
+
+const TECHNIQUES = [
+  {
+    name: 'Rest-Pause',
+    tag: 'Intensity Booster',
+    mentzer: 'Rest-pause allows you to extend a set beyond initial failure by tapping the body\'s immediate recovery reserves — a brief pause replenishes enough ATP to grind out additional reps with the same weight.',
+    howto: [
+      'Perform your working set to absolute failure',
+      'Rack the weight and rest for exactly 10–15 seconds',
+      'Unrack and perform as many additional reps as possible',
+      'Repeat once more for a total of 2–3 mini-sets',
+      'Record the breakdown — e.g. 22 + 6 + 3',
+    ],
+    warning: 'Use sparingly — no more than once per exercise. Excessive use impairs recovery.',
+    yt: 'https://www.youtube.com/watch?v=VJpB5l_dWzk',
+  },
+  {
+    name: 'Slow Negatives',
+    tag: 'Overload Technique',
+    mentzer: 'The negative (eccentric) phase produces more muscle damage than the positive. Slowing it down dramatically increases the stimulus without adding weight.',
+    howto: [
+      'Perform the positive (lifting) phase normally — 1–2 seconds',
+      'Pause briefly at the top with a deliberate contraction',
+      'Lower the weight over 3–4 seconds under full control',
+      'Do not relax at the bottom — maintain tension throughout',
+      'Log as "X sec neg" in your session notes',
+    ],
+    warning: 'Expect severe DOMS. Allow extra recovery time after a slow-negative session.',
+    yt: 'https://www.youtube.com/watch?v=yi8GmDFD5wc',
+  },
+  {
+    name: 'Forced Reps',
+    tag: 'Post-Failure',
+    mentzer: 'Forced reps extend the set past the point where you can complete a rep unassisted. A training partner applies just enough assistance to keep the weight moving — the muscle is still working maximally.',
+    howto: [
+      'Train to absolute failure on your own first',
+      'Have a partner provide minimal assistance on the positive',
+      'You must still drive the weight — they only take the edge off',
+      'Perform 2–3 forced reps maximum after failure',
+      'The negative should still be done under your own control',
+    ],
+    warning: 'Requires a competent, experienced training partner. Sloppy forced reps are injury-inviting. Mentzer later cautioned against overuse.',
+    yt: 'https://www.youtube.com/watch?v=yi8GmDFD5wc',
+  },
+  {
+    name: 'Pre-Exhaustion',
+    tag: 'Superset Technique',
+    mentzer: 'By pre-fatiguing a target muscle with an isolation exercise immediately before a compound movement, you ensure the target muscle — not a secondary one — reaches failure first.',
+    howto: [
+      'Choose an isolation exercise for the target muscle (e.g. flyes for chest)',
+      'Perform to absolute failure with no rest',
+      'Move immediately — within seconds — to the compound (e.g. dips)',
+      'The compound will feel heavier than usual; that\'s correct',
+      'The chest, already exhausted, will fail before the triceps',
+    ],
+    warning: 'Zero rest between exercises is essential — any pause defeats the purpose.',
+    yt: 'https://www.youtube.com/watch?v=HGsyhldE8iA',
+  },
+  {
+    name: 'Static Holds',
+    tag: 'Isometric Overload',
+    mentzer: 'A static hold at the point of peak contraction or mid-range maximises time under tension. The muscle cannot produce movement but is still fully recruited — this is intense, productive work.',
+    howto: [
+      'Perform your reps to failure as normal',
+      'On the final rep, hold the weight at the hardest point — mid-range or peak',
+      'Maintain the position for as long as possible (5–15 seconds)',
+      'When the hold fails, lower with a controlled negative',
+      'Works particularly well on pull-downs, leg press, and curls',
+    ],
+    warning: 'Do not hold your breath — breathe continuously during the hold.',
+    yt: 'https://www.youtube.com/watch?v=466wT_7rujE',
+  },
+  {
+    name: 'Drop Sets',
+    tag: 'Mentzer\'s Verdict: Skip Them',
+    mentzer: 'Drop sets are popular but unnecessary. If your first set is taken to genuine failure with correct form, there is nothing productive left to stimulate. More sets only dig deeper into your recovery reserves.',
+    howto: [
+      'Mentzer did not programme drop sets into Heavy Duty',
+      'He considered them a relic of high-volume thinking',
+      'One all-out set to failure is sufficient stimulus',
+      'Additional volume extends fatigue without extending growth',
+    ],
+    warning: 'Included here for awareness — Mentzer actively advised against them.',
+    yt: 'https://www.youtube.com/shorts/v5AboDz7utM',
+  },
+];
+
+const ytSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.5 6.2s-.2-1.6-.9-2.3c-.9-.9-1.9-.9-2.3-1C17.6 2.7 12 2.7 12 2.7s-5.6 0-8.3.2c-.4.1-1.4.1-2.3 1-.7.7-.9 2.3-.9 2.3S.2 8 .2 9.8v1.7c0 1.8.3 3.6.3 3.6s.2 1.6.9 2.3c.9.9 2 .9 2.6 1 1.9.2 8 .2 8 .2s5.6 0 8.3-.2c.4-.1 1.4-.1 2.3-1 .7-.7.9-2.3.9-2.3s.3-1.8.3-3.6V9.8c0-1.8-.3-3.6-.3-3.6zM9.7 15.5V8.1l6.3 3.7-6.3 3.7z"/></svg>`;
+
+function renderGuide() {
+  const exCards = EXERCISES.map(ex => {
+    const programPills = ex.program.map(p=>`<span class="guide-prog-pill">${p}</span>`).join('');
+    const cuesList = ex.cues.map(c=>`<li>${c}</li>`).join('');
+    return `
+    <div class="guide-card">
+      <div class="guide-card-head">
+        <div class="guide-ex-name">${ex.name}</div>
+        <div class="guide-muscles">${ex.muscles}</div>
+        <div class="guide-pills">${programPills}</div>
+      </div>
+      <div class="guide-card-body">
+        <div class="guide-quote">"${ex.mentzer}"</div>
+        <ul class="guide-cues">${cuesList}</ul>
+        <a class="guide-yt-link" href="${ex.yt}" target="_blank" rel="noopener">${ytSvg} Watch on Heavy Duty College</a>
+      </div>
+    </div>`;
+  }).join('');
+
+  const techCards = TECHNIQUES.map(t => {
+    const steps = t.howto.map(s=>`<li>${s}</li>`).join('');
+    return `
+    <div class="guide-card guide-card-tech">
+      <div class="guide-card-head">
+        <div class="guide-ex-name">${t.name}</div>
+        <div class="guide-tech-tag">${t.tag}</div>
+      </div>
+      <div class="guide-card-body">
+        <div class="guide-quote">"${t.mentzer}"</div>
+        <ul class="guide-cues">${steps}</ul>
+        <div class="guide-warning">⚠ ${t.warning}</div>
+        <a class="guide-yt-link" href="${t.yt}" target="_blank" rel="noopener">${ytSvg} Watch on Heavy Duty College</a>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('s-guide').innerHTML = `
+    <div class="page-top">
+      <div class="page-title">Exercise Guide</div>
+      <div class="page-subtitle">Brief · Brutal · Basic. Train to failure. Then rest. That's it.</div>
+    </div>
+    <div class="sec"><div class="sec-label">Exercises</div></div>
+    ${exCards}
+    <div class="sec" style="margin-top:16px"><div class="sec-label">Advanced Techniques</div></div>
+    ${techCards}
+    <div class="gap"></div>
+  `;
+}
+
+load();
+renderHome();
+history.replaceState({ screen: 'home', opts: {} }, '');
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+</script>
+</body>
+</html>

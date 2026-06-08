@@ -1,0 +1,19 @@
+{
+  "name": "Heavy Duty",
+  "short_name": "Heavy Duty",
+  "description": "Mike Mentzer Heavy Duty workout tracker",
+  "start_url": "/HeavyDuty/",
+  "scope": "/HeavyDuty/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "heavy-duty-logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
