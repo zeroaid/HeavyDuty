@@ -439,22 +439,6 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 }
 .guide-yt-link:active { background: rgba(255,0,0,0.2); }
 .guide-card-tech .guide-card-head { background: linear-gradient(135deg, rgba(255,255,255,0.03), transparent); }
-.guide-thumb {
-  display: block; position: relative; width: 100%;
-  padding-top: 56.25%; overflow: hidden; background: #111;
-}
-.guide-thumb img {
-  position: absolute; top: 0; left: 0;
-  width: 100%; height: 100%; object-fit: cover;
-  display: block;
-}
-.guide-thumb:active img { opacity: 0.8; }
-.guide-thumb-play {
-  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.2);
-}
-.guide-thumb:active .guide-thumb-play { background: rgba(0,0,0,0.4); }
 .guide-tech-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); margin-top: 4px; }
 .guide-warning { font-size: 12px; color: #f59e0b; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 6px; padding: 8px 10px; margin-bottom: 12px; line-height: 1.5; }
 
@@ -1438,8 +1422,7 @@ const EXERCISES = [
       'One all-out set to momentary muscular failure',
     ],
     mentzer: 'The close grip bench produces the most complete chest contraction achievable on a press movement.',
-    yt: 'https://www.youtube.com/watch?v=iU1rGy3DL50',
-    vid: 'iU1rGy3DL50',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+chest',
   },
   {
     name: 'Close Palm Grip Pull Downs',
@@ -1478,8 +1461,7 @@ const EXERCISES = [
       'Stand fully upright; squeeze glutes at lockout',
     ],
     mentzer: 'I consider deadlifts the most productive exercise in existence. The systemic stimulation is unmatched by any other movement.',
-    yt: 'https://www.youtube.com/watch?v=2xNyQph-RlI',
-    vid: '2xNyQph-RlI',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+deadlift',
   },
   {
     name: 'Dips',
@@ -1492,8 +1474,7 @@ const EXERCISES = [
       '2-second negative — control the descent fully',
     ],
     mentzer: 'Dips are the upper body squat. They demand everything from the pressing muscles simultaneously.',
-    yt: 'https://www.youtube.com/watch?v=NUegLNow1iE',
-    vid: 'NUegLNow1iE',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+dips',
   },
   {
     name: 'Close Grip Pull Ups',
@@ -1519,8 +1500,7 @@ const EXERCISES = [
       'Do not lock out — maintain muscle tension throughout',
     ],
     mentzer: 'The leg press allows heavier loads than the squat, making it ideal for pushing leg development beyond what the spine will permit.',
-    yt: 'https://www.youtube.com/watch?v=in1624LlO3o',
-    vid: 'in1624LlO3o',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+leg+press',
   },
   {
     name: 'Seated Leg Curl',
@@ -1651,29 +1631,12 @@ const TECHNIQUES = [
 
 const ytSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.5 6.2s-.2-1.6-.9-2.3c-.9-.9-1.9-.9-2.3-1C17.6 2.7 12 2.7 12 2.7s-5.6 0-8.3.2c-.4.1-1.4.1-2.3 1-.7.7-.9 2.3-.9 2.3S.2 8 .2 9.8v1.7c0 1.8.3 3.6.3 3.6s.2 1.6.9 2.3c.9.9 2 .9 2.6 1 1.9.2 8 .2 8 .2s5.6 0 8.3-.2c.4-.1 1.4-.1 2.3-1 .7-.7.9-2.3.9-2.3s.3-1.8.3-3.6V9.8c0-1.8-.3-3.6-.3-3.6zM9.7 15.5V8.1l6.3 3.7-6.3 3.7z"/></svg>`;
 
-function ytId(url) {
-  const m = url.match(/(?:v=|shorts\/)([A-Za-z0-9_-]{11})/);
-  return m ? m[1] : null;
-}
-
-function guideThumbnail(url, vid) {
-  const id = vid || ytId(url);
-  if (!id) return '';
-  return `
-    <a class="guide-thumb" href="${url}" target="_blank" rel="noopener">
-      <img src="https://i.ytimg.com/vi/${id}/mqdefault.jpg" alt="Watch on YouTube" onerror="this.parentElement.style.display='none'">
-      <div class="guide-thumb-play"><svg viewBox="0 0 68 48" width="48" height="34"><path d="M66.5 7.7c-.8-2.9-3-5.1-5.8-5.8C55.8.9 34 .9 34 .9S12.2.9 7.3 1.9C4.5 2.6 2.3 4.8 1.5 7.7.5 12.6.5 24 .5 24s0 11.4 1 16.3c.8 2.9 3 5.1 5.8 5.8C12.2 47.1 34 47.1 34 47.1s21.8 0 26.7-1c2.8-.7 5-2.9 5.8-5.8 1-4.9 1-16.3 1-16.3s0-11.4-1-16.3z" fill="#f00"/><path d="M27 33l18-9-18-9v18z" fill="#fff"/></svg></div>
-    </a>`;
-}
-
 function renderGuide() {
   const exCards = EXERCISES.map(ex => {
     const programPills = ex.program.map(p=>`<span class="guide-prog-pill">${p}</span>`).join('');
     const cuesList = ex.cues.map(c=>`<li>${c}</li>`).join('');
-    const thumb = guideThumbnail(ex.yt, ex.vid);
     return `
     <div class="guide-card">
-      ${thumb}
       <div class="guide-card-head">
         <div class="guide-ex-name">${ex.name}</div>
         <div class="guide-muscles">${ex.muscles}</div>
@@ -1689,10 +1652,8 @@ function renderGuide() {
 
   const techCards = TECHNIQUES.map(t => {
     const steps = t.howto.map(s=>`<li>${s}</li>`).join('');
-    const thumb = guideThumbnail(t.yt, null);
     return `
     <div class="guide-card guide-card-tech">
-      ${thumb}
       <div class="guide-card-head">
         <div class="guide-ex-name">${t.name}</div>
         <div class="guide-tech-tag">${t.tag}</div>
