@@ -505,6 +505,28 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .guide-tech-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); margin-top: 4px; }
 .guide-warning { font-size: 12px; color: #f59e0b; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 6px; padding: 8px 10px; margin-bottom: 12px; line-height: 1.5; }
 
+/* ── Insights ────────────────────────────────────────── */
+.ins-card { background:var(--card); border:1px solid var(--border); border-radius:16px; margin:0 20px 12px; overflow:hidden; }
+.ins-card-head { padding:14px 16px 10px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+.ins-card-icon { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ins-card-icon svg { width:16px; height:16px; }
+.ins-card-title { font-size:13px; font-weight:700; color:var(--text); letter-spacing:0.2px; }
+.ins-row { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-bottom:1px solid var(--border); }
+.ins-row:last-child { border-bottom:none; }
+.ins-row-left { font-size:13px; color:var(--text-2); flex:1; min-width:0; }
+.ins-row-name { font-size:13px; color:var(--text); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ins-row-sub { font-size:11px; color:var(--text-3); margin-top:1px; }
+.ins-row-right { text-align:right; flex-shrink:0; margin-left:12px; }
+.ins-row-val { font-size:14px; font-weight:700; color:var(--text); }
+.ins-row-meta { font-size:11px; color:var(--text-3); margin-top:1px; }
+.ins-trend-up   { color:#22c55e; }
+.ins-trend-flat { color:#94a3b8; }
+.ins-trend-down { color:var(--accent); }
+.ins-highlight { background:rgba(204,17,17,0.06); border-radius:10px; padding:10px 16px; margin:0 20px 12px; border:1px solid rgba(204,17,17,0.18); }
+.ins-highlight-val { font-size:28px; font-weight:800; color:var(--accent); letter-spacing:-1px; }
+.ins-highlight-label { font-size:12px; color:var(--text-3); margin-top:2px; }
+.ins-empty { text-align:center; padding:40px 20px; color:var(--text-3); font-size:13px; }
+
 .hd-logo-img { cursor: pointer; }
 .yt-btn {
   display: inline-flex; align-items: center; gap: 8px;
@@ -525,8 +547,9 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
   <div id="s-log"      class="screen"></div>
   <div id="s-detail"   class="screen"></div>
   <div id="s-settings" class="screen"></div>
-  <div id="s-guide"    class="screen"></div>
-  <div id="s-edit"     class="screen"></div>
+  <div id="s-guide"     class="screen"></div>
+  <div id="s-edit"      class="screen"></div>
+  <div id="s-insights"  class="screen"></div>
 </div>
 
 <nav id="nav">
@@ -543,6 +566,11 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
   <button class="nav-btn" data-tab="guide" onclick="go('guide')">
     <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
     Guide
+    <div class="nav-dot"></div>
+  </button>
+  <button class="nav-btn" data-tab="insights" onclick="go('insights')">
+    <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Insights
     <div class="nav-dot"></div>
   </button>
   <button class="nav-btn" data-tab="settings" onclick="go('settings')">
@@ -779,6 +807,7 @@ function go(screen, opts={}, fromPop=false) {
   if (screen==='edit')     renderEdit(opts.id||editId);
   if (screen==='settings') renderSettings();
   if (screen==='guide')    renderGuide();
+  if (screen==='insights') renderInsights();
 }
 
 window.addEventListener('popstate', e => {
@@ -1537,6 +1566,220 @@ function confirmDelete(id) {
     workouts = workouts.filter(w=>w.id!==id);
     save(); hideSheet(); toast('Workout deleted', false); go('history');
   });
+}
+
+// ══════════════════════════════════════════════════════
+//  INSIGHTS
+// ══════════════════════════════════════════════════════
+
+function renderInsights() {
+  const all = asc();
+  if (all.length < 3) {
+    document.getElementById('s-insights').innerHTML =
+      `<div class="page-top"><div class="page-title">Insights</div></div><div class="ins-empty">Log at least 3 sessions to see insights.</div>`;
+    return;
+  }
+
+  // ── helpers ────────────────────────────────────────
+  const daysBetween = (a, b) => Math.round((new Date(b) - new Date(a)) / 86400000);
+
+  // Volume score for an exercise entry: accounts for bodyweight + belt
+  function vol(e, bw) {
+    if (!e || e.r == null) return 0;
+    let w = e.w || 0;
+    if (BW_EX.has(e.n)) {
+      if (e.belt && bw) w = bw + w;
+      else if (bw) w = bw;
+      else w = w || 60; // fallback if no bw recorded
+    }
+    return w * e.r;
+  }
+
+  // ── 1. Personal Records per exercise ───────────────
+  const prMap = {}; // name → {w, r, volume, date, id}
+  for (const w of all) {
+    for (const e of w.ex) {
+      if (!e.n || e.r == null) continue;
+      const v = vol(e, w.bw);
+      if (!prMap[e.n] || v > prMap[e.n].volume) {
+        prMap[e.n] = { w: e.w, r: e.r, volume: v, date: w.date, id: w.id, bw: w.bw };
+      }
+    }
+  }
+  const mainExs = ['Smith Close Grip Bench Press','Close Palm Grip Pull Downs','Smith Squat','Deadlifts','Dips','Close Grip Pull Ups','Leg Press','Seated Leg Curl'];
+  const prRows = mainExs.filter(n => prMap[n]).map(n => {
+    const p = prMap[n];
+    const isBW = BW_EX.has(n);
+    const wLabel = isBW
+      ? (p.bw ? `BW ${p.bw}+${p.w > 0 ? p.w + 'kg' : '0'}` : 'BW')
+      : (p.w > 0 ? p.w + ' kg' : 'BW');
+    const shortName = n.split(' ').slice(-2).join(' ');
+    return `<div class="ins-row" onclick="go('detail',{id:'${p.id}'})" style="cursor:pointer">
+      <div class="ins-row-left"><div class="ins-row-name">${shortName}</div><div class="ins-row-sub">${fmtShort(p.date)}</div></div>
+      <div class="ins-row-right"><div class="ins-row-val">${wLabel} × ${p.r}</div></div>
+    </div>`;
+  }).join('');
+
+  // ── 2. Progress trends (last 4 vs previous 4 per exercise) ─
+  const exHistory = {}; // name → [{date,volume}]
+  for (const w of all) {
+    for (const e of w.ex) {
+      if (!e.n || e.r == null) continue;
+      if (!exHistory[e.n]) exHistory[e.n] = [];
+      exHistory[e.n].push({ date: w.date, v: vol(e, w.bw), w: e.w, r: e.r });
+    }
+  }
+
+  function trend(name) {
+    const hist = exHistory[name];
+    if (!hist || hist.length < 4) return null;
+    const recent = hist.slice(-4);
+    const prev   = hist.slice(-8, -4);
+    if (prev.length < 2) return null;
+    const avgR = recent.reduce((s, x) => s + x.v, 0) / recent.length;
+    const avgP = prev.reduce((s, x) => s + x.v, 0) / prev.length;
+    const pct = avgP > 0 ? Math.round(((avgR - avgP) / avgP) * 100) : 0;
+    return pct;
+  }
+
+  const trendRows = mainExs.filter(n => exHistory[n] && exHistory[n].length >= 4).map(n => {
+    const pct = trend(n);
+    if (pct === null) return '';
+    const cls = pct > 2 ? 'ins-trend-up' : pct < -2 ? 'ins-trend-down' : 'ins-trend-flat';
+    const arrow = pct > 2 ? '↑' : pct < -2 ? '↓' : '→';
+    const label = pct > 2 ? `+${pct}%` : pct < -2 ? `${pct}%` : 'Plateau';
+    const shortName = n.split(' ').slice(-2).join(' ');
+    return `<div class="ins-row">
+      <div class="ins-row-left"><div class="ins-row-name">${shortName}</div><div class="ins-row-sub">last 4 vs previous 4 sessions</div></div>
+      <div class="ins-row-right"><div class="ins-row-val ${cls}">${arrow} ${label}</div></div>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  // ── 3. Rest period analysis ─────────────────────────
+  // For each consecutive pair of same-type sessions, record rest days + performance delta
+  const restData = []; // {type, days, delta (vol change %)}
+  const byType = {};
+  for (const w of all) {
+    if (!byType[w.type]) byType[w.type] = [];
+    byType[w.type].push(w);
+  }
+
+  let totalRest = 0, restCount = 0;
+  let bestRestBucket = null;
+  const buckets = {}; // restDays bucket → [delta%]
+
+  for (const [type, sessions] of Object.entries(byType)) {
+    for (let i = 1; i < sessions.length; i++) {
+      const prev = sessions[i-1], curr = sessions[i];
+      const days = daysBetween(prev.date, curr.date);
+      if (days < 1 || days > 60) continue;
+      totalRest += days; restCount++;
+
+      // volume delta for this type
+      const prevVol = prev.ex.reduce((s, e) => s + vol(e, prev.bw), 0);
+      const currVol = curr.ex.reduce((s, e) => s + vol(e, curr.bw), 0);
+      const delta = prevVol > 0 ? ((currVol - prevVol) / prevVol) * 100 : 0;
+
+      const bucket = Math.min(Math.round(days), 21);
+      if (!buckets[bucket]) buckets[bucket] = [];
+      buckets[bucket].push(delta);
+    }
+  }
+
+  const avgRest = restCount > 0 ? Math.round(totalRest / restCount) : null;
+
+  // Find rest bucket with best average delta (min 2 samples)
+  let bestBucketDays = null, bestBucketDelta = -Infinity;
+  for (const [days, deltas] of Object.entries(buckets)) {
+    if (deltas.length < 2) continue;
+    const avg = deltas.reduce((s, x) => s + x, 0) / deltas.length;
+    if (avg > bestBucketDelta) { bestBucketDelta = avg; bestBucketDays = Number(days); }
+  }
+
+  // Rest rows for consolidated sessions by type
+  const typeRestRows = Object.entries(byType).filter(([t]) => ROT.includes(t)).map(([type, sessions]) => {
+    if (sessions.length < 2) return '';
+    let sum = 0, cnt = 0;
+    for (let i = 1; i < sessions.length; i++) {
+      const d = daysBetween(sessions[i-1].date, sessions[i].date);
+      if (d >= 1 && d <= 60) { sum += d; cnt++; }
+    }
+    if (!cnt) return '';
+    const avg = Math.round(sum / cnt);
+    const cls = avg >= 7 && avg <= 14 ? 'ins-trend-up' : avg < 7 ? 'ins-trend-down' : 'ins-trend-flat';
+    return `<div class="ins-row">
+      <div class="ins-row-left"><div class="ins-row-name">${WK[type].short}: ${WK[type].desc}</div><div class="ins-row-sub">avg rest between sessions</div></div>
+      <div class="ins-row-right"><div class="ins-row-val ${cls}">${avg} days</div></div>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  // ── 4. Body weight ──────────────────────────────────
+  const bwSessions = all.filter(w => w.bw);
+  let bwHtml = '';
+  if (bwSessions.length >= 2) {
+    const first = bwSessions[0], last = bwSessions[bwSessions.length - 1];
+    const change = Math.round((last.bw - first.bw) * 10) / 10;
+    const sign = change > 0 ? '+' : '';
+    const cls = Math.abs(change) < 0.5 ? 'ins-trend-flat' : '';
+    const peak = bwSessions.reduce((a, b) => a.bw > b.bw ? a : b);
+    const low  = bwSessions.reduce((a, b) => a.bw < b.bw ? a : b);
+    bwHtml = `
+      <div class="ins-row"><div class="ins-row-left"><div class="ins-row-name">Starting weight</div><div class="ins-row-sub">${fmtShort(first.date)}</div></div><div class="ins-row-right"><div class="ins-row-val">${first.bw} kg</div></div></div>
+      <div class="ins-row"><div class="ins-row-left"><div class="ins-row-name">Current weight</div><div class="ins-row-sub">${fmtShort(last.date)}</div></div><div class="ins-row-right"><div class="ins-row-val">${last.bw} kg <span class="${change > 0 ? 'ins-trend-down' : 'ins-trend-up'}" style="font-size:12px">(${sign}${change})</span></div></div></div>
+      <div class="ins-row"><div class="ins-row-left"><div class="ins-row-name">Peak</div><div class="ins-row-sub">${fmtShort(peak.date)}</div></div><div class="ins-row-right"><div class="ins-row-val">${peak.bw} kg</div></div></div>
+      <div class="ins-row"><div class="ins-row-left"><div class="ins-row-name">Lowest</div><div class="ins-row-sub">${fmtShort(low.date)}</div></div><div class="ins-row-right"><div class="ins-row-val">${low.bw} kg</div></div></div>`;
+  }
+
+  // ── 5. Top-line stats ───────────────────────────────
+  const months = {};
+  for (const w of all) { const m = w.date.slice(0,7); months[m] = (months[m]||0) + 1; }
+  const monthVals = Object.values(months);
+  const avgPerMonth = monthVals.length ? Math.round(monthVals.reduce((s,x)=>s+x,0) / monthVals.length * 10) / 10 : 0;
+  const lastDate = all[all.length-1].date;
+  const daysSinceLast = daysBetween(lastDate, new Date().toISOString().slice(0,10));
+
+  // ── render ──────────────────────────────────────────
+  document.getElementById('s-insights').innerHTML = `
+    <div class="page-top"><div class="page-title">Insights</div><div class="page-subtitle">Data-driven analysis of your training.</div></div>
+
+    <div style="display:flex;gap:10px;margin:0 20px 14px">
+      <div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;text-align:center">
+        <div style="font-size:26px;font-weight:800;color:var(--text);letter-spacing:-1px">${all.length}</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px">Total sessions</div>
+      </div>
+      <div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;text-align:center">
+        <div style="font-size:26px;font-weight:800;color:var(--text);letter-spacing:-1px">${avgPerMonth}</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px">Avg / month</div>
+      </div>
+      <div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;text-align:center">
+        <div style="font-size:26px;font-weight:800;color:${daysSinceLast > 14 ? 'var(--accent)' : 'var(--text)'};letter-spacing:-1px">${daysSinceLast}</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px">Days since last</div>
+      </div>
+    </div>
+
+    ${prRows ? `
+    <div class="sec"><div class="sec-label">Personal Records</div></div>
+    <div class="ins-card">${prRows}</div>` : ''}
+
+    ${trendRows ? `
+    <div class="sec"><div class="sec-label">Progress Trend</div></div>
+    <div style="margin:0 20px 4px;font-size:11px;color:var(--text-3)">Volume (weight × reps) — recent 4 sessions vs previous 4</div>
+    <div class="ins-card" style="margin-top:8px">${trendRows}</div>` : ''}
+
+    ${typeRestRows || avgRest ? `
+    <div class="sec"><div class="sec-label">Rest & Recovery</div></div>
+    <div class="ins-card">
+      ${avgRest ? `<div class="ins-row"><div class="ins-row-left"><div class="ins-row-name">Overall avg rest</div><div class="ins-row-sub">between any two consecutive sessions</div></div><div class="ins-row-right"><div class="ins-row-val">${avgRest} days</div></div></div>` : ''}
+      ${bestBucketDays ? `<div class="ins-row"><div class="ins-row-left"><div class="ins-row-name">Your sweet spot</div><div class="ins-row-sub">rest days with best avg performance gain</div></div><div class="ins-row-right"><div class="ins-row-val ins-trend-up">${bestBucketDays} days</div></div></div>` : ''}
+      ${typeRestRows}
+    </div>` : ''}
+
+    ${bwHtml ? `
+    <div class="sec"><div class="sec-label">Body Weight</div></div>
+    <div class="ins-card">${bwHtml}</div>` : ''}
+
+    <div style="height:32px"></div>
+  `;
 }
 
 function confirmReset() {
