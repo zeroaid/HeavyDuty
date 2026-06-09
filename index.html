@@ -643,19 +643,35 @@ function load() {
   try {
     const saved = JSON.parse(localStorage.getItem('hit_v2') || 'null');
     if (saved) {
-      const normalised = saved.map(w => normaliseBar(normaliseBelt({
+      const normalised = saved.map(w => normaliseBar(normaliseBelt(normaliseNames({
         ...w,
         method: w.method || (ROT.includes(w.type) ? 'consolidated' : 'legacy')
-      })));
+      }))));
       const ids = new Set(normalised.map(w=>w.id));
       const merged = [...normalised];
-      allSeed.forEach(w=>{ if(!ids.has(w.id)) merged.push(normaliseBar(w)); });
+      allSeed.forEach(w=>{ if(!ids.has(w.id)) merged.push(normaliseBar(normaliseNames(w))); });
       workouts = merged;
     } else {
-      workouts = allSeed.map(w => normaliseBar(normaliseBelt(w)));
+      workouts = allSeed.map(w => normaliseBar(normaliseBelt(normaliseNames(w))));
     }
   } catch { workouts = allSeed; }
   save();
+}
+const EXERCISE_ALIASES = {
+  'Pull Down T-Bar':            'Close Palm Grip Pull Downs',
+  'T-Bar Pull Down':            'Close Palm Grip Pull Downs',
+  'Close Grip Pull Downs':      'Close Palm Grip Pull Downs',
+  'Lat Pull Down':              'Close Palm Grip Pull Downs',
+  'Lat Pulldown':               'Close Palm Grip Pull Downs',
+};
+function normaliseNames(w) {
+  return {
+    ...w,
+    ex: w.ex.map(e => {
+      const canonical = EXERCISE_ALIASES[e.n];
+      return canonical ? { ...e, n: canonical } : e;
+    })
+  };
 }
 function normaliseBelt(w) {
   return {
