@@ -1615,10 +1615,14 @@ function toggleClaudeKeyVisibility() {
 function renderInsights() {
   const key = localStorage.getItem('hd_claude_key');
   document.getElementById('s-insights').innerHTML = `
-    <div class="page-top">
-      <div class="page-title">Claude AI</div>
-      <div class="page-subtitle">Ask anything about your training data.</div>
+    <div class="page-top" style="display:flex;align-items:flex-start;justify-content:space-between">
+      <div>
+        <div class="page-title">Claude AI</div>
+        <div class="page-subtitle">Ask anything about your training data.</div>
+      </div>
+      <button onclick="aiToggleLog()" title="Debug log" style="background:none;border:1px solid var(--border);border-radius:8px;padding:5px 9px;font-size:11px;color:var(--text-3);cursor:pointer;margin-top:56px;flex-shrink:0">Debug</button>
     </div>
+    <div id="ai-log-panel" style="display:none;margin:0 20px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;max-height:320px;overflow-y:auto;font-family:monospace"></div>
 
     ${!key ? `
     <div class="ai-no-key">
@@ -1657,6 +1661,42 @@ function renderInsights() {
 function aiSetPrompt(text) {
   const ta = document.getElementById('ai-prompt');
   if (ta) { ta.value = text; ta.focus(); }
+}
+
+// ── AI debug log (session-scoped, survives screen re-renders) ──
+window._aiLog = window._aiLog || [];
+function aiLogPush(entry) {
+  window._aiLog.unshift({ ts: new Date().toISOString(), ...entry });
+  if (window._aiLog.length > 20) window._aiLog.length = 20;
+  // refresh log panel if it's open
+  const panel = document.getElementById('ai-log-panel');
+  if (panel && panel.style.display !== 'none') aiRenderLog();
+}
+
+function aiToggleLog() {
+  const panel = document.getElementById('ai-log-panel');
+  if (!panel) return;
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (!open) aiRenderLog();
+}
+
+function aiRenderLog() {
+  const panel = document.getElementById('ai-log-panel');
+  if (!panel) return;
+  if (!window._aiLog.length) { panel.innerHTML = '<div style="padding:12px 16px;font-size:12px;color:var(--text-3)">No entries yet.</div>'; return; }
+  panel.innerHTML = window._aiLog.map((e, i) => {
+    const ok = e.status >= 200 && e.status < 300;
+    const colour = ok ? 'var(--green)' : 'var(--accent)';
+    const summary = `${e.ts.slice(11,19)}  HTTP ${e.status||'—'}  ${e.requestId||''}  ${e.durationMs ? e.durationMs+'ms' : ''}`;
+    const detail = JSON.stringify(e, null, 2).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return `<div style="border-bottom:1px solid var(--border);padding:10px 14px">
+      <div style="font-size:11px;font-family:monospace;color:${colour};margin-bottom:4px">${summary}</div>
+      ${e.error ? `<div style="font-size:12px;color:var(--accent);margin-bottom:4px">${e.error}</div>` : ''}
+      <details><summary style="font-size:11px;color:var(--text-3);cursor:pointer">Raw</summary>
+      <pre style="font-size:10px;color:var(--text-2);white-space:pre-wrap;word-break:break-all;margin-top:6px;max-height:200px;overflow-y:auto">${detail}</pre></details>
+    </div>`;
+  }).join('');
 }
 
 async function askClaude() {
@@ -1708,6 +1748,17 @@ When you respond:
 - Keep the response focused and actionable (no fluff)
 - Use markdown: **bold** for key points, bullet lists for multiple items, headers for sections if needed`;
 
+  const reqBody = {
+    model: 'claude-opus-4-8',
+    max_tokens: 8000,
+    thinking: { type: 'adaptive' },
+    system: systemPrompt,
+    messages: [{ role: 'user', content: prompt }]
+  };
+
+  const t0 = Date.now();
+  let httpStatus = null, requestId = null, rawBody = null;
+
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -1717,27 +1768,48 @@ When you respond:
         'content-type': 'application/json',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
-      body: JSON.stringify({
-        model: 'claude-opus-4-8',
-        max_tokens: 8000,
-        thinking: { type: 'adaptive' },
-        system: systemPrompt,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body: JSON.stringify(reqBody)
     });
 
+    httpStatus = res.status;
+    requestId  = res.headers.get('request-id') || res.headers.get('x-request-id') || '';
+    rawBody    = await res.text();
+    const durationMs = Date.now() - t0;
+
+    let data;
+    try { data = JSON.parse(rawBody); } catch(e) { throw new Error(`Non-JSON response: ${rawBody.slice(0,200)}`); }
+
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error?.message || `API error ${res.status}`);
+      const msg = data.error?.message || `HTTP ${res.status}`;
+      aiLogPush({ status: httpStatus, requestId, durationMs, error: msg, response: data });
+      throw new Error(msg);
     }
 
-    const data = await res.json();
-    const textBlock = (data.content || []).find(b => b.type === 'text');
-    if (!textBlock) throw new Error(`No text in response. stop_reason: ${data.stop_reason}, blocks: ${(data.content||[]).map(b=>b.type).join(',')}`);
-    const text = textBlock.text;
-    area.innerHTML = `<div class="ai-response-box"><div class="ai-response-text">${aiMarkdown(text)}</div></div>`;
+    const blocks     = data.content || [];
+    const textBlock  = blocks.find(b => b.type === 'text');
+    const usage      = data.usage || {};
+
+    aiLogPush({
+      status: httpStatus, requestId, durationMs,
+      stop_reason: data.stop_reason,
+      block_types: blocks.map(b => b.type),
+      input_tokens: usage.input_tokens,
+      output_tokens: usage.output_tokens,
+      cache_read: usage.cache_read_input_tokens,
+    });
+
+    if (!textBlock) throw new Error(`No text block. stop_reason=${data.stop_reason}, blocks=[${blocks.map(b=>b.type).join(',')}]`);
+
+    area.innerHTML = `<div class="ai-response-box"><div class="ai-response-text">${aiMarkdown(textBlock.text)}</div></div>`;
   } catch (err) {
-    area.innerHTML = `<div class="ai-response-box"><div class="ai-error">⚠ ${err.message}</div></div>`;
+    if (httpStatus === null) {
+      // Network / CORS failure — no response at all
+      aiLogPush({ status: 'NETWORK_ERROR', durationMs: Date.now()-t0, error: err.message });
+    }
+    area.innerHTML = `<div class="ai-response-box">
+      <div class="ai-error">⚠ ${err.message.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      <div style="margin-top:8px"><button onclick="aiToggleLog()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--text-3);cursor:pointer">Show debug log</button></div>
+    </div>`;
   } finally {
     sendBtn.disabled = false;
     sendBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Ask Claude';
