@@ -127,8 +127,38 @@ body {
 /* ── Stat Chips ──────────────────────────────────────── */
 .stat-row { display: flex; gap: 10px; margin: 0 20px; }
 .stat-chip { flex: 1; background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-md); padding: 14px 12px; text-align: center; }
+.stat-chip-btn { cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.stat-chip-btn:active { background: var(--surface-2); border-color: var(--border-hi); }
 .stat-val { font-size: 24px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
 .stat-lbl { font-size: 11px; color: var(--text-3); margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── Calendar Sheet ──────────────────────────────────── */
+#cal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 400; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+#cal-bg.show { display: block; }
+#cal-sheet {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 500;
+  background: var(--surface-2); border-radius: 24px 24px 0 0;
+  padding: 0 0 calc(24px + var(--safe-b));
+  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+}
+#cal-sheet.show { transform: translateY(0); }
+.cal-header { display: flex; align-items: center; justify-content: space-between; padding: 0 8px 12px; }
+.cal-month-label { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; color: var(--text); }
+.cal-nav { background: none; border: none; color: var(--text-2); cursor: pointer; padding: 10px 14px; border-radius: 10px; transition: background 0.15s; }
+.cal-nav:active { background: var(--surface-3); }
+.cal-nav svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; display: block; }
+.cal-dow { display: grid; grid-template-columns: repeat(7,1fr); padding: 0 16px; margin-bottom: 2px; }
+.cal-dow > div { text-align: center; font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; padding: 4px 0; letter-spacing: 0.3px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); padding: 0 16px; gap: 3px; }
+.cal-cell { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--text-3); position: relative; }
+.cal-day { color: var(--text-2); }
+.cal-today span { color: var(--text); font-weight: 800; }
+.cal-today::after { content: ''; position: absolute; bottom: 5px; width: 4px; height: 4px; border-radius: 50%; background: var(--text-3); }
+.cal-workout { background: var(--accent-3); cursor: pointer; transition: background 0.12s; }
+.cal-workout:active { background: var(--accent-2); }
+.cal-workout span { color: var(--accent); font-weight: 800; }
+.cal-workout-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); position: absolute; bottom: 5px; }
+.cal-today.cal-workout::after { background: var(--accent); }
 
 /* ── History Cards ───────────────────────────────────── */
 .hist-card {
@@ -500,6 +530,12 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
   <div class="sheet-msg" id="sh-msg"></div>
   <button class="sheet-btn sheet-btn-danger" id="sh-ok"></button>
   <button class="sheet-btn sheet-btn-cancel" onclick="hideSheet()">Cancel</button>
+</div>
+
+<div id="cal-bg" onclick="hideCalendar()"></div>
+<div id="cal-sheet">
+  <div class="sheet-handle"></div>
+  <div id="cal-body"></div>
 </div>
 
 <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
@@ -875,8 +911,8 @@ function renderHome() {
   const consolidatedCount = workouts.filter(w=>w.method==='consolidated').length;
   const lastConsolidated = asc().filter(w=>w.method==='consolidated').slice(-1)[0];
   const statChips = `
-    <div class="stat-chip"><div class="stat-val">${consolidatedCount}</div><div class="stat-lbl">Sessions</div></div>
-    <div class="stat-chip"><div class="stat-val">${lastConsolidated?daysAgo(lastConsolidated.date):'—'}</div><div class="stat-lbl">Days Rest</div></div>
+    <div class="stat-chip stat-chip-btn" onclick="goToHistorySection('consolidated')"><div class="stat-val">${consolidatedCount}</div><div class="stat-lbl">Sessions</div></div>
+    <div class="stat-chip stat-chip-btn" onclick="showCalendar()"><div class="stat-val">${lastConsolidated?daysAgo(lastConsolidated.date):'—'}</div><div class="stat-lbl">Days Rest</div></div>
     ${lbw?`<div class="stat-chip"><div class="stat-val">${lbw.bw}</div><div class="stat-lbl">kg BW</div></div>`:''}
   `;
 
@@ -1563,6 +1599,64 @@ function confirmReset() {
 // ══════════════════════════════════════════════════════
 //  SHEET & TOAST
 // ══════════════════════════════════════════════════════
+
+// ── Calendar ──────────────────────────────────────────
+let calMonth, calYear;
+const CAL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function showCalendar() {
+  const now = new Date();
+  calMonth = now.getMonth();
+  calYear  = now.getFullYear();
+  renderCalendar();
+  document.getElementById('cal-bg').classList.add('show');
+  requestAnimationFrame(()=>document.getElementById('cal-sheet').classList.add('show'));
+}
+
+function hideCalendar() {
+  document.getElementById('cal-sheet').classList.remove('show');
+  document.getElementById('cal-bg').classList.remove('show');
+}
+
+function calNav(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const todayStr = today();
+  const byDate = {};
+  workouts.forEach(w => { byDate[w.date] = w; });
+
+  const firstDow = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+  const startOffset = (firstDow + 6) % 7; // shift to Mon=0
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+  let cells = '';
+  for (let i = 0; i < startOffset; i++) cells += `<div class="cal-cell"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = ds === todayStr;
+    const w = byDate[ds];
+    let cls = 'cal-cell cal-day';
+    if (isToday)  cls += ' cal-today';
+    if (w)        cls += ' cal-workout';
+    const tap = w ? `onclick="hideCalendar();go('detail',{id:'${w.id}'})"` : '';
+    cells += `<div class="${cls}" ${tap}><span>${d}</span>${w?'<div class="cal-workout-dot"></div>':''}</div>`;
+  }
+
+  document.getElementById('cal-body').innerHTML = `
+    <div class="cal-header">
+      <button class="cal-nav" onclick="calNav(-1)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="cal-month-label">${CAL_MONTHS[calMonth]} ${calYear}</div>
+      <button class="cal-nav" onclick="calNav(1)"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+    <div class="cal-dow"><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div><div>S</div></div>
+    <div class="cal-grid">${cells}</div>
+  `;
+}
 
 function showSheet(title, msg, okLabel, onOk) {
   document.getElementById('sh-title').textContent = title;
