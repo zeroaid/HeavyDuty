@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
 <link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="heavy-duty-logo.png">
+<link rel="apple-touch-icon" href="heavy-duty-logo.png">
 <title>Heavy Duty</title>
 <style>
 /* ── Reset & Tokens ─────────────────────────────────── */
@@ -344,6 +346,7 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
   transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
 }
 #sheet.show { transform: translateY(0); }
+#sheet.dragging { transition: none; }
 .sheet-handle { width: 36px; height: 4px; background: var(--border-hi); border-radius: 2px; margin: 12px auto 20px; }
 .sheet-title { font-size: 18px; font-weight: 800; padding: 0 20px 6px; letter-spacing: -0.3px; }
 .sheet-msg { font-size: 14px; color: var(--text-2); padding: 0 20px 20px; line-height: 1.5; }
@@ -1820,6 +1823,48 @@ function hideSheet() {
   document.getElementById('sheet').classList.remove('show');
   document.getElementById('sheet-bg').classList.remove('show');
 }
+
+// ── Sheet drag-to-dismiss ──────────────────────────────
+(function() {
+  let startY = 0, curY = 0, dragging = false;
+
+  function onStart(e) {
+    const sheet = document.getElementById('sheet');
+    if (!sheet.classList.contains('show')) return;
+    startY = (e.touches ? e.touches[0].clientY : e.clientY);
+    curY = 0;
+    dragging = true;
+    sheet.classList.add('dragging');
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY);
+    curY = Math.max(0, y - startY);
+    document.getElementById('sheet').style.transform = `translateY(${curY}px)`;
+  }
+
+  function onEnd() {
+    if (!dragging) return;
+    dragging = false;
+    const sheet = document.getElementById('sheet');
+    sheet.classList.remove('dragging');
+    if (curY > 80) {
+      sheet.style.transform = '';
+      hideSheet();
+    } else {
+      sheet.style.transform = '';
+    }
+  }
+
+  document.addEventListener('touchstart', e => {
+    if (e.target.closest('#sheet')) onStart(e);
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    if (dragging) onMove(e);
+  }, { passive: true });
+  document.addEventListener('touchend', onEnd);
+})();
 
 let _tid;
 function toast(msg, err) {
