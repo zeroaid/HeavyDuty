@@ -445,6 +445,20 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
   font-style: italic; font-weight: 400; max-width: 300px;
   letter-spacing: 0.01em;
 }
+/* ── Guide Hero Image ────────────────────────────────── */
+.guide-hero-img-wrap {
+  position: relative; width: 100%; margin-top: 4px; overflow: hidden;
+}
+.guide-hero-img {
+  display: block; width: 100%; max-height: 320px; object-fit: cover; object-position: center 20%;
+  filter: grayscale(1) contrast(1.15) brightness(0.85);
+}
+.guide-hero-fade {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 60%;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+  pointer-events: none;
+}
+
 /* ── Exercise Guide ──────────────────────────────────── */
 .guide-card {
   margin: 6px 20px; border-radius: var(--r-md);
@@ -2027,6 +2041,10 @@ function renderGuide() {
     <div class="page-top">
       <div class="page-title">Exercise Guide</div>
       <div class="page-subtitle">Brief · Brutal · Basic. Train to failure. Then rest. That's it.</div>
+    </div>
+    <div class="guide-hero-img-wrap">
+      <img src="Mike-Mentzer-Training-Philosphy-1700971102.jpg" alt="Mike Mentzer training" class="guide-hero-img">
+      <div class="guide-hero-fade"></div>
     </div>
     <div class="sec"><div class="sec-label">Exercises</div></div>
     ${exCards}
