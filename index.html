@@ -1719,7 +1719,7 @@ When you respond:
       },
       body: JSON.stringify({
         model: 'claude-opus-4-8',
-        max_tokens: 1500,
+        max_tokens: 8000,
         thinking: { type: 'adaptive' },
         system: systemPrompt,
         messages: [{ role: 'user', content: prompt }]
@@ -1733,7 +1733,8 @@ When you respond:
 
     const data = await res.json();
     const textBlock = (data.content || []).find(b => b.type === 'text');
-    const text = textBlock?.text || 'No response received.';
+    if (!textBlock) throw new Error(`No text in response. stop_reason: ${data.stop_reason}, blocks: ${(data.content||[]).map(b=>b.type).join(',')}`);
+    const text = textBlock.text;
     area.innerHTML = `<div class="ai-response-box"><div class="ai-response-text">${aiMarkdown(text)}</div></div>`;
   } catch (err) {
     area.innerHTML = `<div class="ai-response-box"><div class="ai-error">⚠ ${err.message}</div></div>`;
