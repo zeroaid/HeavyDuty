@@ -1725,19 +1725,32 @@ async function askClaude() {
   sendBtn.innerHTML = '<div class="ai-loading" style="padding:0;margin:0"><span></span><span></span><span></span></div>';
   area.innerHTML = '<div class="ai-response-box"><div class="ai-loading"><span></span><span></span><span></span></div></div>';
 
-  // Build compact workout context
-  const sessions = workouts.slice().sort((a,b)=>a.date<b.date?-1:1).map(w => ({
-    date: w.date,
-    type: w.type,
-    method: w.method || 'legacy',
-    bodyweight_kg: w.bw || null,
-    exercises: (w.ex||[]).filter(e=>e.n).map(e=>({
-      name: e.n,
-      weight_kg: e.w ?? null,
-      reps: e.r ?? null,
-      notes: e.notes || undefined
-    }))
-  }));
+  // Build full workout context — include every field Claude needs
+  const sessions = workouts.slice().sort((a,b)=>a.date<b.date?-1:1).map(w => {
+    const obj = {
+      date:           w.date,
+      type:           w.type,
+      method:         w.method || 'legacy',
+      bodyweight_kg:  w.bw  || null,
+      bodyfat_pct:    w.bf  || null,
+      session_note:   w.note || null,
+      exercises: (w.ex||[]).filter(e=>e.n).map(e => {
+        const ex = {
+          name:      e.n,
+          weight_kg: e.w ?? null,
+          reps:      e.r ?? null,
+        };
+        if (e.note)  ex.note  = e.note;   // technique cues, angle changes, rest-pause etc.
+        if (e.belt)  ex.belt  = e.belt;
+        if (e.bar)   ex.bar   = e.bar;    // trap / olympic bar
+        return ex;
+      })
+    };
+    // strip null top-level fields to keep payload lean
+    if (!obj.bodyfat_pct)  delete obj.bodyfat_pct;
+    if (!obj.session_note) delete obj.session_note;
+    return obj;
+  });
 
   const systemPrompt = `You are an expert coach specialising in Mike Mentzer's Heavy Duty high-intensity training (HIT). You are analysing a user's complete workout history.
 
