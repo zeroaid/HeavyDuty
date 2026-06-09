@@ -505,27 +505,33 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .guide-tech-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); margin-top: 4px; }
 .guide-warning { font-size: 12px; color: #f59e0b; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 6px; padding: 8px 10px; margin-bottom: 12px; line-height: 1.5; }
 
-/* ── Insights ────────────────────────────────────────── */
-.ins-card { background:var(--card); border:1px solid var(--border); border-radius:16px; margin:0 20px 12px; overflow:hidden; }
-.ins-card-head { padding:14px 16px 10px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
-.ins-card-icon { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.ins-card-icon svg { width:16px; height:16px; }
-.ins-card-title { font-size:13px; font-weight:700; color:var(--text); letter-spacing:0.2px; }
-.ins-row { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-bottom:1px solid var(--border); }
-.ins-row:last-child { border-bottom:none; }
-.ins-row-left { font-size:13px; color:var(--text-2); flex:1; min-width:0; }
-.ins-row-name { font-size:13px; color:var(--text); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.ins-row-sub { font-size:11px; color:var(--text-3); margin-top:1px; }
-.ins-row-right { text-align:right; flex-shrink:0; margin-left:12px; }
-.ins-row-val { font-size:14px; font-weight:700; color:var(--text); }
-.ins-row-meta { font-size:11px; color:var(--text-3); margin-top:1px; }
-.ins-trend-up   { color:#22c55e; }
-.ins-trend-flat { color:#94a3b8; }
-.ins-trend-down { color:var(--accent); }
-.ins-highlight { background:rgba(204,17,17,0.06); border-radius:10px; padding:10px 16px; margin:0 20px 12px; border:1px solid rgba(204,17,17,0.18); }
-.ins-highlight-val { font-size:28px; font-weight:800; color:var(--accent); letter-spacing:-1px; }
-.ins-highlight-label { font-size:12px; color:var(--text-3); margin-top:2px; }
-.ins-empty { text-align:center; padding:40px 20px; color:var(--text-3); font-size:13px; }
+/* ── Claude AI Insights ─────────────────────────────── */
+.ai-no-key { display:flex; flex-direction:column; align-items:center; padding:48px 32px; gap:16px; text-align:center; }
+.ai-no-key-icon { width:60px; height:60px; border-radius:20px; background:var(--accent-2); border:1px solid rgba(204,17,17,0.2); display:flex; align-items:center; justify-content:center; }
+.ai-no-key-icon svg { width:30px; height:30px; stroke:var(--accent); }
+.ai-no-key-text { font-size:14px; color:var(--text-2); line-height:1.6; }
+.ai-no-key-btn { background:var(--accent); color:#fff; border:none; border-radius:12px; padding:12px 28px; font-size:14px; font-weight:700; cursor:pointer; margin-top:4px; }
+.ai-chips { display:flex; flex-wrap:wrap; gap:8px; padding:4px 20px 14px; }
+.ai-chip { background:var(--surface-2); border:1px solid var(--border); border-radius:20px; padding:7px 14px; font-size:12px; font-weight:600; color:var(--text-2); cursor:pointer; white-space:nowrap; transition:background 0.15s,border-color 0.15s,color 0.15s; }
+.ai-chip:active { background:var(--accent-2); border-color:var(--accent); color:var(--text); }
+.ai-textarea { width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:12px 14px; color:var(--text); font-size:14px; font-family:inherit; resize:none; outline:none; line-height:1.5; }
+.ai-textarea:focus { border-color:var(--border-hi); }
+.ai-send-btn { display:flex; align-items:center; gap:8px; background:var(--accent); color:#fff; border:none; border-radius:12px; padding:12px 20px; font-size:14px; font-weight:700; cursor:pointer; flex:1; justify-content:center; transition:opacity 0.2s; }
+.ai-send-btn:disabled { opacity:0.45; cursor:default; }
+.ai-response-box { margin:0 20px 16px; padding:16px; background:var(--surface-2); border:1px solid var(--border); border-radius:16px; }
+.ai-response-text { font-size:14px; color:var(--text); line-height:1.75; }
+.ai-response-text strong { color:var(--text); font-weight:700; }
+.ai-response-text ul { padding-left:20px; margin:8px 0; }
+.ai-response-text li { margin:5px 0; }
+.ai-response-text h4 { font-size:15px; font-weight:700; margin:14px 0 6px; color:var(--text); }
+.ai-response-text p { margin:0 0 10px; }
+.ai-response-text p:last-child { margin-bottom:0; }
+.ai-error { font-size:13px; color:var(--accent); padding:4px 0; }
+.ai-loading { display:flex; gap:7px; justify-content:center; padding:16px 0; }
+.ai-loading span { width:9px; height:9px; border-radius:50%; background:var(--accent); animation:aiPulse 1.2s ease-in-out infinite; }
+.ai-loading span:nth-child(2) { animation-delay:0.2s; }
+.ai-loading span:nth-child(3) { animation-delay:0.4s; }
+@keyframes aiPulse { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
 
 .hd-logo-img { cursor: pointer; }
 .yt-btn {
@@ -1514,6 +1520,27 @@ function renderSettings() {
       </div>
     </div>
 
+    <div class="sec"><div class="sec-label">AI Analysis</div></div>
+    <div style="margin:0 20px">
+      <div class="settings-card" style="padding:16px 16px 14px">
+        <div style="font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:12px">Enter your Anthropic API key to enable Claude AI analysis in the Insights tab. The key is stored only in this browser — never sent anywhere except the Anthropic API.</div>
+        <div style="position:relative">
+          <input type="password" id="claude-key-input"
+                 value="${localStorage.getItem('hd_claude_key')||''}"
+                 placeholder="sk-ant-api03-…"
+                 autocomplete="off" spellcheck="false"
+                 style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:10px;padding:10px 42px 10px 12px;color:var(--text);font-size:13px;font-family:ui-monospace,monospace;outline:none;-webkit-text-fill-color:var(--text)"
+                 oninput="saveClaudeKey(this.value)">
+          <button onclick="toggleClaudeKeyVisibility()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;line-height:0">
+            <svg id="key-eye-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div id="claude-key-status" style="font-size:11px;margin-top:8px;color:${localStorage.getItem('hd_claude_key')?'var(--green)':'var(--text-3)'}">
+          ${localStorage.getItem('hd_claude_key') ? '✓ API key saved' : 'No key saved'}
+        </div>
+      </div>
+    </div>
+
     <div class="footer-note">
       <img src="heavy-duty-logo.png" alt="Heavy Duty"
            style="display:block;margin:0 auto 14px;width:140px;opacity:0.9;filter:invert(1) contrast(2) brightness(1.05) drop-shadow(0 0 18px rgba(204,17,17,0.35))">
@@ -1568,218 +1595,184 @@ function confirmDelete(id) {
   });
 }
 
+function saveClaudeKey(val) {
+  const v = val.trim();
+  if (v) localStorage.setItem('hd_claude_key', v);
+  else localStorage.removeItem('hd_claude_key');
+  const status = document.getElementById('claude-key-status');
+  if (status) { status.textContent = v ? '✓ API key saved' : 'No key saved'; status.style.color = v ? 'var(--green)' : 'var(--text-3)'; }
+}
+
+function toggleClaudeKeyVisibility() {
+  const input = document.getElementById('claude-key-input');
+  if (input) input.type = input.type === 'password' ? 'text' : 'password';
+}
+
 // ══════════════════════════════════════════════════════
 //  INSIGHTS
 // ══════════════════════════════════════════════════════
 
 function renderInsights() {
-  const all = asc();
-  if (all.length < 3) {
-    document.getElementById('s-insights').innerHTML =
-      `<div class="page-top"><div class="page-title">Insights</div></div><div class="ins-empty">Log at least 3 sessions to see insights.</div>`;
-    return;
-  }
-
-  // ── helpers ────────────────────────────────────────
-  const daysBetween = (a, b) => Math.round((new Date(b) - new Date(a)) / 86400000);
-
-  // Volume score for an exercise entry: accounts for bodyweight + belt
-  function vol(e, bw) {
-    if (!e || e.r == null) return 0;
-    let w = e.w || 0;
-    if (BW_EX.has(e.n)) {
-      if (e.belt && bw) w = bw + w;
-      else if (bw) w = bw;
-      else w = w || 60; // fallback if no bw recorded
-    }
-    return w * e.r;
-  }
-
-  // ── 1. Personal Records per exercise ───────────────
-  const prMap = {}; // name → {w, r, volume, date, id}
-  for (const w of all) {
-    for (const e of w.ex) {
-      if (!e.n || e.r == null) continue;
-      const v = vol(e, w.bw);
-      if (!prMap[e.n] || v > prMap[e.n].volume) {
-        prMap[e.n] = { w: e.w, r: e.r, volume: v, date: w.date, id: w.id, bw: w.bw };
-      }
-    }
-  }
-  const mainExs = ['Smith Close Grip Bench Press','Close Palm Grip Pull Downs','Smith Squat','Deadlifts','Dips','Close Grip Pull Ups','Leg Press','Seated Leg Curl'];
-  const prRows = mainExs.filter(n => prMap[n]).map(n => {
-    const p = prMap[n];
-    const isBW = BW_EX.has(n);
-    const wLabel = isBW
-      ? (p.bw ? `BW ${p.bw}+${p.w > 0 ? p.w + 'kg' : '0'}` : 'BW')
-      : (p.w > 0 ? p.w + ' kg' : 'BW');
-    const shortName = n.split(' ').slice(-2).join(' ');
-    return `<div class="ins-row" onclick="go('detail',{id:'${p.id}'})" style="cursor:pointer">
-      <div class="ins-row-left"><div class="ins-row-name">${shortName}</div><div class="ins-row-sub">${fmtShort(p.date)}</div></div>
-      <div class="ins-row-right"><div class="ins-row-val">${wLabel} × ${p.r}</div></div>
-    </div>`;
-  }).join('');
-
-  // ── 2. Progress trends (last 4 vs previous 4 per exercise) ─
-  const exHistory = {}; // name → [{date,volume}]
-  for (const w of all) {
-    for (const e of w.ex) {
-      if (!e.n || e.r == null) continue;
-      if (!exHistory[e.n]) exHistory[e.n] = [];
-      exHistory[e.n].push({ date: w.date, v: vol(e, w.bw), w: e.w, r: e.r });
-    }
-  }
-
-  function trend(name) {
-    const hist = exHistory[name];
-    if (!hist || hist.length < 4) return null;
-    const recent = hist.slice(-4);
-    const prev   = hist.slice(-8, -4);
-    if (prev.length < 2) return null;
-    const avgR = recent.reduce((s, x) => s + x.v, 0) / recent.length;
-    const avgP = prev.reduce((s, x) => s + x.v, 0) / prev.length;
-    const pct = avgP > 0 ? Math.round(((avgR - avgP) / avgP) * 100) : 0;
-    return pct;
-  }
-
-  const trendRows = mainExs.filter(n => exHistory[n] && exHistory[n].length >= 4).map(n => {
-    const pct = trend(n);
-    if (pct === null) return '';
-    const cls = pct > 2 ? 'ins-trend-up' : pct < -2 ? 'ins-trend-down' : 'ins-trend-flat';
-    const arrow = pct > 2 ? '↑' : pct < -2 ? '↓' : '→';
-    const label = pct > 2 ? `+${pct}%` : pct < -2 ? `${pct}%` : 'Plateau';
-    const shortName = n.split(' ').slice(-2).join(' ');
-    return `<div class="ins-row">
-      <div class="ins-row-left"><div class="ins-row-name">${shortName}</div><div class="ins-row-sub">last 4 vs previous 4 sessions</div></div>
-      <div class="ins-row-right"><div class="ins-row-val ${cls}">${arrow} ${label}</div></div>
-    </div>`;
-  }).filter(Boolean).join('');
-
-  // ── 3. Rest period analysis ─────────────────────────
-  // For each consecutive pair of same-type sessions, record rest days + performance delta
-  const restData = []; // {type, days, delta (vol change %)}
-  const byType = {};
-  for (const w of all) {
-    if (!byType[w.type]) byType[w.type] = [];
-    byType[w.type].push(w);
-  }
-
-  let totalRest = 0, restCount = 0;
-  let bestRestBucket = null;
-  const buckets = {}; // restDays bucket → [delta%]
-
-  for (const [type, sessions] of Object.entries(byType)) {
-    for (let i = 1; i < sessions.length; i++) {
-      const prev = sessions[i-1], curr = sessions[i];
-      const days = daysBetween(prev.date, curr.date);
-      if (days < 1 || days > 60) continue;
-      totalRest += days; restCount++;
-
-      // volume delta for this type
-      const prevVol = prev.ex.reduce((s, e) => s + vol(e, prev.bw), 0);
-      const currVol = curr.ex.reduce((s, e) => s + vol(e, curr.bw), 0);
-      const delta = prevVol > 0 ? ((currVol - prevVol) / prevVol) * 100 : 0;
-
-      const bucket = Math.min(Math.round(days), 21);
-      if (!buckets[bucket]) buckets[bucket] = [];
-      buckets[bucket].push(delta);
-    }
-  }
-
-  const avgRest = restCount > 0 ? Math.round(totalRest / restCount) : null;
-
-  // Find rest bucket with best average delta (min 2 samples)
-  let bestBucketDays = null, bestBucketDelta = -Infinity;
-  for (const [days, deltas] of Object.entries(buckets)) {
-    if (deltas.length < 2) continue;
-    const avg = deltas.reduce((s, x) => s + x, 0) / deltas.length;
-    if (avg > bestBucketDelta) { bestBucketDelta = avg; bestBucketDays = Number(days); }
-  }
-
-  // Rest rows for consolidated sessions by type
-  const typeRestRows = Object.entries(byType).filter(([t]) => ROT.includes(t)).map(([type, sessions]) => {
-    if (sessions.length < 2) return '';
-    let sum = 0, cnt = 0;
-    for (let i = 1; i < sessions.length; i++) {
-      const d = daysBetween(sessions[i-1].date, sessions[i].date);
-      if (d >= 1 && d <= 60) { sum += d; cnt++; }
-    }
-    if (!cnt) return '';
-    const avg = Math.round(sum / cnt);
-    const cls = avg >= 7 && avg <= 14 ? 'ins-trend-up' : avg < 7 ? 'ins-trend-down' : 'ins-trend-flat';
-    return `<div class="ins-row">
-      <div class="ins-row-left"><div class="ins-row-name">${WK[type].short}: ${WK[type].desc}</div><div class="ins-row-sub">avg rest between sessions</div></div>
-      <div class="ins-row-right"><div class="ins-row-val ${cls}">${avg} days</div></div>
-    </div>`;
-  }).filter(Boolean).join('');
-
-  // ── 4. Body weight ──────────────────────────────────
-  const bwSessions = all.filter(w => w.bw);
-  let bwHtml = '';
-  if (bwSessions.length >= 2) {
-    const first = bwSessions[0], last = bwSessions[bwSessions.length - 1];
-    const change = Math.round((last.bw - first.bw) * 10) / 10;
-    const sign = change > 0 ? '+' : '';
-    const cls = Math.abs(change) < 0.5 ? 'ins-trend-flat' : '';
-    const peak = bwSessions.reduce((a, b) => a.bw > b.bw ? a : b);
-    const low  = bwSessions.reduce((a, b) => a.bw < b.bw ? a : b);
-    bwHtml = `
-      <div class="ins-row"><div class="ins-row-left"><div class="ins-row-name">Starting weight</div><div class="ins-row-sub">${fmtShort(first.date)}</div></div><div class="ins-row-right"><div class="ins-row-val">${first.bw} kg</div></div></div>
-      <div class="ins-row"><div class="ins-row-left"><div class="ins-row-name">Current weight</div><div class="ins-row-sub">${fmtShort(last.date)}</div></div><div class="ins-row-right"><div class="ins-row-val">${last.bw} kg <span class="${change > 0 ? 'ins-trend-down' : 'ins-trend-up'}" style="font-size:12px">(${sign}${change})</span></div></div></div>
-      <div class="ins-row"><div class="ins-row-left"><div class="ins-row-name">Peak</div><div class="ins-row-sub">${fmtShort(peak.date)}</div></div><div class="ins-row-right"><div class="ins-row-val">${peak.bw} kg</div></div></div>
-      <div class="ins-row"><div class="ins-row-left"><div class="ins-row-name">Lowest</div><div class="ins-row-sub">${fmtShort(low.date)}</div></div><div class="ins-row-right"><div class="ins-row-val">${low.bw} kg</div></div></div>`;
-  }
-
-  // ── 5. Top-line stats ───────────────────────────────
-  const months = {};
-  for (const w of all) { const m = w.date.slice(0,7); months[m] = (months[m]||0) + 1; }
-  const monthVals = Object.values(months);
-  const avgPerMonth = monthVals.length ? Math.round(monthVals.reduce((s,x)=>s+x,0) / monthVals.length * 10) / 10 : 0;
-  const lastDate = all[all.length-1].date;
-  const daysSinceLast = daysBetween(lastDate, new Date().toISOString().slice(0,10));
-
-  // ── render ──────────────────────────────────────────
+  const key = localStorage.getItem('hd_claude_key');
   document.getElementById('s-insights').innerHTML = `
-    <div class="page-top"><div class="page-title">Insights</div><div class="page-subtitle">Data-driven analysis of your training.</div></div>
-
-    <div style="display:flex;gap:10px;margin:0 20px 14px">
-      <div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;text-align:center">
-        <div style="font-size:26px;font-weight:800;color:var(--text);letter-spacing:-1px">${all.length}</div>
-        <div style="font-size:11px;color:var(--text-3);margin-top:2px">Total sessions</div>
-      </div>
-      <div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;text-align:center">
-        <div style="font-size:26px;font-weight:800;color:var(--text);letter-spacing:-1px">${avgPerMonth}</div>
-        <div style="font-size:11px;color:var(--text-3);margin-top:2px">Avg / month</div>
-      </div>
-      <div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;text-align:center">
-        <div style="font-size:26px;font-weight:800;color:${daysSinceLast > 14 ? 'var(--accent)' : 'var(--text)'};letter-spacing:-1px">${daysSinceLast}</div>
-        <div style="font-size:11px;color:var(--text-3);margin-top:2px">Days since last</div>
-      </div>
+    <div class="page-top">
+      <div class="page-title">Claude AI</div>
+      <div class="page-subtitle">Ask anything about your training data.</div>
     </div>
 
-    ${prRows ? `
-    <div class="sec"><div class="sec-label">Personal Records</div></div>
-    <div class="ins-card">${prRows}</div>` : ''}
-
-    ${trendRows ? `
-    <div class="sec"><div class="sec-label">Progress Trend</div></div>
-    <div style="margin:0 20px 4px;font-size:11px;color:var(--text-3)">Volume (weight × reps) — recent 4 sessions vs previous 4</div>
-    <div class="ins-card" style="margin-top:8px">${trendRows}</div>` : ''}
-
-    ${typeRestRows || avgRest ? `
-    <div class="sec"><div class="sec-label">Rest & Recovery</div></div>
-    <div class="ins-card">
-      ${avgRest ? `<div class="ins-row"><div class="ins-row-left"><div class="ins-row-name">Overall avg rest</div><div class="ins-row-sub">between any two consecutive sessions</div></div><div class="ins-row-right"><div class="ins-row-val">${avgRest} days</div></div></div>` : ''}
-      ${bestBucketDays ? `<div class="ins-row"><div class="ins-row-left"><div class="ins-row-name">Your sweet spot</div><div class="ins-row-sub">rest days with best avg performance gain</div></div><div class="ins-row-right"><div class="ins-row-val ins-trend-up">${bestBucketDays} days</div></div></div>` : ''}
-      ${typeRestRows}
-    </div>` : ''}
-
-    ${bwHtml ? `
-    <div class="sec"><div class="sec-label">Body Weight</div></div>
-    <div class="ins-card">${bwHtml}</div>` : ''}
-
+    ${!key ? `
+    <div class="ai-no-key">
+      <div class="ai-no-key-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+          <path d="M8 12h8M12 8v8"/>
+        </svg>
+      </div>
+      <div class="ai-no-key-text">No Anthropic API key found.<br>Add yours in Settings to enable AI analysis.</div>
+      <button class="ai-no-key-btn" onclick="go('settings')">Open Settings</button>
+    </div>
+    ` : `
+    <div class="ai-chips">
+      <button class="ai-chip" onclick="aiSetPrompt('How is my overall training progress? Are there any concerning trends I should know about?')">Overall progress</button>
+      <button class="ai-chip" onclick="aiSetPrompt('Am I resting enough between sessions? What does my data suggest about my recovery?')">Rest &amp; recovery</button>
+      <button class="ai-chip" onclick="aiSetPrompt('Which exercises show the most improvement? Which are stalling or declining?')">Strength trends</button>
+      <button class="ai-chip" onclick="aiSetPrompt('Based on my training history, what should I focus on in my next workout?')">Next session advice</button>
+      <button class="ai-chip" onclick="aiSetPrompt('Am I training too frequently or not frequently enough given Heavy Duty principles?')">Frequency check</button>
+    </div>
+    <div style="padding:0 20px 10px">
+      <textarea id="ai-prompt" class="ai-textarea" placeholder="Ask anything about your training…" rows="3"></textarea>
+    </div>
+    <div style="padding:0 20px 18px">
+      <button class="ai-send-btn" id="ai-send-btn" onclick="askClaude()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Ask Claude
+      </button>
+    </div>
+    <div id="ai-response-area"></div>
+    `}
     <div style="height:32px"></div>
   `;
+}
+
+function aiSetPrompt(text) {
+  const ta = document.getElementById('ai-prompt');
+  if (ta) { ta.value = text; ta.focus(); }
+}
+
+async function askClaude() {
+  const key = localStorage.getItem('hd_claude_key');
+  if (!key) { toast('Add your API key in Settings', true); return; }
+
+  const ta = document.getElementById('ai-prompt');
+  const prompt = ta?.value?.trim();
+  if (!prompt) { toast('Enter a question first', true); return; }
+
+  const sendBtn = document.getElementById('ai-send-btn');
+  const area    = document.getElementById('ai-response-area');
+
+  sendBtn.disabled = true;
+  sendBtn.innerHTML = '<div class="ai-loading" style="padding:0;margin:0"><span></span><span></span><span></span></div>';
+  area.innerHTML = '<div class="ai-response-box"><div class="ai-loading"><span></span><span></span><span></span></div></div>';
+
+  // Build compact workout context
+  const sessions = workouts.slice().sort((a,b)=>a.date<b.date?-1:1).map(w => ({
+    date: w.date,
+    type: w.type,
+    method: w.method || 'legacy',
+    bodyweight_kg: w.bw || null,
+    exercises: (w.ex||[]).filter(e=>e.n).map(e=>({
+      name: e.n,
+      weight_kg: e.w ?? null,
+      reps: e.r ?? null,
+      notes: e.notes || undefined
+    }))
+  }));
+
+  const systemPrompt = `You are an expert coach specialising in Mike Mentzer's Heavy Duty high-intensity training (HIT). You are analysing a user's complete workout history.
+
+Key Heavy Duty principles to apply when analysing:
+- Workouts should be brief, infrequent, and taken to absolute muscular failure
+- Single working sets per exercise at maximum intensity
+- Full systemic recovery between sessions is paramount — typically 7–14+ days per muscle group
+- Two main workouts: Workout A (chest/back) and Workout B (legs/shoulders/arms), alternated
+- The Consolidated Method is the most advanced form: A → rest → B → rest → repeat
+- Progressive overload is everything: small increases in weight or reps each session confirm progress
+- Overtraining is the most common mistake; more rest is almost always better than more frequency
+
+The user's full workout log (${sessions.length} sessions, chronological):
+${JSON.stringify(sessions, null, 1)}
+
+When you respond:
+- Be specific — reference actual dates, weights, and reps from their log
+- Be honest about plateaus or warning signs
+- Keep the response focused and actionable (no fluff)
+- Use markdown: **bold** for key points, bullet lists for multiple items, headers for sections if needed`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-8',
+        max_tokens: 1500,
+        thinking: { type: 'adaptive' },
+        system: systemPrompt,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `API error ${res.status}`);
+    }
+
+    const data = await res.json();
+    const textBlock = (data.content || []).find(b => b.type === 'text');
+    const text = textBlock?.text || 'No response received.';
+    area.innerHTML = `<div class="ai-response-box"><div class="ai-response-text">${aiMarkdown(text)}</div></div>`;
+  } catch (err) {
+    area.innerHTML = `<div class="ai-response-box"><div class="ai-error">⚠ ${err.message}</div></div>`;
+  } finally {
+    sendBtn.disabled = false;
+    sendBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Ask Claude';
+  }
+}
+
+function aiMarkdown(md) {
+  // Escape HTML
+  let s = md.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // Bold / italic
+  s = s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  s = s.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  // Headers (##, ###, #)
+  s = s.replace(/^#{1,3} (.+)$/gm,'<h4>$1</h4>');
+  // Lists — process line-by-line
+  const lines = s.split('\n');
+  const out = []; let inList = false;
+  for (const line of lines) {
+    const m = line.match(/^[-•*]\s+(.+)$/);
+    if (m) {
+      if (!inList) { out.push('<ul>'); inList = true; }
+      out.push(`<li>${m[1]}</li>`);
+    } else {
+      if (inList) { out.push('</ul>'); inList = false; }
+      out.push(line);
+    }
+  }
+  if (inList) out.push('</ul>');
+  // Paragraphs
+  const joined = out.join('\n');
+  const paras = joined.split(/\n{2,}/).map(p => {
+    const t = p.trim();
+    if (!t || t.startsWith('<h4') || t.startsWith('<ul') || t.startsWith('<li')) return t;
+    return `<p>${t.replace(/\n/g,'<br>')}</p>`;
+  });
+  return paras.join('\n');
 }
 
 function confirmReset() {
