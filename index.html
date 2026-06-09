@@ -1166,7 +1166,7 @@ function renderDetail(id) {
           <div class="detail-type">${wk.label}</div>
         </div>
       </div>
-      <div class="detail-date">${fmtDate(w.date)}</div>
+      <div class="detail-date hist-date-link" onclick="showCalendar('${w.date}')">${fmtDate(w.date)}</div>
       ${metaParts.length?`<div class="detail-meta">${metaParts.join(' · ')}</div>`:''}
     </div>
 
