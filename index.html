@@ -142,8 +142,10 @@ body {
   background: var(--surface-2); border-radius: 24px 24px 0 0;
   padding: 0 0 calc(24px + var(--safe-b));
   transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  touch-action: pan-x;
 }
 #cal-sheet.show { transform: translateY(0); }
+#cal-sheet.dragging { transition: none; }
 .cal-header { display: flex; align-items: center; justify-content: space-between; padding: 0 8px 12px; }
 .cal-month-label { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; color: var(--text); }
 .cal-nav { background: none; border: none; color: var(--text-2); cursor: pointer; padding: 10px 14px; border-radius: 10px; transition: background 0.15s; }
@@ -1641,9 +1643,53 @@ function showCalendar(dateStr) {
 }
 
 function hideCalendar() {
-  document.getElementById('cal-sheet').classList.remove('show');
+  const el = document.getElementById('cal-sheet');
+  el.classList.remove('dragging');
+  el.style.transform = '';
+  el.classList.remove('show');
   document.getElementById('cal-bg').classList.remove('show');
 }
+
+// ── Calendar drag-to-dismiss ───────────────────────────
+(function() {
+  let startY = 0, curY = 0, dragging = false;
+
+  function onStart(e) {
+    const sheet = document.getElementById('cal-sheet');
+    if (!sheet.classList.contains('show')) return;
+    startY = (e.touches ? e.touches[0].clientY : e.clientY);
+    curY = 0;
+    dragging = true;
+    sheet.classList.add('dragging');
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY);
+    curY = Math.max(0, y - startY); // only allow downward drag
+    document.getElementById('cal-sheet').style.transform = `translateY(${curY}px)`;
+  }
+
+  function onEnd() {
+    if (!dragging) return;
+    dragging = false;
+    const sheet = document.getElementById('cal-sheet');
+    sheet.classList.remove('dragging');
+    if (curY > 80) {
+      hideCalendar();
+    } else {
+      sheet.style.transform = '';
+    }
+  }
+
+  document.addEventListener('touchstart', e => {
+    if (e.target.closest('#cal-sheet')) onStart(e);
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    if (dragging) onMove(e);
+  }, { passive: true });
+  document.addEventListener('touchend', onEnd);
+})();
 
 function calNav(dir) {
   calMonth += dir;
