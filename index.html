@@ -1510,10 +1510,20 @@ function handleImport(evt) {
     try {
       const data = JSON.parse(e.target.result);
       if (!Array.isArray(data)) throw 0;
-      const ids = new Set(workouts.map(w=>w.id));
-      let n = 0;
-      data.forEach(w=>{ if(!ids.has(w.id)){workouts.push(w);n++;} });
-      save(); toast(`Imported ${n} session${n!==1?'s':''}`, false); renderSettings();
+      showSheet(
+        'Replace all data?',
+        `This will overwrite your ${workouts.length} existing sessions with the ${data.length} sessions in the file. This cannot be undone.`,
+        'Replace Data',
+        () => {
+          workouts = data.map(w => normaliseBar(normaliseBelt(normaliseNames({
+            ...w,
+            method: w.method || (ROT.includes(w.type) ? 'consolidated' : 'legacy')
+          }))));
+          save();
+          toast(`Loaded ${data.length} sessions`, false);
+          go('home');
+        }
+      );
     } catch { toast('Invalid JSON file', true); }
   };
   r.readAsText(file); evt.target.value='';
