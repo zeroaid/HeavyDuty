@@ -1,4 +1,4 @@
-const CACHE = 'heavy-duty-v6';
+const CACHE = 'heavy-duty-v5';
 const STATIC = [
   '/HeavyDuty/heavy-duty-logo.png',
   '/HeavyDuty/manifest.json'

@@ -1436,13 +1436,6 @@ function renderSettings() {
           </div>
           <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>
-        <div class="settings-row" onclick="confirmRestoreNotes()">
-          <div class="settings-row-left">
-            <div class="settings-icon" style="background:rgba(251,191,36,0.12);color:#fbbf24"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
-            <div><div class="settings-row-title">Restore Full Notes</div><div class="settings-row-sub">Restore complete notes from your original log</div></div>
-          </div>
-          <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-        </div>
       </div>
     </div>
 
@@ -1548,97 +1541,6 @@ function confirmReset() {
     workouts = SEED.map(x=>({...x}));
     save(); hideSheet(); toast('Data reset', false); renderSettings();
   });
-}
-
-// Full session notes restored from original workout log
-const NOTES_PATCH = {
-  l001: "Week 3 — first logged session.",
-  l004: "Injured my lower left rib! Be careful!",
-  l005: "Gym being refurbished. Bodyweight session.",
-  l013: "Left index finger cut and throbbing.",
-  l016: "Scales being calibrated.",
-  l023: "Leg extension machine broken.",
-  l026: "Post drinking weekend with not enough sleep!",
-  l028: "Ill with nasty cold earlier this week.",
-  l055: "Brand new machines in downstairs gym.",
-  l057: "Lower back injured May 6th. First session back.",
-  l060: "First day back after the driving trip in Europe.",
-  l073: "Right wrist hurts — only 8 dips.",
-  l087: "Right wrist hurting badly — 2 dips only.",
-  l091: "Threw up all the water I drank during this session. Definitely went in.\n\nKey takeaways: The order of the exercises are important for stopping nausea. Rushing and mixing up the routine isn't recommended.",
-  l095: "Left knee in pain — skipped leg press.",
-  l109: "Awful couple of days re: diet. Right knee in pain on leg extension.",
-  l110: "Not sleeping well. Feeling weak.",
-  l113: "I've lost weight but the body fat percentage is higher. I suspect it is down to the time of day I'm weighing my self as today it is early in the morning (9.46am) as opposed to afternoons when I usually take these readings..",
-  l114: "Didn't go to full failure on deadlifts due to the amount of reps. But was very close. The rest was done to failure.",
-  l115: "Rest-pause cycle begins.",
-  l116: "Knees hurting again on leg extension. Might need additional rest days. After consultation with Claude & Gemini I will remove Leg Extensions.",
-  l117: "Reduced the weight on close grip bench press to ensure that the technique is clean and precise. A 4 minute cool down on the cross trainer has also been added today. This is alongside the 4 minute warm up that is done before each workout.",
-  l118: "Knees feel much better. Slight joint pain when doing the higher weight on the leg press. That might be my upper limit.",
-  l119: "poor sleep last night , maybe 4hrs tops. All reps today are clean irrespective of energy levels.",
-  l120: "Everything feels good today. No issues.",
-  l121: "Right wrist aching on the dips, possibly due to the rest pause on the bench press. Felt the pump from last Sunday's session but didn't take enough rest days! Mentzer was right. The harder you train, the more recovery time you need. 7-14 days makes total sense now. Claude thinks my optimum rest period is nine days so I will aim for that and see.",
-  s01: "Right wrist still not fully recovered but able to get enough reps in after three weeks.",
-  s02: "Post Ibiza, got back on Tuesday afternoon. My body is aching! Too much booze and MDMA.",
-  s03: "Considering it's only two exercises, with the negatives it's really pumped my chest.",
-  s04: "Managed to hit a PB today. I can definitely feel today's workout too.",
-  s05: "Not slept well last night due to stress and humidity. Chest feels good, nothing else to report.",
-  s06: "Feeling strong today. Rested for an extra two days since the last session and it was worth it. No pains or aches to mention.",
-  s07: "Weight has gone up but it doesn't look like it in the mirror. Chest and upper body feels good and pumped.",
-  s08: "Hit another PB today. Upper body still feels like it's recovering/growing. 7-9 days really is the optimal recovery period.",
-  s09: "Slightly tired, could have used one more rest day due to the cycling and lack of proper sleep. Feel good but could have had a better session if I rested more I think.",
-  s10: "Used an Olympic bar today as opposed to the trap bar as all the other deadlifts have been thus far. Recovering from a broken right rib and so far everything seems to be okay. A good session back after over a month off.",
-  s11: "Chest feels pumped and I've managed to do more reps on the dips.",
-  s12: "My right knee wasn't feeling one hundred percent so I decided to go for 350kgs on the leg press. Felt good, no pain to report.",
-  s13: "Concerned about the weight increase even though I'm looking better in the mirror. Not been sleeping well and stressed but a good session despite all of these factors. I can still feel the leg workout from last week too.",
-  s14: "I can slightly feel the workout from workout B2 in my legs. However, I felt great in today's session. Slept well and haven't been as stressed.",
-  s15: "Didn't sleep well for the last two nights due to stress. Right wrist is hurting today. Feel strong but worried about the weight and lack of sleep as of late. Chest feels pumped today and I can still feel my legs from the last workout.",
-  s16: "Feel good today, definitely hit PBs on these exercises today. Slight DOMs from the last leg session but I put this down to the additional cycling I'm doing and bad sleep I've had for the last few weeks.",
-  s17: "Fell asleep on the sofa last night, back doesn't feel great but still managed to plough through. There's no muscle pain, just slept at the wrong angle and I can feel it.",
-  s18: "Used a new technique on the Smith Squat with the aid of the risers. The new cadence on the squat has definitely worked. Definitely feeling stronger today. Slept well. I won't be using the risers again for the deadlifts.",
-  s19: "Concerned slightly by the additional weight, however, I had a very late night last night and didn't get a proper night's sleep and had a bit too much sugar. Apart from that, feeling strong and don't feel too far off my normal performance levels. Going to do a light cycling session today and see how that impacts the training protocol. I usually do them the next day but today isn't a weight intensive session so I should be good. Chest and upper body feels good.",
-  s20: "Hit a PB on this workout today, felt good today. No issues to report.",
-  s21: "Didn't sleep well last night but feel strong enough today and did okay.",
-  s22: "The Christmas weight is showing itself. I used the riser on the smith squat which helped for leverage so I could get the weight off of the bar. I feel completely drained after today's workout.",
-  s23: "I used the weight belt with 5kgs for the first time, my upper chest feels pumped.",
-  s24: "I usually do the isolation exercise first due to the layout of the gym but I decided to do the compound exercise first and then the isolation exercise after. I felt much better doing it in this order. The order it's written in basically and what Mentzer suggested. I'm not too sure how much of a difference the order makes but I'll try it like this from now on and see. I feel drained and my heart rate is up. Definitely a very productive session. Legs muscles are shaking. They've definitely been worked out today!",
-  s25: "I changed the way the close grip bench is done, I changed the position of the seat so it's at 40% angle as Mentzer taught. This has made a massive difference today, hence the weight drop. All 6 reps were full, clean and done to complete failure. I've also changed the order on this routine today which has also made a difference. Now I need to improve on this particular workout to ensure I can lift heavier on the bench press using the new set up of the bench.",
-  s26: "I'm coming down with a cold, I've managed 170kgs with 1 rep and two second negatives. Started sweating profusely but not from exercising. I'm going to abandon today's session and rest.",
-  s27: "I tried to do a set at 170kgs, I managed one rep. Then I went down to 165kgs and managed one rep. My lower back started to show a sign of slight discomfort so I went down to a safer weight. I'm not sure if weight training at 6.20am is a good idea. I managed a set to twenty which is three more reps than the last time I did this workout. I think 170kgs is my upper limit for deadlifts. I will try 165kgs in the next workout and see how many reps I can achieve at this weight and work my way up again. I will look to do weights in the afternoons rather than the morning and keep early morning sessions to cardio only.",
-  s28: "Feel good today, hit more reps on both of these exercises, lost weight since the last time but feel stronger. Chest and upper body feels nice and pumped.",
-  s29: "Feel good this session and hit another PB.",
-  s30: "I should have waited a couple of extra days before doing weights but felt good today nonetheless.",
-  s31: "The deadlifts were heavy today, not doing this workout properly for a couple of sessions definitely hasn't helped. Getting back on track today. I've also implemented a warm up routine which should help the stiffness I've been feeling as of late. The warm up protocol is the standard Heavy Duty warm up before doing an all out set to complete failure.",
-  s32: "Increased body weight by 1.1kgs, managed to get one extra rep on the pull ups today. Upper body feels pumped.",
-  s33: "Hit two PBs on this exercise today. Feel good. Legs feel absolutely worked out!",
-  s34: "Feeling tired and jet lagged due to the daylight savings.",
-  s35: "I started today's session in the morning (7.15AM BST). I was going to wait for tomorrow afternoon as that's my preferred time to do weights however I have been eating cleanly this week and my energy levels and scales reflect that. Felt really good on this part of the routine for a long time. The 2 week break definitely helped and the results speak for themselves. I will go back to doing these exercises in the afternoons but definitely felt no issues doing this particular routine in the morning. The deadlifts are definitely a no-no for the mornings!",
-  s36: "Feel tired today but managed to push through. Need to get back on track with these deadlifts but heading in the right direction. Feel pumped and my legs can definitely feel this work out!",
-  s37: "The belt I'm using is 0.6kgs so today's total weight with the belt plus 5kgs is 91kgs. Managed to hit another PB with the additional weight, chest feels pumped.",
-  s38: "Legs are absolutely done in today after this session. Hit more PBs again today!",
-  s39: "Didn't go to sleep until 4am this morning, slept around 7 hrs in total. Feel good but feel like I could have done better if I hadn't had a late night last night (didn't get in until 3am). Wasn't drinking or anything so feeling it today due to that.",
-  s40: "Managed 3 reps at 165kgs with 2 second negatives but decided to drop the weight to get to at least 5 reps from a working set for the deadlifts. Need to work my way back up to 165kgs. Definitely felt today's squats, my legs and body are battered now!",
-  s41: "The scales say I've put weight on but I look better in the mirror at the moment than I have done at this weight. Managed to do more weight today on both exercises, my whole body is feeling it today. The indirect effect in full flow.",
-  s42: "Did rest pause on the leg press but felt a rush of blood I've never felt before and I feel like I'm about to puke! Hit another PB on both exercises, my body feels battered."
-};
-
-function confirmRestoreNotes() {
-  const count = Object.keys(NOTES_PATCH).length;
-  showSheet(
-    'Restore full notes?',
-    `This will update ${count} sessions with the full original notes from your workout log. Your other data (weights, reps, dates) won't change.`,
-    'Restore Notes',
-    () => {
-      let updated = 0;
-      workouts = workouts.map(w => {
-        if (NOTES_PATCH[w.id]) { updated++; return { ...w, note: NOTES_PATCH[w.id] }; }
-        return w;
-      });
-      save();
-      toast(`Restored notes for ${updated} sessions`, false);
-      go('settings');
-    }
-  );
 }
 
 // ══════════════════════════════════════════════════════
