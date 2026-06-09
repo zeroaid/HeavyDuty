@@ -526,6 +526,7 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .ai-response-text h4 { font-size:15px; font-weight:700; margin:14px 0 6px; color:var(--text); }
 .ai-response-text p { margin:0 0 10px; }
 .ai-response-text p:last-child { margin-bottom:0; }
+.ai-thinking-indicator { display:flex; align-items:center; padding:4px 0 8px; }
 .ai-error { font-size:13px; color:var(--accent); padding:4px 0; }
 .ai-loading { display:flex; gap:7px; justify-content:center; padding:16px 0; }
 .ai-loading span { width:9px; height:9px; border-radius:50%; background:var(--accent); animation:aiPulse 1.2s ease-in-out infinite; }
@@ -1762,12 +1763,13 @@ When you respond:
     model: 'claude-opus-4-8',
     max_tokens: 8000,
     thinking: { type: 'adaptive' },
+    stream: true,
     system: systemPrompt,
     messages: [{ role: 'user', content: prompt }]
   };
 
   const t0 = Date.now();
-  let httpStatus = null, requestId = null, rawBody = null;
+  let httpStatus = null, requestId = null;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1783,37 +1785,94 @@ When you respond:
 
     httpStatus = res.status;
     requestId  = res.headers.get('request-id') || res.headers.get('x-request-id') || '';
-    rawBody    = await res.text();
-    const durationMs = Date.now() - t0;
-
-    let data;
-    try { data = JSON.parse(rawBody); } catch(e) { throw new Error(`Non-JSON response: ${rawBody.slice(0,200)}`); }
 
     if (!res.ok) {
-      const msg = data.error?.message || `HTTP ${res.status}`;
-      aiLogPush({ status: httpStatus, requestId, durationMs, error: msg, response: data });
+      const errText = await res.text();
+      let msg;
+      try { msg = JSON.parse(errText).error?.message || `HTTP ${res.status}`; }
+      catch(e) { msg = `HTTP ${res.status}: ${errText.slice(0,200)}`; }
+      aiLogPush({ status: httpStatus, requestId, durationMs: Date.now()-t0, error: msg });
       throw new Error(msg);
     }
 
-    const blocks     = data.content || [];
-    const textBlock  = blocks.find(b => b.type === 'text');
-    const usage      = data.usage || {};
+    // Prepare streaming response box — show it immediately so user sees activity
+    area.innerHTML = `<div class="ai-response-box"><div class="ai-thinking-indicator">
+      <div class="ai-loading"><span></span><span></span><span></span></div>
+      <span style="font-size:12px;color:var(--text-3);margin-left:8px">Thinking…</span>
+    </div><div class="ai-response-text" id="ai-stream-out" style="display:none"></div></div>`;
+
+    const streamOut  = document.getElementById('ai-stream-out');
+    const thinkingEl = area.querySelector('.ai-thinking-indicator');
+
+    const reader  = res.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = '';
+    let inTextBlock = false;
+    let usage = {};
+    let stopReason = null;
+    let blockTypes = [];
+    let currentBlockType = null;
+    let buf = '';
+
+    outer: while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop(); // keep incomplete last line
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const payload = line.slice(6).trim();
+        if (payload === '[DONE]') break outer;
+        let evt;
+        try { evt = JSON.parse(payload); } catch(e) { continue; }
+
+        switch (evt.type) {
+          case 'content_block_start':
+            currentBlockType = evt.content_block?.type;
+            blockTypes.push(currentBlockType);
+            if (currentBlockType === 'text') {
+              inTextBlock = true;
+              thinkingEl.style.display = 'none';
+              streamOut.style.display  = '';
+            }
+            break;
+          case 'content_block_delta':
+            if (inTextBlock && evt.delta?.type === 'text_delta') {
+              fullText += evt.delta.text;
+              streamOut.innerHTML = aiMarkdown(fullText);
+            }
+            break;
+          case 'content_block_stop':
+            if (currentBlockType === 'text') inTextBlock = false;
+            currentBlockType = null;
+            break;
+          case 'message_delta':
+            stopReason = evt.delta?.stop_reason;
+            if (evt.usage) Object.assign(usage, evt.usage);
+            break;
+          case 'message_start':
+            if (evt.message?.usage) Object.assign(usage, evt.message.usage);
+            break;
+        }
+      }
+    }
 
     aiLogPush({
-      status: httpStatus, requestId, durationMs,
-      stop_reason: data.stop_reason,
-      block_types: blocks.map(b => b.type),
-      input_tokens: usage.input_tokens,
-      output_tokens: usage.output_tokens,
+      status: httpStatus, requestId, durationMs: Date.now()-t0,
+      stop_reason: stopReason, block_types: blockTypes,
+      input_tokens: usage.input_tokens, output_tokens: usage.output_tokens,
       cache_read: usage.cache_read_input_tokens,
     });
 
-    if (!textBlock) throw new Error(`No text block. stop_reason=${data.stop_reason}, blocks=[${blocks.map(b=>b.type).join(',')}]`);
+    if (!fullText) throw new Error(`No text received. stop_reason=${stopReason}, blocks=[${blockTypes.join(',')}]`);
 
-    area.innerHTML = `<div class="ai-response-box"><div class="ai-response-text">${aiMarkdown(textBlock.text)}</div></div>`;
+    // Final clean render
+    area.innerHTML = `<div class="ai-response-box"><div class="ai-response-text">${aiMarkdown(fullText)}</div></div>`;
+
   } catch (err) {
     if (httpStatus === null) {
-      // Network / CORS failure — no response at all
       aiLogPush({ status: 'NETWORK_ERROR', durationMs: Date.now()-t0, error: err.message });
     }
     area.innerHTML = `<div class="ai-response-box"><div class="ai-error">⚠ ${err.message.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div></div>`;
