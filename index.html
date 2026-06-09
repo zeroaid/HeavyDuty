@@ -1606,9 +1606,31 @@ function gdLastBackupStr() {
   return `Backed up ${Math.floor(hrs/24)}d ago`;
 }
 
+async function gdGetValidToken() {
+  const token  = localStorage.getItem('hd_gd_token');
+  const expiry = parseInt(localStorage.getItem('hd_gd_expiry') || '0');
+  if (token && Date.now() < expiry) return token;           // still valid
+  if (!localStorage.getItem('hd_gd_email')) return null;   // never connected
+  if (!window.google?.accounts?.oauth2) return null;        // GIS not loaded
+  if (!gdTokenClient) gdInitClient();
+  // Silent refresh — no UI shown; resolves null if session expired
+  return new Promise(resolve => {
+    const prev = gdTokenClient.callback;
+    gdTokenClient.callback = resp => {
+      gdTokenClient.callback = prev;
+      if (resp.error || !resp.access_token) { resolve(null); return; }
+      const exp = Date.now() + (resp.expires_in - 120) * 1000;
+      localStorage.setItem('hd_gd_token',  resp.access_token);
+      localStorage.setItem('hd_gd_expiry', String(exp));
+      resolve(resp.access_token);
+    };
+    gdTokenClient.requestAccessToken({ prompt: '' });
+  });
+}
+
 async function gdBackup() {
-  const token = localStorage.getItem('hd_gd_token');
-  if (!token || Date.now() >= parseInt(localStorage.getItem('hd_gd_expiry') || '0')) return;
+  const token = await gdGetValidToken();
+  if (!token) return;
 
   const body = JSON.stringify(workouts, null, 2);
   let fileId = localStorage.getItem('hd_gd_file_id');
