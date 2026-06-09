@@ -1615,12 +1615,9 @@ function toggleClaudeKeyVisibility() {
 function renderInsights() {
   const key = localStorage.getItem('hd_claude_key');
   document.getElementById('s-insights').innerHTML = `
-    <div class="page-top" style="display:flex;align-items:flex-start;justify-content:space-between">
-      <div>
-        <div class="page-title">Claude AI</div>
-        <div class="page-subtitle">Ask anything about your training data.</div>
-      </div>
-      <button onclick="aiToggleLog()" title="Debug log" style="background:none;border:1px solid var(--border);border-radius:8px;padding:5px 9px;font-size:11px;color:var(--text-3);cursor:pointer;margin-top:56px;flex-shrink:0">Debug</button>
+    <div class="page-top">
+      <div class="page-title" id="ai-title-tap" onclick="aiTitleTap()">Claude AI</div>
+      <div class="page-subtitle">Ask anything about your training data.</div>
     </div>
     <div id="ai-log-panel" style="display:none;margin:0 20px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;max-height:320px;overflow-y:auto;font-family:monospace"></div>
 
@@ -1664,7 +1661,20 @@ function aiSetPrompt(text) {
 }
 
 // ── AI debug log (session-scoped, survives screen re-renders) ──
-window._aiLog = window._aiLog || [];
+window._aiLog    = window._aiLog    || [];
+window._aiTapCnt = window._aiTapCnt || 0;
+window._aiTapTimer = null;
+
+function aiTitleTap() {
+  window._aiTapCnt++;
+  clearTimeout(window._aiTapTimer);
+  window._aiTapTimer = setTimeout(() => { window._aiTapCnt = 0; }, 800);
+  if (window._aiTapCnt >= 5) {
+    window._aiTapCnt = 0;
+    aiToggleLog();
+  }
+}
+
 function aiLogPush(entry) {
   window._aiLog.unshift({ ts: new Date().toISOString(), ...entry });
   if (window._aiLog.length > 20) window._aiLog.length = 20;
@@ -1806,10 +1816,7 @@ When you respond:
       // Network / CORS failure — no response at all
       aiLogPush({ status: 'NETWORK_ERROR', durationMs: Date.now()-t0, error: err.message });
     }
-    area.innerHTML = `<div class="ai-response-box">
-      <div class="ai-error">⚠ ${err.message.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-      <div style="margin-top:8px"><button onclick="aiToggleLog()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--text-3);cursor:pointer">Show debug log</button></div>
-    </div>`;
+    area.innerHTML = `<div class="ai-response-box"><div class="ai-error">⚠ ${err.message.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div></div>`;
   } finally {
     sendBtn.disabled = false;
     sendBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Ask Claude';
