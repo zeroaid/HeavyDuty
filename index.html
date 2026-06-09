@@ -439,6 +439,9 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 }
 .guide-yt-link:active { background: rgba(255,0,0,0.2); }
 .guide-card-tech .guide-card-head { background: linear-gradient(135deg, rgba(255,255,255,0.03), transparent); }
+.bar-seg { display:flex; gap:6px; }
+.bar-seg-btn { flex:1; padding:7px 0; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text-3); font-size:13px; font-weight:600; cursor:pointer; transition:all 0.15s; }
+.bar-seg-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 .guide-tech-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); margin-top: 4px; }
 .guide-warning { font-size: 12px; color: #f59e0b; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 6px; padding: 8px 10px; margin-bottom: 12px; line-height: 1.5; }
 
@@ -662,7 +665,7 @@ const SEED = [
   {id:'s07',date:'2025-08-05',type:'A2',bw:80.0,bf:null,ex:[{n:'Dips',w:0,r:22,note:'2 sec negatives'},{n:'Close Grip Pull Ups',w:0,r:9,note:'2 sec negatives'}],note:"Weight up but doesn't look like it in the mirror. Chest pumped."},
   {id:'s08',date:'2025-08-10',type:'B2',bw:80.1,bf:null,ex:[{n:'Leg Press',w:400,r:20,note:''},{n:'Seated Leg Curl',w:65,r:19,note:''}],note:'Hit another PB. 7-9 days really is the optimal recovery period.'},
   {id:'s09',date:'2025-08-18',type:'A1',bw:80.5,bf:null,ex:[{n:'Smith Close Grip Bench Press',w:87,r:7,note:''},{n:'Close Palm Grip Pull Downs',w:100,r:7,note:'2 sec negatives'}],note:'Slightly tired. Could have used one more rest day.'},
-  {id:'s10',date:'2025-09-25',type:'B1',bw:81.8,bf:null,ex:[{n:'Smith Squat',w:97,r:36,note:''},{n:'Deadlifts',w:120,r:10,note:'2 sec negatives, Olympic bar'}],note:'Recovering from a broken right rib. Good session back after over a month off.'},
+  {id:'s10',date:'2025-09-25',type:'B1',bw:81.8,bf:null,ex:[{n:'Smith Squat',w:97,r:36,note:''},{n:'Deadlifts',w:120,r:10,note:'2 sec negatives, Olympic bar',bar:'olympic'}],note:'Recovering from a broken right rib. Good session back after over a month off.'},
   {id:'s11',date:'2025-10-05',type:'A2',bw:81.4,bf:null,ex:[{n:'Dips',w:0,r:22,note:'2 sec negatives'},{n:'Close Grip Pull Ups',w:0,r:8,note:'2 sec negatives'}],note:'Chest feels pumped and managed to do more reps on the dips.'},
   {id:'s12',date:'2025-10-13',type:'B2',bw:83.2,bf:null,ex:[{n:'Leg Press',w:350,r:23,note:'Right knee not 100%, reduced weight'},{n:'Seated Leg Curl',w:65,r:19,note:''}],note:'Right knee not 100% so went for 350kg. No pain.'},
   {id:'s13',date:'2025-10-21',type:'A1',bw:83.5,bf:null,ex:[{n:'Smith Close Grip Bench Press',w:87,r:9,note:''},{n:'Close Palm Grip Pull Downs',w:110,r:5,note:'2 sec negatives, close grip'}],note:'Weight increase concern but looking better in the mirror. Good session.'},
@@ -1068,6 +1071,7 @@ function renderDetail(id) {
     return `<div class="ex-row">
       <div class="ex-row-name">${e.n}</div>
       <div class="ex-row-val">${weightDisplay}<span class="ex-row-unit">${unitDisplay}</span></div>
+      ${e.bar?`<div class="ex-row-note" style="color:var(--text-3)">${e.bar==='olympic'?'Olympic bar':'Trap bar'}</div>`:''}
       ${rpSets?`<div class="ex-row-rp"><span class="ex-row-rp-label">Rest-Pause</span><span class="ex-row-rp-sets">${rpSets}</span></div>`:''}
       ${otherNote?`<div class="ex-row-note">${otherNote}</div>`:''}
     </div>`;
@@ -1113,10 +1117,13 @@ function renderLog(type) {
   const blocks = wk.exs.map((en,i) => {
     const p = lastFor(en, null);
     const isBW = BW_EX.has(en);
+    const isDL = en === 'Deadlifts';
     const dw = p && p.w > 0 ? p.w : '';
     const lastBelt = p && p.belt && p.w > 0;
+    const lastBar = p && p.bar ? p.bar : null;
+    const barHint = isDL && lastBar ? ` · ${lastBar==='olympic'?'Olympic':'Trap'} bar` : '';
     const hintHtml = p
-      ? `Last: <strong>${isBW ? (p.belt && p.w > 0 ? 'BW +'+p.w+'kg belt' : 'BW') : (p.w>0?p.w+'kg':'BW')} × ${p.r} reps</strong> · ${fmtShort(p.date)}`
+      ? `Last: <strong>${isBW ? (p.belt && p.w > 0 ? 'BW +'+p.w+'kg belt' : 'BW') : (p.w>0?p.w+'kg':'BW')} × ${p.r} reps</strong>${barHint} · ${fmtShort(p.date)}`
       : 'No previous data';
     return `
       <div class="ex-form-card">
@@ -1125,6 +1132,14 @@ function renderLog(type) {
           <div class="ex-form-hint">${hintHtml}</div>
         </div>
         <div class="ex-form-body">
+          ${isDL ? `
+          <div class="belt-row" style="margin-bottom:10px">
+            <span class="belt-row-label">Bar</span>
+            <div class="bar-seg" id="bars${i}">
+              <button class="bar-seg-btn${lastBar==='olympic'?' active':''}" data-bar="olympic" onclick="setBar(${i},'olympic')">Olympic</button>
+              <button class="bar-seg-btn${lastBar==='trap'?' active':''}" data-bar="trap" onclick="setBar(${i},'trap')">Trap</button>
+            </div>
+          </div>` : ''}
           ${isBW ? `
           <div class="belt-row">
             <span class="belt-row-label">Weight Belt</span>
@@ -1205,6 +1220,12 @@ function renderLog(type) {
   `;
 }
 
+function setBar(i, val) {
+  const seg = document.getElementById('bars'+i);
+  seg.querySelectorAll('.bar-seg-btn').forEach(b=>b.classList.remove('active'));
+  seg.querySelector(`[data-bar="${val}"]`).classList.add('active');
+}
+
 function toggleBeltSwitch(i) {
   const sw = document.getElementById('bts'+i);
   const field = document.getElementById('bwf'+i);
@@ -1222,13 +1243,17 @@ function saveWorkout() {
   const note = document.getElementById('lnote').value.trim();
   const ex = wk.exs.map((en,i)=>{
     const isBW = BW_EX.has(en);
+    const isDL = en === 'Deadlifts';
     const beltOn = isBW && document.getElementById('bts'+i)?.classList.contains('on');
+    const barEl = isDL ? document.getElementById('bars'+i)?.querySelector('.active') : null;
+    const bar = barEl ? barEl.dataset.bar : null;
     return {
       n: en,
       w: parseFloat(document.getElementById('ew'+i)?.value)||0,
       r: parseInt(document.getElementById('er'+i).value)||null,
       note: document.getElementById('en'+i).value.trim(),
       ...(isBW && { belt: beltOn }),
+      ...(isDL && bar && { bar }),
     };
   });
   workouts.push({id:uid(),date,type:logType,method:WK[logType].method,bw,bf,ex,note});
