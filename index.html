@@ -180,6 +180,8 @@ body {
 .hist-body { flex: 1; min-width: 0; }
 .hist-type { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
 .hist-date { font-size: 12px; color: var(--text-2); margin-bottom: 8px; }
+.hist-date-link { cursor: pointer; text-decoration: underline; text-decoration-color: var(--border-hi); text-underline-offset: 2px; transition: color 0.15s; }
+.hist-date-link:active { color: var(--accent); }
 .hist-pills { display: flex; flex-wrap: wrap; gap: 5px; }
 .pill { background: var(--surface-2); border-radius: 6px; padding: 3px 8px; font-size: 12px; color: var(--text-2); white-space: nowrap; }
 .pill strong { color: var(--accent); }
@@ -945,7 +947,7 @@ function renderHome() {
       <div class="badge">${w.type}</div>
       <div class="hist-body">
         <div class="hist-type">${WK[w.type].desc}</div>
-        <div class="hist-date">${fmtDate(w.date)}${w.bw?` · ${w.bw}kg`:''}</div>
+        <div class="hist-date"><span class="hist-date-link" onclick="event.stopPropagation();showCalendar('${w.date}')">${fmtDate(w.date)}</span>${w.bw?` · ${w.bw}kg`:''}</div>
         <div class="hist-pills">${pills}</div>
       </div>
       <div class="hist-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
@@ -1000,7 +1002,7 @@ function histCard(w) {
     <div class="badge ${isLegacy?'badge-legacy':''}">${w.type}</div>
     <div class="hist-body">
       <div class="hist-type">${wk.desc}</div>
-      <div class="hist-date">${fmtDate(w.date)}${w.bw?` · ${w.bw} kg`:''}</div>
+      <div class="hist-date"><span class="hist-date-link" onclick="event.stopPropagation();showCalendar('${w.date}')">${fmtDate(w.date)}</span>${w.bw?` · ${w.bw} kg`:''}</div>
       <div class="hist-pills">${pills}</div>
     </div>
     <div class="hist-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
@@ -1629,10 +1631,10 @@ function confirmReset() {
 let calMonth, calYear;
 const CAL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-function showCalendar() {
-  const now = new Date();
-  calMonth = now.getMonth();
-  calYear  = now.getFullYear();
+function showCalendar(dateStr) {
+  const d = dateStr ? localMidnight(dateStr) : new Date();
+  calMonth = d.getMonth();
+  calYear  = d.getFullYear();
   renderCalendar();
   document.getElementById('cal-bg').classList.add('show');
   requestAnimationFrame(()=>document.getElementById('cal-sheet').classList.add('show'));
