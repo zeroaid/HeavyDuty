@@ -730,16 +730,16 @@ function load() {
   try {
     const saved = JSON.parse(localStorage.getItem('hit_v2') || 'null');
     if (saved) {
-      const normalised = saved.map(w => normaliseBelt({
+      const normalised = saved.map(w => normaliseBar(normaliseBelt({
         ...w,
         method: w.method || (ROT.includes(w.type) ? 'consolidated' : 'legacy')
-      }));
+      })));
       const ids = new Set(normalised.map(w=>w.id));
       const merged = [...normalised];
-      allSeed.forEach(w=>{ if(!ids.has(w.id)) merged.push(w); });
+      allSeed.forEach(w=>{ if(!ids.has(w.id)) merged.push(normaliseBar(w)); });
       workouts = merged;
     } else {
-      workouts = allSeed.map(normaliseBelt);
+      workouts = allSeed.map(w => normaliseBar(normaliseBelt(w)));
     }
   } catch { workouts = allSeed; }
   save();
@@ -751,6 +751,16 @@ function normaliseBelt(w) {
       if (!BW_EX.has(e.n) || e.belt !== undefined) return e;
       const belt = /\+?\s*[0-9.]+\s*kg\s*belt/i.test(e.note || '');
       return { ...e, belt };
+    })
+  };
+}
+function normaliseBar(w) {
+  return {
+    ...w,
+    ex: w.ex.map(e => {
+      if (e.n !== 'Deadlifts' || e.bar !== undefined) return e;
+      const olympic = /olympic/i.test(e.note || '');
+      return { ...e, bar: olympic ? 'olympic' : 'trap' };
     })
   };
 }
