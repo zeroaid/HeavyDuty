@@ -105,6 +105,10 @@ body {
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 .hero-title { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; margin-bottom: 3px; }
 .hero-sub { font-size: 13px; color: var(--text-2); margin-bottom: 18px; }
+.hero-sub-link { cursor: pointer; text-decoration: underline; text-decoration-color: var(--border-hi); text-underline-offset: 2px; transition: color 0.15s; }
+.hero-sub-link:active { color: var(--text); }
+@keyframes cardFlash { 0%,100% { background: var(--surface-1); } 40% { background: var(--accent-2); } }
+.hist-card-flash { animation: cardFlash 0.9s ease; }
 .hero-exs { margin-bottom: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
 .hero-ex { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); gap: 10px; }
 .hero-ex:last-child { border-bottom: none; }
@@ -931,7 +935,7 @@ function renderHome() {
   let sub = 'No previous workouts';
   if (last) {
     const d = daysAgo(last.date);
-    sub = `Last: ${WK[last.type].short} · ${fmtShort(last.date)} · <strong style="color:var(--text)">${d} day${d!==1?'s':''} ago</strong>`;
+    sub = `<span class="hero-sub-link" onclick="scrollToRecent('${last.id}')">Last: ${WK[last.type].short} · ${fmtShort(last.date)} · <strong style="color:var(--text)">${d} day${d!==1?'s':''} ago</strong></span>`;
   }
 
   const lbw = desc().find(w=>w.bw);
@@ -945,7 +949,7 @@ function renderHome() {
 
   const recent = asc().slice(-3).reverse().map(w=>{
     const pills = w.ex.filter(e=>e.r).map(e=>`<span class="pill">${e.n.split(' ').slice(-1)[0]}: <strong>${e.w>0?e.w+'kg':'BW'} ×${e.r}</strong></span>`).join('');
-    return `<div class="hist-card" onclick="go('detail',{id:'${w.id}'})">
+    return `<div class="hist-card" id="recent-${w.id}" onclick="go('detail',{id:'${w.id}'})">
       <div class="badge">${w.type}</div>
       <div class="hist-body">
         <div class="hist-type">${WK[w.type].desc}</div>
@@ -1013,6 +1017,14 @@ function histCard(w) {
 
 const histCollapsed = { consolidated: true, legacy: true };
 let histFilter = 'all'; // 'all' | 'A1'|'B1'|'A2'|'B2' | 'LA'|'LB'
+
+function scrollToRecent(id) {
+  const el = document.getElementById('recent-' + id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.remove('hist-card-flash');
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('hist-card-flash')));
+}
 
 function goToHistorySection(key) {
   histCollapsed[key] = false;
