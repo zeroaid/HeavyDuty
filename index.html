@@ -106,10 +106,12 @@ body {
 .hero-title { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; margin-bottom: 3px; }
 .hero-sub { font-size: 13px; color: var(--text-2); margin-bottom: 18px; }
 .hero-exs { margin-bottom: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
-.hero-ex { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.hero-ex { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); gap: 10px; }
 .hero-ex:last-child { border-bottom: none; }
+.hero-ex-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .hero-ex-name { font-size: 14px; font-weight: 500; }
-.hero-ex-last { font-size: 13px; color: var(--text-2); text-align: right; }
+.hero-ex-muscles { font-size: 11px; color: var(--text-3); font-weight: 500; letter-spacing: 0.1px; }
+.hero-ex-last { font-size: 13px; color: var(--text-2); text-align: right; white-space: nowrap; flex-shrink: 0; }
 .hero-ex-last strong { color: var(--accent); font-size: 14px; }
 
 /* ── Primary Button ──────────────────────────────────── */
@@ -199,7 +201,8 @@ body {
   background: var(--surface-1); border: 1px solid var(--border);
   border-radius: var(--r-md); padding: 16px;
 }
-.ex-row-name { font-size: 12px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.ex-row-name { font-size: 12px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+.ex-row-muscles { font-size: 11px; color: var(--text-3); font-weight: 500; text-transform: none; letter-spacing: 0.1px; margin-bottom: 6px; }
 .ex-row-val { font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: -1px; line-height: 1; }
 .ex-row-unit { font-size: 15px; font-weight: 600; color: var(--text-2); margin-left: 4px; }
 .ex-row-note { font-size: 13px; color: var(--text-3); margin-top: 8px; font-style: italic; }
@@ -255,7 +258,8 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 }
 .ex-form-card:focus-within { border-color: rgba(240,165,0,0.4); }
 .ex-form-head { padding: 14px 16px 12px; border-bottom: 1px solid var(--border); }
-.ex-form-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.ex-form-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.ex-form-muscles { font-size: 11px; color: var(--text-3); font-weight: 500; margin-bottom: 4px; }
 .ex-form-hint { font-size: 12px; color: var(--text-3); }
 .ex-form-hint strong { color: var(--accent); font-weight: 600; }
 .ex-form-body { padding: 14px 16px; }
@@ -555,6 +559,21 @@ const WK = {
   // ── Legacy Method ──
   LA:{ label:'Workout A', short:'A', desc:'Upper Body · Legacy', method:'legacy', exs:['Smith Squat','Deadlifts','Smith Close Grip Bench Press','Close Palm Grip Pull Downs','Dips','Wide Grip Pull Ups'] },
   LB:{ label:'Workout B', short:'B', desc:'Leg Day · Legacy',    method:'legacy', exs:['Leg Press','Leg Extension','Seated Leg Curl','Close Palm Grip Pull Downs','Dips','Wide Grip Pull Ups'] },
+};
+
+const MUSCLE_MAP = {
+  'Smith Close Grip Bench Press':  'Chest · Triceps · Anterior Deltoid',
+  'Close Palm Grip Pull Downs':    'Latissimus Dorsi · Biceps · Rear Deltoid',
+  'Smith Squat':                   'Quadriceps · Glutes · Hamstrings',
+  'Deadlifts':                     'Entire Posterior Chain · Traps · Forearms',
+  'Dips':                          'Chest · Triceps · Anterior Deltoid',
+  'Close Grip Pull Ups':           'Latissimus Dorsi · Biceps · Rear Deltoid',
+  'Pull Ups':                      'Latissimus Dorsi · Biceps · Rear Deltoid',
+  'Chin Ups':                      'Latissimus Dorsi · Biceps',
+  'Leg Press':                     'Quadriceps · Glutes · Hamstrings',
+  'Seated Leg Curl':               'Hamstrings',
+  'Wide Grip Pull Ups':            'Latissimus Dorsi · Teres Major · Biceps',
+  'Leg Extension':                 'Quadriceps (Isolation)',
 };
 
 // ══════════════════════════════════════════════════════
@@ -898,7 +917,11 @@ function renderHome() {
   const exRows = wk.exs.map(en => {
     const p = lastFor(en, null);
     const lastStr = p ? `<strong>${p.w>0?p.w+'kg':'BW'}</strong> × ${p.r}` : '—';
-    return `<div class="hero-ex"><span class="hero-ex-name">${en}</span><span class="hero-ex-last">${lastStr}</span></div>`;
+    const muscles = MUSCLE_MAP[en] || '';
+    return `<div class="hero-ex">
+      <div class="hero-ex-left"><span class="hero-ex-name">${en}</span>${muscles?`<span class="hero-ex-muscles">${muscles}</span>`:''}</div>
+      <span class="hero-ex-last">${lastStr}</span>
+    </div>`;
   }).join('');
 
   let sub = 'No previous workouts';
@@ -1116,8 +1139,9 @@ function renderDetail(id) {
       unitDisplay = `${e.w > 0 ? ' kg' : ''} × ${e.r != null ? e.r + ' reps' : '—'}`;
     }
 
+    const muscles = MUSCLE_MAP[e.n] || '';
     return `<div class="ex-row">
-      <div class="ex-row-name">${e.n}</div>
+      <div class="ex-row-name">${e.n}${muscles?`<div class="ex-row-muscles">${muscles}</div>`:''}</div>
       <div class="ex-row-val">${weightDisplay}<span class="ex-row-unit">${unitDisplay}</span></div>
       ${e.bar?`<div class="ex-row-note" style="color:var(--text-3)">${e.bar==='olympic'?'Olympic bar':'Trap bar'}</div>`:''}
       ${rpSets?`<div class="ex-row-rp"><span class="ex-row-rp-label">Rest-Pause</span><span class="ex-row-rp-sets">${rpSets}</span></div>`:''}
@@ -1177,10 +1201,11 @@ function renderLog(type) {
     const hintHtml = p
       ? `Last: <strong>${isBW ? (p.belt && p.w > 0 ? 'BW +'+p.w+'kg belt' : 'BW') : (p.w>0?p.w+'kg':'BW')} × ${p.r} reps</strong>${barHint} · ${fmtShort(p.date)}`
       : 'No previous data';
+    const muscles = MUSCLE_MAP[en] || '';
     return `
       <div class="ex-form-card">
         <div class="ex-form-head">
-          <div class="ex-form-name">${en}</div>
+          <div class="ex-form-name">${en}${muscles?`<div class="ex-form-muscles">${muscles}</div>`:''}</div>
           <div class="ex-form-hint">${hintHtml}</div>
         </div>
         <div class="ex-form-body">
