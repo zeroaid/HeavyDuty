@@ -466,6 +466,7 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
   <div id="s-detail"   class="screen"></div>
   <div id="s-settings" class="screen"></div>
   <div id="s-guide"    class="screen"></div>
+  <div id="s-edit"     class="screen"></div>
 </div>
 
 <nav id="nav">
@@ -720,7 +721,7 @@ const QUOTES = [
 ];
 
 let workouts = [];
-let cur = 'home', prev = 'home', logType = 'A1', detailId = null;
+let cur = 'home', prev = 'home', logType = 'A1', detailId = null, editId = null;
 
 function load() {
   const allSeed = [
@@ -838,6 +839,7 @@ function go(screen, opts={}, fromPop=false) {
   if (screen==='history')  renderHistory();
   if (screen==='log')      renderLog(opts.type||logType);
   if (screen==='detail')   renderDetail(opts.id||detailId);
+  if (screen==='edit')     renderEdit(opts.id||editId);
   if (screen==='settings') renderSettings();
   if (screen==='guide')    renderGuide();
 }
@@ -1110,7 +1112,13 @@ function renderDetail(id) {
 
     ${w.note?`<div class="detail-note-box">"${w.note}"</div>`:''}
 
-    <div style="padding:16px 20px 32px">
+    <div style="padding:16px 20px 8px">
+      <button class="btn-save" style="background:var(--surface-2);border:1px solid var(--border-hi);color:var(--text);width:100%" onclick="go('edit',{id:'${w.id}'})">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit Workout
+      </button>
+    </div>
+    <div style="padding:0 20px 32px">
       <button class="sheet-btn sheet-btn-danger" style="width:100%;padding:15px;border-radius:var(--r-md)" onclick="confirmDelete('${w.id}')">Delete Workout</button>
     </div>
   `;
@@ -1268,6 +1276,145 @@ function saveWorkout() {
   });
   workouts.push({id:uid(),date,type:logType,method:WK[logType].method,bw,bf,ex,note});
   save(); toast('Workout saved!', false); go('home');
+}
+
+// ══════════════════════════════════════════════════════
+//  EDIT WORKOUT
+// ══════════════════════════════════════════════════════
+
+function renderEdit(id) {
+  editId = id;
+  const w = workouts.find(x=>x.id===id);
+  if (!w) { go('detail',{id:detailId}); return; }
+  const wk = WK[w.type];
+
+  const blocks = wk.exs.map((en,i) => {
+    const e = w.ex.find(x=>x.n===en) || {w:0,r:null,note:'',belt:false,bar:null};
+    const isBW = BW_EX.has(en);
+    const isDL = en === 'Deadlifts';
+    const hasBelt = isBW && e.belt === true;
+    const bar = e.bar || null;
+    const dw = !isBW && e.w > 0 ? e.w : '';
+    return `
+      <div class="ex-form-card">
+        <div class="ex-form-head">
+          <div class="ex-form-name">${en}</div>
+        </div>
+        <div class="ex-form-body">
+          ${isDL ? `
+          <div class="belt-row" style="margin-bottom:10px">
+            <span class="belt-row-label">Bar</span>
+            <div class="bar-seg" id="bars${i}">
+              <button class="bar-seg-btn${bar==='olympic'?' active':''}" data-bar="olympic" onclick="setBar(${i},'olympic')">Olympic</button>
+              <button class="bar-seg-btn${bar==='trap'?' active':''}" data-bar="trap" onclick="setBar(${i},'trap')">Trap</button>
+            </div>
+          </div>` : ''}
+          ${isBW ? `
+          <div class="belt-row">
+            <span class="belt-row-label">Weight Belt</span>
+            <div class="belt-switch ${hasBelt?'on':''}" id="bts${i}" onclick="toggleBeltSwitch(${i})"><div class="belt-switch-thumb"></div></div>
+          </div>
+          <div class="belt-weight-field ${hasBelt?'open':''}" id="bwf${i}">
+            <div class="form-field" style="padding-bottom:8px">
+              <label>Belt weight kg</label>
+              <input type="number" id="ew${i}" value="${hasBelt?e.w:''}" inputmode="decimal" step="0.5" placeholder="e.g. 5">
+            </div>
+          </div>
+          <div class="ex-form-row">
+            <div class="form-field">
+              <label>Reps</label>
+              <input type="number" id="er${i}" inputmode="numeric" placeholder="—" value="${e.r!=null?e.r:''}">
+            </div>
+          </div>` : `
+          <div class="ex-form-row">
+            <div class="form-field">
+              <label>Weight kg</label>
+              <input type="number" id="ew${i}" value="${dw}" inputmode="decimal" step="0.5" placeholder="0 = bodyweight">
+            </div>
+            <div class="form-field">
+              <label>Reps</label>
+              <input type="number" id="er${i}" inputmode="numeric" placeholder="—" value="${e.r!=null?e.r:''}">
+            </div>
+          </div>`}
+          <div class="form-field">
+            <label>Notes</label>
+            <input type="text" id="en${i}" value="${(e.note||'').replace(/"/g,'&quot;')}" placeholder="2 sec negatives, rest-pause…" autocomplete="off">
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('s-edit').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:56px 20px 0">
+      <button class="back-cancel" onclick="go('detail',{id:'${id}'})">Cancel</button>
+    </div>
+
+    <div class="form-hero">
+      <div class="form-hero-tag">${w.type} · ${wk.desc}</div>
+      <div class="form-hero-title">Edit Workout</div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-row">
+        <div class="form-field">
+          <label>Date</label>
+          <input type="date" id="edate" value="${w.date}">
+        </div>
+        <div class="form-field">
+          <label>Body Weight kg</label>
+          <input type="number" id="ebw" inputmode="decimal" step="0.1" placeholder="kg" value="${w.bw||''}">
+        </div>
+      </div>
+    </div>
+    <div class="form-section" style="padding-bottom:0">
+      <div class="form-field">
+        <label>Body Fat % <span style="font-weight:400;text-transform:none;color:var(--text-3)">(optional)</span></label>
+        <input type="number" id="ebf" inputmode="decimal" step="0.1" placeholder="%" value="${w.bf||''}">
+      </div>
+    </div>
+
+    ${blocks}
+
+    <div style="padding:16px 20px 0">
+      <div class="form-field">
+        <label>Session Notes</label>
+        <textarea id="enote" placeholder="How did it feel? Energy, pain, PBs, sleep quality…">${(w.note||'').replace(/</g,'&lt;')}</textarea>
+      </div>
+    </div>
+
+    <button class="btn-save" onclick="updateWorkout('${id}')">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Save Changes
+    </button>
+  `;
+}
+
+function updateWorkout(id) {
+  const w = workouts.find(x=>x.id===id);
+  if (!w) return;
+  const wk = WK[w.type];
+  const date = document.getElementById('edate').value;
+  if (!date) { toast('Please enter a date', true); return; }
+  const bw = parseFloat(document.getElementById('ebw').value)||null;
+  const bf = parseFloat(document.getElementById('ebf').value)||null;
+  const note = document.getElementById('enote').value.trim();
+  const ex = wk.exs.map((en,i)=>{
+    const isBW = BW_EX.has(en);
+    const isDL = en === 'Deadlifts';
+    const beltOn = isBW && document.getElementById('bts'+i)?.classList.contains('on');
+    const barEl = isDL ? document.getElementById('bars'+i)?.querySelector('.active') : null;
+    const bar = barEl ? barEl.dataset.bar : null;
+    return {
+      n: en,
+      w: parseFloat(document.getElementById('ew'+i)?.value)||0,
+      r: parseInt(document.getElementById('er'+i).value)||null,
+      note: document.getElementById('en'+i).value.trim(),
+      ...(isBW && { belt: beltOn }),
+      ...(isDL && bar && { bar }),
+    };
+  });
+  Object.assign(w, { date, bw, bf, note, ex });
+  save(); toast('Changes saved!', false); go('detail',{id});
 }
 
 // ══════════════════════════════════════════════════════
