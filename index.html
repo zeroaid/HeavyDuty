@@ -677,7 +677,10 @@ function normaliseBar(w) {
     })
   };
 }
-function save() { localStorage.setItem('hit_v2', JSON.stringify(workouts)); }
+function save() {
+  localStorage.setItem('hit_v2', JSON.stringify(workouts));
+  gdScheduleBackup();
+}
 
 // ══════════════════════════════════════════════════════
 //  UTILS
@@ -1417,6 +1420,49 @@ function renderSettings() {
       </div>
     </div>
 
+    <div class="sec"><div class="sec-label">Cloud Backup</div></div>
+    <div style="margin:0 20px">
+      <div class="settings-card">
+        ${gdIsConnected() ? `
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-icon" style="background:rgba(66,133,244,0.12);color:#4285f4">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div>
+              <div class="settings-row-title">Google Drive</div>
+              <div class="settings-row-sub">${localStorage.getItem('hd_gd_email')||'Connected'} · ${gdLastBackupStr()}</div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-row" onclick="gdBackup()">
+          <div class="settings-row-left">
+            <div class="settings-icon" style="background:var(--green-bg);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.46"/></svg></div>
+            <div><div class="settings-row-title">Backup Now</div><div class="settings-row-sub">Upload latest data to Drive</div></div>
+          </div>
+          <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="settings-row" onclick="gdDisconnect()">
+          <div class="settings-row-left">
+            <div class="settings-icon" style="background:var(--red-bg);color:var(--red)"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+            <div><div class="settings-row-title">Disconnect</div><div class="settings-row-sub">Remove Drive access</div></div>
+          </div>
+          <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        ` : `
+        <div class="settings-row" onclick="gdConnect()">
+          <div class="settings-row-left">
+            <div class="settings-icon" style="background:rgba(66,133,244,0.12);color:#4285f4">
+              <svg viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>
+            </div>
+            <div><div class="settings-row-title">Connect Google Drive</div><div class="settings-row-sub">Auto-backup after every workout</div></div>
+          </div>
+          <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        `}
+      </div>
+    </div>
+
     <div class="footer-note">
       <img src="heavy-duty-logo.png" alt="Heavy Duty"
            style="display:block;margin:0 auto 14px;width:140px;opacity:0.9;filter:invert(1) contrast(2) brightness(1.05) drop-shadow(0 0 18px rgba(204,17,17,0.35))">
@@ -1471,6 +1517,143 @@ function confirmReset() {
 // ══════════════════════════════════════════════════════
 //  SHEET & TOAST
 // ══════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════
+//  GOOGLE DRIVE BACKUP
+// ══════════════════════════════════════════════════════
+
+const GD_CLIENT_ID = '485160115881-567lvkbcajarokqitjbqroqrreruc9eh.apps.googleusercontent.com';
+const GD_SCOPE     = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email';
+const GD_FILENAME  = 'HeavyDuty-backup.json';
+
+let gdTokenClient = null;
+let gdBackupTimer = null;
+
+function gdLoad() {
+  if (window.google?.accounts?.oauth2) { gdInitClient(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://accounts.google.com/gsi/client';
+  s.onload = gdInitClient;
+  s.onerror = () => toast('Could not load Google Sign-In', true);
+  document.head.appendChild(s);
+}
+
+function gdInitClient() {
+  gdTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GD_CLIENT_ID,
+    scope: GD_SCOPE,
+    callback: gdHandleToken,
+  });
+}
+
+function gdHandleToken(resp) {
+  if (resp.error) { toast('Google: ' + resp.error, true); return; }
+  const expiry = Date.now() + (resp.expires_in - 120) * 1000;
+  localStorage.setItem('hd_gd_token',  resp.access_token);
+  localStorage.setItem('hd_gd_expiry', String(expiry));
+  // Fetch email for display
+  fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: { Authorization: 'Bearer ' + resp.access_token }
+  }).then(r => r.json()).then(u => {
+    if (u.email) localStorage.setItem('hd_gd_email', u.email);
+    if (cur === 'settings') renderSettings();
+    gdBackup();
+  }).catch(() => {
+    if (cur === 'settings') renderSettings();
+    gdBackup();
+  });
+}
+
+function gdConnect() {
+  if (!window.google?.accounts?.oauth2) {
+    gdLoad();
+    // Wait for script then connect
+    const wait = setInterval(() => {
+      if (window.google?.accounts?.oauth2) {
+        clearInterval(wait);
+        gdInitClient();
+        gdTokenClient.requestAccessToken({ prompt: 'select_account' });
+      }
+    }, 200);
+  } else {
+    if (!gdTokenClient) gdInitClient();
+    gdTokenClient.requestAccessToken({ prompt: 'select_account' });
+  }
+}
+
+function gdDisconnect() {
+  const token = localStorage.getItem('hd_gd_token');
+  if (token && window.google?.accounts?.oauth2) {
+    google.accounts.oauth2.revoke(token, () => {});
+  }
+  ['hd_gd_token','hd_gd_expiry','hd_gd_email','hd_gd_file_id','hd_gd_last_backup'].forEach(k => localStorage.removeItem(k));
+  if (cur === 'settings') renderSettings();
+  toast('Google Drive disconnected', false);
+}
+
+function gdIsConnected() {
+  return !!(localStorage.getItem('hd_gd_token') && Date.now() < parseInt(localStorage.getItem('hd_gd_expiry') || '0'));
+}
+
+function gdLastBackupStr() {
+  const t = parseInt(localStorage.getItem('hd_gd_last_backup') || '0');
+  if (!t) return 'Never backed up';
+  const mins = Math.floor((Date.now() - t) / 60000);
+  if (mins < 1)  return 'Backed up just now';
+  if (mins < 60) return `Backed up ${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24)  return `Backed up ${hrs}h ago`;
+  return `Backed up ${Math.floor(hrs/24)}d ago`;
+}
+
+async function gdBackup() {
+  const token = localStorage.getItem('hd_gd_token');
+  if (!token || Date.now() >= parseInt(localStorage.getItem('hd_gd_expiry') || '0')) return;
+
+  const body = JSON.stringify(workouts, null, 2);
+  let fileId = localStorage.getItem('hd_gd_file_id');
+
+  try {
+    // First time: search Drive for an existing file
+    if (!fileId) {
+      const res = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=name%3D'${GD_FILENAME}'+and+trashed%3Dfalse&fields=files(id)`,
+        { headers: { Authorization: 'Bearer ' + token } }
+      );
+      const json = await res.json();
+      if (json.files?.length) fileId = json.files[0].id;
+    }
+
+    const meta = JSON.stringify({ name: GD_FILENAME, mimeType: 'application/json' });
+    const form = new FormData();
+    form.append('metadata', new Blob([meta], { type: 'application/json' }));
+    form.append('file',     new Blob([body], { type: 'application/json' }));
+
+    const url    = fileId
+      ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
+      : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+    const method = fileId ? 'PATCH' : 'POST';
+
+    const resp = await fetch(url, { method, headers: { Authorization: 'Bearer ' + token }, body: form });
+    if (!resp.ok) throw new Error(await resp.text());
+
+    const file = await resp.json();
+    localStorage.setItem('hd_gd_file_id',      file.id);
+    localStorage.setItem('hd_gd_last_backup',   String(Date.now()));
+    toast('Backed up to Google Drive ✓', false);
+    if (cur === 'settings') renderSettings();
+  } catch (e) {
+    console.error('Drive backup failed', e);
+  }
+}
+
+function gdScheduleBackup() {
+  clearTimeout(gdBackupTimer);
+  gdBackupTimer = setTimeout(() => { if (gdIsConnected()) gdBackup(); }, 4000);
+}
+
+// Pre-load GIS if previously connected
+if (localStorage.getItem('hd_gd_token')) gdLoad();
 
 // ── Calendar ──────────────────────────────────────────
 let calMonth, calYear;
