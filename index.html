@@ -543,10 +543,12 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .ai-chips { display:flex; flex-wrap:wrap; gap:8px; padding:4px 20px 14px; }
 .ai-chip { background:var(--surface-2); border:1px solid var(--border); border-radius:20px; padding:7px 14px; font-size:12px; font-weight:600; color:var(--text-2); cursor:pointer; white-space:nowrap; transition:background 0.15s,border-color 0.15s,color 0.15s; }
 .ai-chip:active { background:var(--accent-2); border-color:var(--accent); color:var(--text); }
-.ai-textarea { width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:12px 14px; color:var(--text); font-size:14px; font-family:inherit; resize:none; outline:none; line-height:1.5; }
-.ai-textarea:focus { border-color:var(--border-hi); }
-.ai-send-btn { display:flex; align-items:center; gap:8px; background:var(--accent); color:#fff; border:none; border-radius:12px; padding:12px 20px; font-size:14px; font-weight:700; cursor:pointer; flex:1; justify-content:center; transition:opacity 0.2s; }
-.ai-send-btn:disabled { opacity:0.45; cursor:default; }
+.ai-input-wrap { position:relative; background:var(--surface-2); border:1px solid var(--border); border-radius:18px; padding:14px 56px 14px 16px; transition:border-color 0.2s; }
+.ai-input-wrap:focus-within { border-color:var(--border-hi); }
+.ai-textarea { width:100%; background:transparent; border:none; padding:0; color:var(--text); font-size:15px; font-family:inherit; resize:none; outline:none; line-height:1.6; }
+.ai-send-btn { position:absolute; bottom:10px; right:10px; width:38px; height:38px; background:var(--accent); border:none; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:opacity 0.2s, transform 0.1s; flex-shrink:0; }
+.ai-send-btn:active { transform:scale(0.92); }
+.ai-send-btn:disabled { opacity:0.35; cursor:default; transform:none; }
 .ai-response-box { margin:0 20px 16px; padding:16px; background:var(--surface-2); border:1px solid var(--border); border-radius:16px; }
 .ai-response-text { font-size:14px; color:var(--text); line-height:1.75; }
 .ai-response-text strong { color:var(--text); font-weight:700; }
@@ -1704,14 +1706,13 @@ function renderInsights() {
       <button class="ai-chip" onclick="aiSetPrompt('Based on my training history, what should I focus on in my next workout?')">Next session advice</button>
       <button class="ai-chip" onclick="aiSetPrompt('Am I training too frequently or not frequently enough given Heavy Duty principles?')">Frequency check</button>
     </div>
-    <div style="padding:0 20px 10px">
-      <textarea id="ai-prompt" class="ai-textarea" placeholder="Ask anything about your training…" rows="3"></textarea>
-    </div>
     <div style="padding:0 20px 18px">
-      <button class="ai-send-btn" id="ai-send-btn" onclick="askClaude()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        Ask Claude
-      </button>
+      <div class="ai-input-wrap">
+        <textarea id="ai-prompt" class="ai-textarea" placeholder="Ask anything about your training…" rows="3"></textarea>
+        <button class="ai-send-btn" id="ai-send-btn" onclick="askClaude()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        </button>
+      </div>
     </div>
     <div id="ai-response-area"></div>
     `}
@@ -2232,7 +2233,7 @@ When you respond:
     area.innerHTML = `<div class="ai-response-box"><div class="ai-error">⚠ ${err.message.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div></div>`;
   } finally {
     sendBtn.disabled = false;
-    sendBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Ask Claude';
+    sendBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>';
   }
 }
 
