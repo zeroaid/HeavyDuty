@@ -2918,6 +2918,18 @@ load();
 renderHome();
 history.replaceState({ screen: 'home', opts: {} }, '');
 
+// Fix bottom nav bar in standalone mode (Samsung PWA doesn't respect CSS display-mode query)
+(function() {
+  const isStandalone = window.navigator.standalone ||
+    window.matchMedia('(display-mode: standalone)').matches ||
+    document.referrer.includes('android-app://');
+  if (isStandalone) {
+    const safeB = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-b')) || 0;
+    document.documentElement.style.setProperty('--safe-b', Math.max(safeB, 34) + 'px');
+    document.getElementById('nav').style.backgroundColor = '#000';
+  }
+})();
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js');
 }
