@@ -1,0 +1,36 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.zeroaid.heavyduty'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.zeroaid.heavyduty'
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(System.getenv('KEYSTORE_PATH') ?: 'keystore.jks')
+            storePassword System.getenv('STORE_PASSWORD') ?: 'heavyduty2024'
+            keyAlias System.getenv('KEY_ALIAS') ?: 'heavyduty'
+            keyPassword System.getenv('KEY_PASSWORD') ?: 'heavyduty2024'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+}
