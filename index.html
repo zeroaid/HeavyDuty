@@ -1822,7 +1822,7 @@ function renderSettings() {
 // ══════════════════════════════════════════════════════
 
 function exportData() {
-  const profile = loadProfile();
+  const profile = getProfile();
   const backup = { version: 2, exportedAt: new Date().toISOString(), profile: profile || {}, workouts };
   const blob = new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
   const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:`HIT-log-${today()}.json`});
@@ -2628,7 +2628,7 @@ async function gdBackup() {
   const token = await gdGetValidToken();
   if (!token) return;
 
-  const body = JSON.stringify({ version: 2, exportedAt: new Date().toISOString(), profile: loadProfile() || {}, workouts }, null, 2);
+  const body = JSON.stringify({ version: 2, exportedAt: new Date().toISOString(), profile: getProfile() || {}, workouts }, null, 2);
   let fileId = localStorage.getItem('hd_gd_file_id');
 
   try {
