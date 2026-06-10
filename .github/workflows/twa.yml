@@ -29,73 +29,83 @@ jobs:
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      # If KEYSTORE_BASE64 secret is set, use it. Otherwise generate a new one.
-      - name: Prepare keystore
+      - name: Pre-configure Bubblewrap (skip JDK install prompt)
         run: |
-          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
-            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > heavyduty.jks
-            echo "Using existing keystore from secret."
-          else
-            keytool -genkey -v \
-              -keystore heavyduty.jks \
-              -alias heavyduty \
-              -keyalg RSA -keysize 2048 -validity 10000 \
-              -dname "CN=Heavy Duty, O=ZeroAid, C=GB" \
-              -storepass "${{ secrets.STORE_PASSWORD || 'heavyduty2024' }}" \
-              -keypass "${{ secrets.KEY_PASSWORD || 'heavyduty2024' }}"
-            echo "Generated new keystore. Save the fingerprint below to .well-known/assetlinks.json"
-            echo "Then base64-encode this keystore and store as KEYSTORE_BASE64 secret to reuse it."
-          fi
+          mkdir -p ~/.bubblewrap
+          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_HOME\"}" \
+            > ~/.bubblewrap/config.json
+
+      - name: Generate keystore
+        run: |
+          keytool -genkey -v \
+            -keystore heavyduty.jks \
+            -alias heavyduty \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Heavy Duty, O=ZeroAid, C=GB" \
+            -storepass heavyduty2024 \
+            -keypass heavyduty2024
 
       - name: Print SHA-256 fingerprint
         run: |
-          echo "===== SHA-256 FINGERPRINT (copy this into .well-known/assetlinks.json) ====="
-          keytool -list -v \
-            -keystore heavyduty.jks \
-            -alias heavyduty \
-            -storepass "${{ secrets.STORE_PASSWORD || 'heavyduty2024' }}" \
-            | grep "SHA256:" | head -1
-          echo "==============================================================================="
-          echo "To save this keystore as a secret, run:"
-          echo "  base64 -w0 heavyduty.jks"
-          echo "and store the output as the KEYSTORE_BASE64 GitHub secret."
+          echo "====== COPY THIS INTO .well-known/assetlinks.json ======"
+          keytool -list -v -keystore heavyduty.jks -alias heavyduty \
+            -storepass heavyduty2024 | grep "SHA256:"
+          echo "========================================================"
 
-      - name: Configure Bubblewrap (skip interactive JDK prompt)
+      - name: Init TWA project (pipe defaults to all prompts)
         run: |
-          mkdir -p ~/.bubblewrap
-          cat > ~/.bubblewrap/config.json << EOF
-          {
-            "jdkPath": "$JAVA_HOME",
-            "androidSdkPath": "$ANDROID_HOME"
-          }
-          EOF
+          mkdir twa-project && cd twa-project
+          yes '' | bubblewrap init \
+            --manifest https://zeroaid.github.io/HeavyDuty/manifest.json \
+            --directory .
+        continue-on-error: true
 
-      - name: Build TWA
+      - name: Patch twa-manifest with navigation colours
         run: |
-          bubblewrap build \
-            --manifest twa-manifest.json \
+          cd twa-project
+          node -e "
+            const fs = require('fs');
+            const m = JSON.parse(fs.readFileSync('twa-manifest.json','utf8'));
+            m.navigationColor = '#000000';
+            m.navigationColorDark = '#000000';
+            m.navigationDividerColor = '#000000';
+            m.navigationDividerColorDark = '#000000';
+            fs.writeFileSync('twa-manifest.json', JSON.stringify(m, null, 2));
+            console.log('Patched navigation colours');
+          "
+
+      - name: Build APK
+        run: |
+          cd twa-project
+          yes '' | bubblewrap build \
             --skipPwaValidation \
-            --keystore heavyduty.jks \
-            --keystorePassword "${{ secrets.STORE_PASSWORD || 'heavyduty2024' }}" \
+            --keystore ../heavyduty.jks \
+            --keystorePassword heavyduty2024 \
             --keyAlias heavyduty \
-            --keyPassword "${{ secrets.KEY_PASSWORD || 'heavyduty2024' }}"
+            --keyPassword heavyduty2024
+
+      - name: Find and upload APK
+        run: find . -name "*.apk" | head -5
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: heavy-duty-twa-v${{ github.run_number }}
-          path: "*.apk"
+          path: "**/*.apk"
           if-no-files-found: warn
 
-      - name: Create GitHub Release
+      - name: Create Release
         if: github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: twa-v${{ github.run_number }}
           name: "Heavy Duty TWA v${{ github.run_number }}"
           body: |
-            Install this APK on your Android device.
-            Enable "Install from unknown sources" in Settings > Security first.
-          files: "*.apk"
+            ## Install Instructions
+            1. Download `app-release-signed.apk`
+            2. On your S26 Ultra: Settings → Security → Install unknown apps → allow your file manager
+            3. Open the APK and install
+            4. The nav bar will now be black
+          files: "**/*.apk"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
