@@ -1,7 +1,10 @@
-const CACHE = 'heavy-duty-v6';
+const CACHE = 'heavy-duty-v7';
 const STATIC = [
   '/HeavyDuty/heavy-duty-logo.png',
-  '/HeavyDuty/manifest.json'
+  '/HeavyDuty/manifest.json',
+  '/HeavyDuty/icon-192.png',
+  '/HeavyDuty/icon-512.png',
+  '/HeavyDuty/icon-512-maskable.png'
 ];
 
 self.addEventListener('install', e => {
