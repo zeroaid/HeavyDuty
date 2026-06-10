@@ -2244,10 +2244,7 @@ When you respond:
     // Final clean render
     area.innerHTML = `<div class="ai-response-box"><div class="ai-response-text">${aiMarkdown(fullText)}</div></div>`;
     const fw = document.getElementById('ai-followup-wrap');
-    if (fw) {
-      fw.style.display = '';
-      setTimeout(() => { document.getElementById('ai-followup')?.focus(); fw.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 150);
-    }
+    if (fw) fw.style.display = '';
 
   } catch (err) {
     if (httpStatus === null) {
