@@ -2246,7 +2246,7 @@ When you respond:
     const fw = document.getElementById('ai-followup-wrap');
     if (fw) {
       fw.style.display = '';
-      setTimeout(() => { document.getElementById('ai-followup')?.focus(); fw.scrollIntoView({ behavior:'smooth', block:'center' }); }, 150);
+      setTimeout(() => { document.getElementById('ai-followup')?.focus(); fw.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 150);
     }
 
   } catch (err) {
