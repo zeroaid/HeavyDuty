@@ -1720,6 +1720,17 @@ function apRecovery(p) {
   if (sleep >= 8) score += 2; else if (sleep >= 7) score += 1;
   if (p.stress === 'low') score += 2; else if (p.stress === 'moderate') score += 1;
   if (p.occupation === 'sedentary') score += 1; else if (p.occupation === 'active') score -= 1;
+  const ar = p.activeRecovery;
+  if (ar) {
+    const days = ar.daysPerWeek || 0;
+    const zone = ar.zone;
+    // Zone 2 at sensible frequency aids recovery; Zone 3+ or very high frequency hurts it
+    if (zone === 'z2' && days <= 6) score += 1;
+    else if (zone === 'z1') score += 1;
+    else if (zone === 'z3' && days >= 4) score -= 1;
+    // Same-day-as-HIT timing adds systemic fatigue
+    if (ar.timing === 'after') score -= 1;
+  }
   if (score >= 4) return { label: 'Optimal',     colour: 'var(--green)' };
   if (score >= 2) return { label: 'Moderate',    colour: '#f59e0b' };
   return              { label: 'Compromised', colour: 'var(--accent)' };
@@ -1751,7 +1762,7 @@ function apSummaryHtml(p) {
       </div>
       <div class="ap-card">
         <div class="ap-card-val" style="color:${rec.colour};font-size:15px;padding-top:3px">${rec.label}</div>
-        <div class="ap-card-sub">recovery<br>${p.sleepHours ? p.sleepHours + 'h sleep' : ''}</div>
+        <div class="ap-card-sub">recovery<br>${p.activeRecovery?.daysPerWeek ? p.activeRecovery.daysPerWeek + 'd ' + (p.activeRecovery.zone||'').replace('z','Z') : (p.sleepHours ? p.sleepHours + 'h sleep' : '')}</div>
       </div>
     </div>
     <div class="ap-edit-row"><button class="ap-edit-btn" onclick="apStartEdit()">Edit profile ›</button></div>`;
@@ -1834,6 +1845,48 @@ function apFormHtml(p) {
       </div>
     </div>
 
+    <div class="ap-form-section">Active recovery</div>
+
+    <div class="ap-field">
+      <div class="ap-label">Activity type <span style="color:var(--text-3);font-weight:400">(select all that apply)</span></div>
+      <div class="ap-chips" id="ap-ar-act">
+        ${apChips([['cycling','Cycling'],['walking','Walking'],['swimming','Swimming'],['rowing','Rowing'],['elliptical','Elliptical'],['yoga','Yoga / Mobility'],['other','Other']], p?.activeRecovery?.activities||[], 'ap-ar-act', true)}
+      </div>
+    </div>
+
+    <div class="ap-row2">
+      <div>
+        <div class="ap-label">Duration (mins/session)</div>
+        <input type="number" id="ap-ar-dur" class="ap-input" placeholder="30" min="5" max="180" value="${p?.activeRecovery?.durationMins||''}">
+      </div>
+      <div>
+        <div class="ap-label">Days per week</div>
+        <input type="number" id="ap-ar-days" class="ap-input" placeholder="5" min="1" max="7" value="${p?.activeRecovery?.daysPerWeek||''}">
+      </div>
+    </div>
+
+    <div class="ap-field">
+      <div class="ap-label">Intensity zone</div>
+      <div class="ap-chips" id="ap-ar-zone">
+        ${apChips([['z1','Zone 1 — very easy'],['z2','Zone 2 — conversational'],['z3','Zone 3+ — moderate/hard']], p?.activeRecovery?.zone ? [p.activeRecovery.zone] : [], 'ap-ar-zone', false)}
+      </div>
+      <div class="ap-hint">Zone 2 = you can hold a full conversation throughout</div>
+    </div>
+
+    <div class="ap-field">
+      <div class="ap-label">When do you do it?</div>
+      <div class="ap-chips" id="ap-ar-timing">
+        ${apChips([['before','Before HIT / before work'],['after','After HIT / after work'],['separate','Separate days only'],['mixed','Mixed']], p?.activeRecovery?.timing ? [p.activeRecovery.timing] : [], 'ap-ar-timing', false)}
+      </div>
+    </div>
+
+    <div class="ap-field">
+      <div class="ap-label">Any extra detail <span style="color:var(--text-3);font-weight:400">(optional)</span></div>
+      <textarea id="ap-ar-notes" class="ai-textarea" rows="2" placeholder="e.g. Upright bike, fasted, same days as HIT on gym weeks…">${p?.activeRecovery?.notes||''}</textarea>
+    </div>
+
+    <div class="ap-form-section">Health notes</div>
+
     <div class="ap-field">
       <div class="ap-label">Injuries or limitations <span style="color:var(--text-3);font-weight:400">(optional)</span></div>
       <textarea id="ap-injuries" class="ai-textarea" rows="2" placeholder="e.g. Left shoulder impingement, lower back issues…">${p?.injuries||''}</textarea>
@@ -1858,6 +1911,14 @@ function apChipSingle(btn, groupId) {
 function apSave() {
   const chips = id => [...document.querySelectorAll(`#${id} .ap-chip.on`)].map(c => c.dataset.val);
   const single = id => { const c = document.querySelector(`#${id} .ap-chip.on`); return c ? c.dataset.val : ''; };
+  const arActivities = chips('ap-ar-act');
+  const arZone       = single('ap-ar-zone');
+  const arDur        = parseInt(document.getElementById('ap-ar-dur')?.value)  || null;
+  const arDays       = parseInt(document.getElementById('ap-ar-days')?.value) || null;
+  const arTiming     = single('ap-ar-timing');
+  const arNotes      = document.getElementById('ap-ar-notes')?.value.trim() || '';
+  const hasAR        = arActivities.length || arDur || arDays;
+
   const p = {
     age:             parseInt(document.getElementById('ap-age')?.value)   || null,
     yearsTraining:   parseInt(document.getElementById('ap-yrs')?.value)   || null,
@@ -1867,6 +1928,7 @@ function apSave() {
     sleepHours:      parseFloat(document.getElementById('ap-sleep')?.value) || null,
     stress:          single('ap-stress'),
     occupation:      single('ap-occ'),
+    activeRecovery:  hasAR ? { activities: arActivities, zone: arZone, durationMins: arDur, daysPerWeek: arDays, timing: arTiming, notes: arNotes } : null,
     injuries:        document.getElementById('ap-injuries')?.value.trim() || '',
     savedAt:         new Date().toISOString().slice(0,10)
   };
@@ -1984,6 +2046,8 @@ Athlete background:
 - Stress level: ${profile.stress || 'not specified'}
 - Occupation type: ${profile.occupation === 'sedentary' ? 'Desk job (sedentary)' : profile.occupation === 'moderate' ? 'Moderately active' : profile.occupation === 'active' ? 'Manual labour (physically demanding)' : 'not specified'}
 - Injuries / limitations: ${profile.injuries || 'none reported'}
+${profile.activeRecovery ? `- Active recovery: ${profile.activeRecovery.activities.join(', ') || 'not specified'}, ${profile.activeRecovery.daysPerWeek || '?'} days/week, ${profile.activeRecovery.durationMins || '?'} mins/session, ${profile.activeRecovery.zone === 'z1' ? 'Zone 1 (very easy)' : profile.activeRecovery.zone === 'z2' ? 'Zone 2 (conversational)' : profile.activeRecovery.zone === 'z3' ? 'Zone 3+ (moderate-hard)' : 'zone not specified'}, timing: ${profile.activeRecovery.timing === 'before' ? 'before HIT/before work' : profile.activeRecovery.timing === 'after' ? 'after HIT/after work' : profile.activeRecovery.timing === 'separate' ? 'separate days only' : profile.activeRecovery.timing === 'mixed' ? 'mixed' : 'not specified'}${profile.activeRecovery.notes ? '. Notes: ' + profile.activeRecovery.notes : ''}
+  - Zone 2 cardio improves mitochondrial density and cardiovascular efficiency — at sensible volume it enhances rather than compromises HIT recovery. Factor the total daily activity load (cardio + HIT) when assessing fatigue and recommending rest periods between strength sessions.` : '- Active recovery: none reported'}
 
 Use this background to calibrate your analysis — e.g. someone with 15 years of high-volume training will have different recovery capacity and muscle maturity than a beginner; age and occupation directly affect recovery between HIT sessions.
 ` : `No athlete profile has been filled in yet. Analyse based on workout data alone and note that a profile would improve accuracy.`;
