@@ -310,12 +310,12 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .settings-row-sub { font-size: 12px; color: var(--text-2); margin-top: 1px; }
 .settings-row-arrow svg { width: 16px; height: 16px; fill: none; stroke: var(--text-3); stroke-width: 2.5; stroke-linecap: round; }
 
-.settings-stat { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); gap: 12px; min-height: 48px; }
+.settings-stat { display: grid; grid-template-columns: 1fr auto 20px; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); gap: 0 8px; min-height: 48px; }
 .settings-stat:last-child { border-bottom: none; }
 .settings-stat-label { font-size: 14px; color: var(--text-2); display: flex; align-items: center; gap: 6px; min-width: 0; }
 .settings-stat-val { font-size: 15px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 4px; justify-content: flex-end; white-space: nowrap; }
 .settings-stat-link:active { background: rgba(255,255,255,0.04); }
-.ss-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; display:inline-block; }
+.settings-stat-chevron { width:20px; display:flex; align-items:center; justify-content:center; }
 
 .btn-danger-row {
   display: flex; align-items: center; justify-content: space-between;
@@ -1477,24 +1477,24 @@ function renderSettings() {
     <div class="sec"><div class="sec-label">Your Stats</div></div>
     <div style="margin:0 20px">
       <div class="settings-card">
-        <div class="settings-stat"><div class="settings-stat-label">Total sessions</div><div class="settings-stat-val">${workouts.length}</div></div>
+        <div class="settings-stat"><div class="settings-stat-label">Total sessions</div><div class="settings-stat-val">${workouts.length}</div><div></div></div>
         <div class="settings-stat settings-stat-link" onclick="goToHistorySection('consolidated')" style="cursor:pointer">
-          <div class="settings-stat-label">Consolidated Method</div>
-          <div class="settings-stat-val">${cCount}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-stat-label"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;box-shadow:0 0 5px rgba(204,17,17,0.6)"></span>Consolidated Method</div>
+          <div class="settings-stat-val">${cCount}</div><div class="settings-stat-chevron"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>
         <div class="settings-stat settings-stat-link" onclick="goToHistorySection('legacy')" style="cursor:pointer">
-          <div class="settings-stat-label">Legacy Method</div>
-          <div class="settings-stat-val">${lCount}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-stat-label"><span style="width:7px;height:7px;border-radius:50%;background:#94a3b8;flex-shrink:0"></span>Legacy Method</div>
+          <div class="settings-stat-val">${lCount}</div><div class="settings-stat-chevron"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>
         ${first?`<div class="settings-stat settings-stat-link" onclick="go('detail',{id:'${first.id}'})" style="cursor:pointer">
           <div class="settings-stat-label">First session</div>
-          <div class="settings-stat-val">${fmtShort(first.date)}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-stat-val">${fmtShort(first.date)}</div><div class="settings-stat-chevron"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>`:''}
         ${last?`<div class="settings-stat settings-stat-link" onclick="go('detail',{id:'${last.id}'})" style="cursor:pointer">
           <div class="settings-stat-label">Latest session</div>
-          <div class="settings-stat-val">${fmtShort(last.date)}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-stat-val">${fmtShort(last.date)}</div><div class="settings-stat-chevron"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>`:''}
-        ${last?.bw?`<div class="settings-stat"><div class="settings-stat-label">Last body weight</div><div class="settings-stat-val">${last.bw} kg</div></div>`:''}
+        ${last?.bw?`<div class="settings-stat"><div class="settings-stat-label">Last body weight</div><div class="settings-stat-val">${last.bw} kg</div><div></div></div>`:''}
       </div>
     </div>
 
