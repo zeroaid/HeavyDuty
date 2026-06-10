@@ -1822,12 +1822,23 @@ function renderSettings() {
 // ══════════════════════════════════════════════════════
 
 function exportData() {
-  const profile = getProfile();
-  const backup = { version: 2, exportedAt: new Date().toISOString(), profile: profile || {}, workouts };
-  const blob = new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
-  const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:`HIT-log-${today()}.json`});
-  a.click(); URL.revokeObjectURL(a.href);
-  toast('Backup exported!', false);
+  try {
+    const profile = getProfile();
+    const backup = { version: 2, exportedAt: new Date().toISOString(), profile: profile || {}, workouts };
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `HIT-log-${today()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('Backup exported!', false);
+  } catch(err) {
+    toast('Export failed: ' + err.message, true);
+  }
 }
 
 function handleImport(evt) {
