@@ -71,6 +71,12 @@ jobs:
           name: heavy-duty-twa-v${{ github.run_number }}
           path: twa-app/app/build/outputs/apk/release/*.apk
 
+      - name: Upload keystore as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: keystore
+          path: twa-app/keystore.jks
+
       - name: Create Release
         if: github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
