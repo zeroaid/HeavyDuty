@@ -60,6 +60,16 @@ jobs:
           echo "  base64 -w0 heavyduty.jks"
           echo "and store the output as the KEYSTORE_BASE64 GitHub secret."
 
+      - name: Configure Bubblewrap (skip interactive JDK prompt)
+        run: |
+          mkdir -p ~/.bubblewrap
+          cat > ~/.bubblewrap/config.json << EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_HOME"
+          }
+          EOF
+
       - name: Build TWA
         run: |
           bubblewrap build \
