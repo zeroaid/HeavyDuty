@@ -1822,7 +1822,9 @@ function renderSettings() {
 // ══════════════════════════════════════════════════════
 
 function exportData() {
-  const blob = new Blob([JSON.stringify(workouts,null,2)],{type:'application/json'});
+  const profile = loadProfile();
+  const backup = { version: 2, exportedAt: new Date().toISOString(), profile: profile || {}, workouts };
+  const blob = new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
   const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:`HIT-log-${today()}.json`});
   a.click(); URL.revokeObjectURL(a.href);
   toast('Backup exported!', false);
@@ -1833,19 +1835,25 @@ function handleImport(evt) {
   const r = new FileReader();
   r.onload = e => {
     try {
-      const data = JSON.parse(e.target.result);
-      if (!Array.isArray(data)) throw 0;
+      const raw = JSON.parse(e.target.result);
+      // Support both old format (bare array) and new format ({version, workouts, profile})
+      const sessions = Array.isArray(raw) ? raw : raw.workouts;
+      const profile  = Array.isArray(raw) ? null : (raw.profile || null);
+      if (!Array.isArray(sessions)) throw 0;
       showSheet(
         'Replace all data?',
-        `This will overwrite your ${workouts.length} existing sessions with the ${data.length} sessions in the file. This cannot be undone.`,
+        `This will overwrite your ${workouts.length} existing sessions with the ${sessions.length} sessions in the file. This cannot be undone.`,
         'Replace Data',
         () => {
-          workouts = data.map(w => normaliseBar(normaliseBelt(normaliseNames({
+          workouts = sessions.map(w => normaliseBar(normaliseBelt(normaliseNames({
             ...w,
             method: w.method || (ROT.includes(w.type) ? 'consolidated' : 'legacy')
           }))));
           save();
-          toast(`Loaded ${data.length} sessions`, false);
+          if (profile && Object.keys(profile).length) {
+            localStorage.setItem('hd_profile', JSON.stringify(profile));
+          }
+          toast(`Loaded ${sessions.length} sessions`, false);
           go('home');
         }
       );
@@ -2620,7 +2628,7 @@ async function gdBackup() {
   const token = await gdGetValidToken();
   if (!token) return;
 
-  const body = JSON.stringify(workouts, null, 2);
+  const body = JSON.stringify({ version: 2, exportedAt: new Date().toISOString(), profile: loadProfile() || {}, workouts }, null, 2);
   let fileId = localStorage.getItem('hd_gd_file_id');
 
   try {
