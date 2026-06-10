@@ -1,0 +1,91 @@
+name: Build TWA APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'twa-manifest.json'
+      - 'manifest.json'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      # If KEYSTORE_BASE64 secret is set, use it. Otherwise generate a new one.
+      - name: Prepare keystore
+        run: |
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > heavyduty.jks
+            echo "Using existing keystore from secret."
+          else
+            keytool -genkey -v \
+              -keystore heavyduty.jks \
+              -alias heavyduty \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Heavy Duty, O=ZeroAid, C=GB" \
+              -storepass "${{ secrets.STORE_PASSWORD || 'heavyduty2024' }}" \
+              -keypass "${{ secrets.KEY_PASSWORD || 'heavyduty2024' }}"
+            echo "Generated new keystore. Save the fingerprint below to .well-known/assetlinks.json"
+            echo "Then base64-encode this keystore and store as KEYSTORE_BASE64 secret to reuse it."
+          fi
+
+      - name: Print SHA-256 fingerprint
+        run: |
+          echo "===== SHA-256 FINGERPRINT (copy this into .well-known/assetlinks.json) ====="
+          keytool -list -v \
+            -keystore heavyduty.jks \
+            -alias heavyduty \
+            -storepass "${{ secrets.STORE_PASSWORD || 'heavyduty2024' }}" \
+            | grep "SHA256:" | head -1
+          echo "==============================================================================="
+          echo "To save this keystore as a secret, run:"
+          echo "  base64 -w0 heavyduty.jks"
+          echo "and store the output as the KEYSTORE_BASE64 GitHub secret."
+
+      - name: Build TWA
+        run: |
+          bubblewrap build \
+            --manifest twa-manifest.json \
+            --skipPwaValidation \
+            --keystore heavyduty.jks \
+            --keystorePassword "${{ secrets.STORE_PASSWORD || 'heavyduty2024' }}" \
+            --keyAlias heavyduty \
+            --keyPassword "${{ secrets.KEY_PASSWORD || 'heavyduty2024' }}"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: heavy-duty-twa-v${{ github.run_number }}
+          path: "*.apk"
+          if-no-files-found: warn
+
+      - name: Create GitHub Release
+        if: github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: twa-v${{ github.run_number }}
+          name: "Heavy Duty TWA v${{ github.run_number }}"
+          body: |
+            Install this APK on your Android device.
+            Enable "Install from unknown sources" in Settings > Security first.
+          files: "*.apk"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
