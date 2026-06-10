@@ -1457,11 +1457,19 @@ function renderSettings() {
   const s = asc(), first = s[0], last = s[s.length-1];
   const cCount = workouts.filter(w=>w.method==='consolidated').length;
   const lCount = workouts.filter(w=>w.method==='legacy').length;
+  const WK_ICON = {
+    A1: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 12h11"/><path d="M3 10.5v3"/><path d="M5.5 9v6"/><path d="M18.5 9v6"/><path d="M21 10.5v3"/></svg>`,
+    A2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 12h11"/><path d="M3 10.5v3"/><path d="M5.5 9v6"/><path d="M18.5 9v6"/><path d="M21 10.5v3"/></svg>`,
+    B1: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 12h12"/><path d="M2 9.5v5"/><path d="M5 7v10"/><path d="M19 7v10"/><path d="M22 9.5v5"/></svg>`,
+    B2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 12h12"/><path d="M2 9.5v5"/><path d="M5 7v10"/><path d="M19 7v10"/><path d="M22 9.5v5"/></svg>`,
+    LA: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 12h11"/><path d="M3 10.5v3"/><path d="M5.5 9v6"/><path d="M18.5 9v6"/><path d="M21 10.5v3"/></svg>`,
+    LB: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 12h12"/><path d="M2 9.5v5"/><path d="M5 7v10"/><path d="M19 7v10"/><path d="M22 9.5v5"/></svg>`,
+  };
   const typeButtons = ROT.map(t=>`
     <div class="settings-row" onclick="go('log',{type:'${t}'})">
       <div class="settings-row-left">
         <div class="settings-icon" style="background:var(--accent-2);color:var(--accent)">
-          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          ${WK_ICON[t]}
         </div>
         <div>
           <div class="settings-row-title">${WK[t].label}</div>
