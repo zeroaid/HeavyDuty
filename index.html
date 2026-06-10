@@ -35,10 +35,10 @@
   --green-bg:   rgba(34,197,94,0.1);
   --red:        #cc1111;
   --red-bg:     rgba(204,17,17,0.12);
-  --r-sm:       10px;
-  --r-md:       16px;
-  --r-lg:       20px;
-  --r-xl:       28px;
+  --r-sm:       4px;
+  --r-md:       6px;
+  --r-lg:       6px;
+  --r-xl:       8px;
   --nav-h:      72px;
   --safe-b:     max(env(safe-area-inset-bottom, 0px), 20px);
 }
@@ -46,7 +46,7 @@
 html { height: 100%; min-height: 100lvh; background: #000; color-scheme: dark; }
 body {
   height: 100%; min-height: 100lvh; background: #000; color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  font-family: Arial, 'Helvetica Neue', sans-serif;
   font-size: 16px; line-height: 1.4; overflow: hidden;
 }
 
@@ -85,7 +85,7 @@ body {
 
 /* ── Page Shell ──────────────────────────────────────── */
 .page-top { padding: 56px 20px 8px; }
-.page-title { font-size: 32px; font-weight: 800; letter-spacing: -0.8px; }
+.page-title { font-size: 32px; font-weight: 900; letter-spacing: 1px; font-family: 'Impact', 'Arial Black', Arial, sans-serif; text-transform: uppercase; }
 .page-subtitle { font-size: 14px; color: var(--text-2); margin-top: 2px; }
 
 /* ── Section Labels ──────────────────────────────────── */
@@ -109,7 +109,7 @@ body {
 .hero-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
 .hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-.hero-title { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; margin-bottom: 3px; }
+.hero-title { font-size: 22px; font-weight: 900; letter-spacing: 1px; font-family: 'Impact', 'Arial Black', Arial, sans-serif; text-transform: uppercase; margin-bottom: 3px; }
 .hero-sub { font-size: 13px; color: var(--text-2); margin-bottom: 18px; }
 .hero-sub-link { cursor: pointer; text-decoration: underline; text-decoration-color: var(--border-hi); text-underline-offset: 2px; transition: color 0.15s; }
 .hero-sub-link:active { color: var(--text); }
@@ -141,7 +141,7 @@ body {
 .stat-chip { flex: 1; background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-md); padding: 14px 12px; text-align: center; }
 .stat-chip-btn { cursor: pointer; transition: background 0.15s, border-color 0.15s; }
 .stat-chip-btn:active { background: var(--surface-2); border-color: var(--border-hi); }
-.stat-val { font-size: 24px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+.stat-val { font-size: 26px; font-weight: 900; color: var(--accent); letter-spacing: 1px; font-family: 'Impact', 'Arial Black', Arial, sans-serif; }
 .stat-lbl { font-size: 11px; color: var(--text-3); margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* ── Calendar Sheet ──────────────────────────────────── */
@@ -217,7 +217,7 @@ body {
 }
 .ex-row-name { font-size: 12px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
 .ex-row-muscles { font-size: 11px; color: var(--text-3); font-weight: 500; text-transform: none; letter-spacing: 0.1px; margin-bottom: 6px; }
-.ex-row-val { font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: -1px; line-height: 1; }
+.ex-row-val { font-size: 36px; font-weight: 900; color: var(--accent); letter-spacing: 1px; line-height: 1; font-family: 'Impact', 'Arial Black', Arial, sans-serif; }
 .ex-row-unit { font-size: 15px; font-weight: 600; color: var(--text-2); margin-left: 4px; }
 .ex-row-note { font-size: 13px; color: var(--text-3); margin-top: 8px; font-style: italic; }
 .ex-row-rp {
@@ -588,59 +588,84 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .yt-btn:active { background: rgba(255,0,0,0.22); }
 .yt-btn svg { flex-shrink: 0; }
 
-/* ── Lickable polish ─────────────────────────────────── */
+/* ── Heavy Duty Raw — industrial bodybuilding aesthetic ── */
+
+/* Flatten the gradient buttons — solid, hard, no gloss */
 .btn-cta, .btn-save {
-  background: linear-gradient(180deg, #d91212 0%, #b30d0d 100%);
-  box-shadow: 0 4px 22px rgba(204,17,17,0.5), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.15);
-  transition: transform 0.08s, box-shadow 0.08s;
+  background: var(--accent);
+  box-shadow: none;
+  border-radius: 4px;
+  letter-spacing: 3px;
+  transition: transform 0.06s, background 0.06s;
 }
 .btn-cta:active, .btn-save:active {
   transform: scale(0.97);
-  box-shadow: 0 1px 8px rgba(204,17,17,0.3), inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.1);
+  background: #a80e0e;
   opacity: 1;
 }
+
+/* Rougher radius on cards */
 .stat-chip {
-  background: linear-gradient(180deg, #141414 0%, #0d0d0d 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 10px rgba(0,0,0,0.45);
+  background: #0f0f0f;
+  border-radius: 6px;
+  box-shadow: none;
+  border-color: rgba(255,255,255,0.1);
 }
 .hist-card {
-  background: linear-gradient(180deg, #141414 0%, #0f0f0f 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 2px 14px rgba(0,0,0,0.4);
+  background: #0f0f0f;
+  border-radius: 6px;
+  box-shadow: none;
+  border-color: rgba(255,255,255,0.1);
 }
 .hero {
-  box-shadow: 0 6px 32px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
+  border-radius: 8px;
+  box-shadow: none;
+  border-color: rgba(204,17,17,0.3);
+  border-left: 3px solid var(--accent);
 }
 .settings-card {
-  background: linear-gradient(180deg, #141414 0%, #101010 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 8px rgba(0,0,0,0.3);
+  background: #0f0f0f;
+  border-radius: 6px;
+  box-shadow: none;
+  border-color: rgba(255,255,255,0.1);
 }
 .badge {
-  background: linear-gradient(145deg, rgba(204,17,17,0.22) 0%, rgba(204,17,17,0.09) 100%);
-  border-color: rgba(204,17,17,0.3);
-  box-shadow: inset 0 1px 0 rgba(204,17,17,0.25);
+  background: rgba(204,17,17,0.15);
+  border-color: rgba(204,17,17,0.35);
+  border-radius: 4px;
+  box-shadow: none;
 }
 #cal-sheet {
-  box-shadow: 0 -8px 48px rgba(0,0,0,0.75), 0 -1px 0 rgba(255,255,255,0.05);
+  border-radius: 0;
+  box-shadow: none;
+  border-top: 2px solid var(--accent);
 }
 .pill {
-  background: linear-gradient(180deg, #1f1f1f 0%, #191919 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  background: #161616;
+  border-radius: 3px;
+  box-shadow: none;
 }
 .ai-send-btn {
-  background: linear-gradient(180deg, #d91212 0%, #b30d0d 100%);
-  box-shadow: 0 2px 14px rgba(204,17,17,0.5), inset 0 1px 0 rgba(255,255,255,0.18);
+  background: var(--accent);
+  border-radius: 4px;
+  box-shadow: none;
 }
 .ai-input-wrap {
-  box-shadow: 0 2px 14px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
+  border-radius: 6px;
+  box-shadow: none;
 }
 .ex-form-card {
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 2px 10px rgba(0,0,0,0.35);
+  border-radius: 6px;
+  box-shadow: none;
+  border-color: rgba(255,255,255,0.1);
 }
 input, textarea {
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+  border-radius: 4px;
+  box-shadow: none;
 }
 #nav {
-  box-shadow: 0 -8px 28px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: none;
+  border-top: 2px solid rgba(255,255,255,0.12);
 }
 </style>
 </head>
