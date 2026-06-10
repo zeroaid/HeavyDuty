@@ -3,6 +3,8 @@
   "target": {
     "namespace": "android_app",
     "package_name": "com.zeroaid.heavyduty",
-    "sha256_cert_fingerprints": ["REPLACE_WITH_SHA256_FROM_GITHUB_ACTIONS"]
+    "sha256_cert_fingerprints": [
+      "27:BC:F3:7B:99:CD:60:ED:A8:90:FC:87:F2:76:33:60:EE:1C:E0:65:21:7E:97:81:63:01:D3:94:B1:3B:BF:0B"
+    ]
   }
 }]

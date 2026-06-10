@@ -8,6 +8,9 @@ on:
       - 'twa-app/**'
       - 'manifest.json'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,22 +25,33 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Generate keystore
+      - name: Prepare keystore
         run: |
-          keytool -genkey -v \
-            -keystore twa-app/keystore.jks \
-            -alias heavyduty \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -dname "CN=Heavy Duty, O=ZeroAid, C=GB" \
-            -storepass heavyduty2024 \
-            -keypass heavyduty2024
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "Using stored keystore from KEYSTORE_BASE64 secret"
+            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > twa-app/keystore.jks
+          else
+            echo "Generating new keystore — save the base64 output below as KEYSTORE_BASE64 secret"
+            keytool -genkey -v \
+              -keystore twa-app/keystore.jks \
+              -alias heavyduty \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Heavy Duty, O=ZeroAid, C=GB" \
+              -storepass heavyduty2024 \
+              -keypass heavyduty2024
+            echo ""
+            echo "====== SAVE THIS AS KEYSTORE_BASE64 GITHUB SECRET ======"
+            base64 -w0 twa-app/keystore.jks
+            echo ""
+            echo "========================================================"
+          fi
 
       - name: Print SHA-256 fingerprint
         run: |
-          echo "====== COPY THIS INTO .well-known/assetlinks.json ======"
+          echo "====== SHA-256 (already in .well-known/assetlinks.json) ======"
           keytool -list -v -keystore twa-app/keystore.jks \
             -alias heavyduty -storepass heavyduty2024 | grep "SHA256:"
-          echo "========================================================"
+          echo "==============================================================="
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
