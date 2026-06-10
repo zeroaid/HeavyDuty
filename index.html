@@ -1715,6 +1715,14 @@ function renderInsights() {
       </div>
     </div>
     <div id="ai-response-area"></div>
+    <div id="ai-followup-wrap" style="display:none;padding:0 20px 18px">
+      <div class="ai-input-wrap">
+        <textarea id="ai-followup" class="ai-textarea" placeholder="Ask a follow-up…" rows="2"></textarea>
+        <button class="ai-send-btn" onclick="aiFollowUp()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        </button>
+      </div>
+    </div>
     `}
     <div style="height:32px"></div>
   `;
@@ -2014,6 +2022,16 @@ function aiRenderLog() {
   }).join('');
 }
 
+function aiFollowUp() {
+  const fu = document.getElementById('ai-followup');
+  if (!fu?.value?.trim()) return;
+  document.getElementById('ai-prompt').value = fu.value;
+  fu.value = '';
+  document.getElementById('ai-followup-wrap').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  askClaude();
+}
+
 async function askClaude() {
   const key = localStorage.getItem('hd_claude_key');
   if (!key) { toast('Add your API key in Settings', true); return; }
@@ -2225,6 +2243,11 @@ When you respond:
 
     // Final clean render
     area.innerHTML = `<div class="ai-response-box"><div class="ai-response-text">${aiMarkdown(fullText)}</div></div>`;
+    const fw = document.getElementById('ai-followup-wrap');
+    if (fw) {
+      fw.style.display = '';
+      setTimeout(() => { document.getElementById('ai-followup')?.focus(); fw.scrollIntoView({ behavior:'smooth', block:'center' }); }, 150);
+    }
 
   } catch (err) {
     if (httpStatus === null) {
