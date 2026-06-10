@@ -310,10 +310,10 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .settings-row-sub { font-size: 12px; color: var(--text-2); margin-top: 1px; }
 .settings-row-arrow svg { width: 16px; height: 16px; fill: none; stroke: var(--text-3); stroke-width: 2.5; stroke-linecap: round; }
 
-.settings-stat { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); gap: 12px; }
+.settings-stat { display: flex; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); gap: 12px; }
 .settings-stat:last-child { border-bottom: none; }
-.settings-stat-label { font-size: 14px; color: var(--text-2); flex: 1; min-width: 0; }
-.settings-stat-val { font-size: 15px; font-weight: 700; color: var(--text); flex-shrink: 0; text-align: right; }
+.settings-stat-label { font-size: 14px; color: var(--text-2); flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; }
+.settings-stat-val { font-size: 15px; font-weight: 700; color: var(--text); flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
 .settings-stat-link:active { background: rgba(255,255,255,0.04); }
 
 .btn-danger-row {
@@ -507,7 +507,7 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 
 /* ── Athlete Profile ────────────────────────────────── */
 .ap-stats { display:flex; gap:10px; margin:0 20px 6px; }
-.ap-card { flex:1; background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:12px 8px; text-align:center; min-width:0; }
+.ap-card { flex:1; background:var(--surface-1); border:1px solid var(--border); border-radius:14px; padding:12px 8px; text-align:center; min-width:0; }
 .ap-card-val { font-size:20px; font-weight:800; color:var(--text); letter-spacing:-0.5px; line-height:1.1; }
 .ap-card-sub { font-size:10px; color:var(--text-3); margin-top:3px; line-height:1.4; }
 .ap-edit-row { display:flex; justify-content:flex-end; padding:4px 20px 12px; }
@@ -1478,24 +1478,24 @@ function renderSettings() {
       <div class="settings-card">
         <div class="settings-stat"><span class="settings-stat-label">Total sessions</span><span class="settings-stat-val">${workouts.length}</span></div>
         <div class="settings-stat settings-stat-link" onclick="goToHistorySection('consolidated')" style="cursor:pointer">
-          <span class="settings-stat-label" style="display:flex;align-items:center;gap:6px">
-            <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;box-shadow:0 0 5px rgba(204,17,17,0.6)"></span>Consolidated Method
+          <span class="settings-stat-label">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;flex-shrink:0;box-shadow:0 0 5px rgba(204,17,17,0.6)"></span>Consolidated Method
           </span>
-          <span class="settings-stat-val" style="display:flex;align-items:center;gap:6px">${cCount} <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <span class="settings-stat-val">${cCount} <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
         </div>
         <div class="settings-stat settings-stat-link" onclick="goToHistorySection('legacy')" style="cursor:pointer">
-          <span class="settings-stat-label" style="display:flex;align-items:center;gap:6px">
-            <span style="width:7px;height:7px;border-radius:50%;background:#94a3b8;display:inline-block"></span>Legacy Method
+          <span class="settings-stat-label">
+            <span style="width:7px;height:7px;border-radius:50%;background:#94a3b8;display:inline-block;flex-shrink:0"></span>Legacy Method
           </span>
-          <span class="settings-stat-val" style="display:flex;align-items:center;gap:6px">${lCount} <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <span class="settings-stat-val">${lCount} <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
         </div>
         ${first?`<div class="settings-stat settings-stat-link" onclick="go('detail',{id:'${first.id}'})" style="cursor:pointer">
           <span class="settings-stat-label">First session</span>
-          <span class="settings-stat-val" style="display:flex;align-items:center;gap:6px">${fmtShort(first.date)} <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <span class="settings-stat-val">${fmtShort(first.date)} <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
         </div>`:''}
         ${last?`<div class="settings-stat settings-stat-link" onclick="go('detail',{id:'${last.id}'})" style="cursor:pointer">
           <span class="settings-stat-label">Latest session</span>
-          <span class="settings-stat-val" style="display:flex;align-items:center;gap:6px">${fmtShort(last.date)} <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <span class="settings-stat-val">${fmtShort(last.date)} <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
         </div>`:''}
         ${last?.bw?`<div class="settings-stat"><span class="settings-stat-label">Last body weight</span><span class="settings-stat-val">${last.bw} kg</span></div>`:''}
       </div>
