@@ -1477,24 +1477,24 @@ function renderSettings() {
     <div class="sec"><div class="sec-label">Your Stats</div></div>
     <div style="margin:0 20px">
       <div class="settings-card">
-        <div class="settings-stat"><div class="settings-stat-label"><span class="ss-dot"></span>Total sessions</div><div class="settings-stat-val">${workouts.length}</div></div>
+        <div class="settings-stat"><div class="settings-stat-label">Total sessions</div><div class="settings-stat-val">${workouts.length}</div></div>
         <div class="settings-stat settings-stat-link" onclick="goToHistorySection('consolidated')" style="cursor:pointer">
-          <div class="settings-stat-label"><span class="ss-dot" style="background:var(--accent);box-shadow:0 0 5px rgba(204,17,17,0.6)"></span>Consolidated Method</div>
+          <div class="settings-stat-label">Consolidated Method</div>
           <div class="settings-stat-val">${cCount}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>
         <div class="settings-stat settings-stat-link" onclick="goToHistorySection('legacy')" style="cursor:pointer">
-          <div class="settings-stat-label"><span class="ss-dot" style="background:#94a3b8"></span>Legacy Method</div>
+          <div class="settings-stat-label">Legacy Method</div>
           <div class="settings-stat-val">${lCount}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>
         ${first?`<div class="settings-stat settings-stat-link" onclick="go('detail',{id:'${first.id}'})" style="cursor:pointer">
-          <div class="settings-stat-label"><span class="ss-dot"></span>First session</div>
+          <div class="settings-stat-label">First session</div>
           <div class="settings-stat-val">${fmtShort(first.date)}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>`:''}
         ${last?`<div class="settings-stat settings-stat-link" onclick="go('detail',{id:'${last.id}'})" style="cursor:pointer">
-          <div class="settings-stat-label"><span class="ss-dot"></span>Latest session</div>
+          <div class="settings-stat-label">Latest session</div>
           <div class="settings-stat-val">${fmtShort(last.date)}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>`:''}
-        ${last?.bw?`<div class="settings-stat"><div class="settings-stat-label"><span class="ss-dot"></span>Last body weight</div><div class="settings-stat-val">${last.bw} kg</div></div>`:''}
+        ${last?.bw?`<div class="settings-stat"><div class="settings-stat-label">Last body weight</div><div class="settings-stat-val">${last.bw} kg</div></div>`:''}
       </div>
     </div>
 
