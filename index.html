@@ -638,6 +638,24 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 //  CONFIG
 // ══════════════════════════════════════════════════════
 
+const MENTZER_QUOTES = [
+  "More is not better. Better is better.",
+  "The purpose of training is to stimulate growth, not annihilate the body.",
+  "Train less, not more — but train with absolute intensity.",
+  "Intensity is the single most important factor in productive exercise.",
+  "If you're not training to failure, you're not training at all.",
+  "Recovery is not laziness. It's biology.",
+  "The body grows stronger during rest, not during the workout.",
+  "One set taken to absolute failure is all the stimulation the body requires.",
+  "High volume training is the most common mistake in all of bodybuilding.",
+  "Progress is made by making demands that are above and beyond what the body is accustomed to.",
+  "The greatest gains come from the briefest, most intense workouts.",
+  "Your body has no reason to grow unless forced to by maximum intensity.",
+  "Logic and reason must be the basis of your training — not tradition.",
+  "Overtraining is not a myth. It is the rule, not the exception.",
+  "Every set beyond what is necessary is a step backwards.",
+];
+
 const ROT = ['A1','B1','A2','B2'];
 const WK = {
   // ── Consolidated Method ──
@@ -1649,7 +1667,8 @@ function renderInsights() {
   document.getElementById('s-insights').innerHTML = `
     <div class="page-top">
       <div class="page-title" id="ai-title-tap" onclick="aiTitleTap()">Insights</div>
-      <div class="page-subtitle">AI-powered analysis of your training.</div>
+      <div class="page-subtitle">AI Insights to assist you measure your data in real time.</div>
+      <div class="page-subtitle" style="margin-top:6px;font-style:italic;color:var(--text-3);font-size:12px;line-height:1.5">"${MENTZER_QUOTES[Math.floor(Math.random()*MENTZER_QUOTES.length)]}"</div>
     </div>
     <div id="ai-log-panel" style="display:none;margin:0 20px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;max-height:320px;overflow-y:auto;font-family:monospace"></div>
 
