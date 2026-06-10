@@ -1458,11 +1458,17 @@ function renderSettings() {
   const cCount = workouts.filter(w=>w.method==='consolidated').length;
   const lCount = workouts.filter(w=>w.method==='legacy').length;
   const WK_ICON = {
-    A1: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 12h11"/><path d="M3 10.5v3"/><path d="M5.5 9v6"/><path d="M18.5 9v6"/><path d="M21 10.5v3"/></svg>`,
-    A2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 12h11"/><path d="M3 10.5v3"/><path d="M5.5 9v6"/><path d="M18.5 9v6"/><path d="M21 10.5v3"/></svg>`,
+    // A1: Bench Press — flat bench + barbell above
+    A1: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 9h10"/><path d="M5 8v3"/><path d="M6.5 7v5"/><path d="M17.5 7v5"/><path d="M19 8v3"/><path d="M5 15h14"/><path d="M8 15v3"/><path d="M16 15v3"/></svg>`,
+    // A2: Pull-up bar — bar at top, person hanging
+    A2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h18"/><path d="M9 5v4"/><path d="M15 5v4"/><path d="M9 9h6"/><path d="M12 9v8"/><path d="M10 17l2 0 2 0"/></svg>`,
+    // B1: Heavy barbell — squat/deadlift, tall plates
     B1: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 12h12"/><path d="M2 9.5v5"/><path d="M5 7v10"/><path d="M19 7v10"/><path d="M22 9.5v5"/></svg>`,
-    B2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 12h12"/><path d="M2 9.5v5"/><path d="M5 7v10"/><path d="M19 7v10"/><path d="M22 9.5v5"/></svg>`,
-    LA: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 12h11"/><path d="M3 10.5v3"/><path d="M5.5 9v6"/><path d="M18.5 9v6"/><path d="M21 10.5v3"/></svg>`,
+    // B2: Leg press — reclined figure, legs pushing platform
+    B2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="7" r="2"/><path d="M5 9v4h5"/><path d="M10 13l5-5"/><path d="M15 8v6"/><path d="M13 14h6"/></svg>`,
+    // Legacy upper: bench press (same as A1)
+    LA: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 9h10"/><path d="M5 8v3"/><path d="M6.5 7v5"/><path d="M17.5 7v5"/><path d="M19 8v3"/><path d="M5 15h14"/><path d="M8 15v3"/><path d="M16 15v3"/></svg>`,
+    // Legacy lower: heavy barbell (same as B1)
     LB: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 12h12"/><path d="M2 9.5v5"/><path d="M5 7v10"/><path d="M19 7v10"/><path d="M22 9.5v5"/></svg>`,
   };
   const typeButtons = ROT.map(t=>`
