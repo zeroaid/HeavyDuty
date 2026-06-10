@@ -39,7 +39,7 @@
   --r-lg:       20px;
   --r-xl:       28px;
   --nav-h:      72px;
-  --safe-b:     env(safe-area-inset-bottom, 20px);
+  --safe-b:     env(safe-area-inset-bottom, 0px);
 }
 
 html { height: 100%; background: #000; color-scheme: dark; }
@@ -80,6 +80,10 @@ body {
 .nav-btn.active svg { transform: scale(1.1); }
 .nav-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); margin-top: 2px; opacity: 0; transition: opacity 0.2s; }
 .nav-btn.active .nav-dot { opacity: 1; }
+
+@media (display-mode: standalone) {
+  :root { --safe-b: max(env(safe-area-inset-bottom, 0px), 24px); }
+}
 
 /* ── Page Shell ──────────────────────────────────────── */
 .page-top { padding: 56px 20px 8px; }
