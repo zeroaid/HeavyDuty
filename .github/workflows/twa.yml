@@ -46,7 +46,7 @@ jobs:
         working-directory: twa-app
         run: gradle assembleRelease
         env:
-          KEYSTORE_PATH: keystore.jks
+          KEYSTORE_PATH: ../keystore.jks
           STORE_PASSWORD: heavyduty2024
           KEY_ALIAS: heavyduty
           KEY_PASSWORD: heavyduty2024
