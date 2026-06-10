@@ -39,7 +39,7 @@
   --r-lg:       20px;
   --r-xl:       28px;
   --nav-h:      72px;
-  --safe-b:     env(safe-area-inset-bottom, 0px);
+  --safe-b:     env(safe-area-inset-bottom, 20px);
 }
 
 html { height: 100%; background: #000; color-scheme: dark; }
@@ -66,8 +66,8 @@ body {
   display: flex; z-index: 200;
 }
 #nav::after {
-  content: ''; position: absolute; bottom: -40px; left: 0; right: 0;
-  height: 40px; background: rgba(14,14,14,0.95);
+  content: ''; position: absolute; bottom: -60px; left: 0; right: 0;
+  height: 60px; background: #000;
 }
 .nav-btn {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
