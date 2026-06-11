@@ -2195,7 +2195,7 @@ async function recFingerprint(buf) {
 }
 function recDuplicateId(fp) {
   if (!fp) return null;
-  return loadRecovery().find(r => r.fingerprint === fp)?.id || null;
+  return recoveryLogs.find(r => r.fingerprint === fp)?.id || null;
 }
 
 // ── EXIF date extraction ──────────────────────────────
