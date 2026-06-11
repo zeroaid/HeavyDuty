@@ -2118,13 +2118,17 @@ Be direct, specific, and Mentzer-like in tone. Reference actual numbers from the
     const raw  = (data.content || []).find(b => b.type === 'text')?.text || '';
 
     let parsed;
-    try { parsed = JSON.parse(raw.trim()); }
-    catch(e) {
-      // try to extract JSON from the response
-      const m = raw.match(/\{[\s\S]*\}/);
-      parsed = m ? JSON.parse(m[0]) : null;
+    // Strip markdown code fences if present, then extract first {...} block
+    const cleaned = raw.replace(/```[a-z]*\n?/gi, '').trim();
+    const m = cleaned.match(/\{[\s\S]*\}/);
+    try { parsed = m ? JSON.parse(m[0]) : null; } catch(e) { parsed = null; }
+    if (!parsed || !parsed.readiness) {
+      // Fallback: build object from raw text if Claude ignored JSON instruction
+      const lines = cleaned.split('\n').filter(Boolean);
+      const get = (key) => { const l = lines.find(l => new RegExp(key,'i').test(l)); return l ? l.replace(/^[^:]+:\s*/,'').trim() : ''; };
+      parsed = { readiness: get('readiness'), progress: get('progress'), recommendation: get('recommendation') };
+      if (!parsed.readiness && !parsed.progress && !parsed.recommendation) throw new Error('Could not parse response');
     }
-    if (!parsed) throw new Error('Invalid response format');
 
     const collapsed = localStorage.getItem('hd_ai_insights_v2_collapsed') === '1';
     const html = `<div class="ap-ai-card">
