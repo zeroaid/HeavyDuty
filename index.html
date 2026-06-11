@@ -558,10 +558,36 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .rec-obs { font-size:13px; color:var(--text-2); line-height:1.55; }
 .rec-delete { background:none; border:none; padding:10px 10px 0 0; color:var(--text-3); cursor:pointer; font-size:18px; align-self:flex-start; flex-shrink:0; }
 .rec-empty { font-size:14px; color:var(--text-3); padding:8px 0 14px; }
-.rec-filters { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
-.rec-filter-chip { background:var(--surface-2); border:1px solid var(--border); border-radius:20px; padding:5px 12px; font-size:12px; font-weight:600; color:var(--text-2); cursor:pointer; white-space:nowrap; }
-.rec-filter-chip.on { background:rgba(212,20,20,0.15); border-color:var(--accent); color:var(--text); }
+.rec-filter-bar { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.rec-filter-btn { display:flex; align-items:center; gap:6px; background:var(--surface-2); border:1px solid var(--border); border-radius:20px; padding:7px 14px; font-size:13px; font-weight:600; color:var(--text-2); cursor:pointer; white-space:nowrap; }
+.rec-filter-btn.active { border-color:var(--accent); color:var(--text); background:rgba(212,20,20,0.12); }
+.rec-filter-badge { background:var(--accent); color:#fff; border-radius:10px; font-size:10px; font-weight:700; padding:1px 6px; }
+.rec-active-tags { display:flex; gap:6px; flex:1; overflow-x:auto; scrollbar-width:none; }
+.rec-active-tags::-webkit-scrollbar { display:none; }
+.rec-active-tag { display:flex; align-items:center; gap:4px; background:rgba(212,20,20,0.15); border:1px solid var(--accent); border-radius:20px; padding:4px 10px; font-size:12px; color:var(--text); white-space:nowrap; flex-shrink:0; }
+.rec-active-tag button { background:none; border:none; color:var(--text-3); cursor:pointer; font-size:14px; line-height:1; padding:0 0 0 2px; }
+.rec-fsheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; padding:0 0 max(env(safe-area-inset-bottom,0px),20px); max-height:80vh; display:flex; flex-direction:column; }
+.rec-fsheet-head { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 12px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.rec-fsheet-title { font-size:15px; font-weight:700; }
+.rec-fsheet-clear { background:none; border:none; font-size:13px; color:var(--accent); cursor:pointer; font-weight:600; }
+.rec-fsheet-body { overflow-y:auto; flex:1; padding:4px 0; }
+.rec-fgroup { padding:14px 20px 6px; }
+.rec-fgroup-label { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text-3); margin-bottom:10px; }
+.rec-fgroup-chips { display:flex; gap:6px; flex-wrap:wrap; }
+.rec-fchip { background:var(--surface-2); border:1px solid var(--border); border-radius:20px; padding:7px 14px; font-size:13px; font-weight:600; color:var(--text-2); cursor:pointer; white-space:nowrap; transition:all 0.12s; }
+.rec-fchip.on { background:rgba(212,20,20,0.15); border-color:var(--accent); color:var(--text); }
+.rec-fsheet-footer { padding:14px 20px 4px; border-top:1px solid var(--border); flex-shrink:0; }
+.rec-fsheet-apply { width:100%; background:var(--accent); color:#fff; border:none; border-radius:var(--r-md); padding:13px; font-size:14px; font-weight:700; cursor:pointer; }
 .rec-show-more { width:100%; background:none; border:1px solid var(--border); border-radius:var(--r-md); padding:10px; font-size:13px; color:var(--text-3); cursor:pointer; margin-top:8px; }
+/* Recovery detail sheet */
+.rec-detail-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:200; display:flex; align-items:flex-end; }
+.rec-detail-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; max-height:90vh; overflow-y:auto; }
+.rec-detail-photo { width:100%; max-height:260px; object-fit:cover; display:block; border-radius:16px 16px 0 0; }
+.rec-detail-body { padding:18px 20px max(env(safe-area-inset-bottom,0px),24px); }
+.rec-detail-stats { display:flex; gap:10px; margin:14px 0; }
+.rec-detail-stat { flex:1; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-md); padding:10px 12px; text-align:center; }
+.rec-detail-stat-val { font-size:16px; font-weight:800; color:var(--accent); }
+.rec-detail-stat-lbl { font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--text-3); margin-top:2px; }
 .rec-bulk-btn { display:flex; align-items:center; gap:5px; background:none; border:1px solid var(--border); border-radius:var(--r-md); padding:6px 10px; font-size:12px; font-weight:600; color:var(--text-3); cursor:pointer; }
 .rec-progress-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:300; display:flex; align-items:flex-end; }
 .rec-progress-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; padding:20px 20px max(env(safe-area-inset-bottom,0px),24px); max-height:70vh; display:flex; flex-direction:column; }
@@ -2325,15 +2351,147 @@ function recCardHtml(r) {
   const zone  = r.analysis?.zone ? `<span style="font-size:11px;color:var(--accent);font-weight:700;margin-left:6px">${r.analysis.zone}</span>` : '';
   const dur   = r.analysis?.duration ? `<span style="font-size:11px;color:var(--text-3);margin-left:6px">${r.analysis.duration}</span>` : '';
   const obs   = r.analysis?.observations || (r.note && !r.analysis ? r.note : '');
-  return `<div class="rec-card">
+  const time  = r.time ? ` · ${r.time}` : '';
+  return `<div class="rec-card" onclick="recOpenDetail('${r.id}')" style="cursor:pointer">
     ${img}
     <div class="rec-body">
-      <div class="rec-date">${r.date}</div>
+      <div class="rec-date">${r.date}${time}${r.timeOfDay ? ' · '+r.timeOfDay : ''}</div>
       <div class="rec-activity">${title}${zone}${dur}</div>
       ${obs ? `<div class="rec-obs">${obs}</div>` : ''}
     </div>
-    <button class="rec-delete" onclick="recDelete('${r.id}')" title="Delete">×</button>
+    <button class="rec-delete" onclick="event.stopPropagation();recDelete('${r.id}')" title="Delete">×</button>
   </div>`;
+}
+
+function recOpenDetail(id) {
+  const r = recoveryLogs.find(x => x.id === id);
+  if (!r) return;
+  const title = r.analysis?.activity || r.note || 'Recovery session';
+  const stats = [
+    r.analysis?.zone     && { val: r.analysis.zone,     lbl: 'Zone' },
+    r.analysis?.duration && { val: r.analysis.duration, lbl: 'Duration' },
+    r.time               && { val: r.time,               lbl: 'Time' },
+    r.timeOfDay          && { val: r.timeOfDay,          lbl: 'Part of day' },
+  ].filter(Boolean);
+
+  const statsHtml = stats.length ? `<div class="rec-detail-stats">${stats.map(s =>
+    `<div class="rec-detail-stat"><div class="rec-detail-stat-val">${s.val}</div><div class="rec-detail-stat-lbl">${s.lbl}</div></div>`
+  ).join('')}</div>` : '';
+
+  const ov = document.createElement('div');
+  ov.className = 'rec-detail-overlay'; ov.id = 'rec-detail-ov';
+  ov.innerHTML = `<div class="rec-detail-sheet" id="rec-detail-sheet">
+    <div class="rec-drag-handle" style="margin:12px auto 0"></div>
+    ${r.thumb ? `<img class="rec-detail-photo" src="${r.thumb}" alt="">` : ''}
+    <div class="rec-detail-body">
+      <div class="rec-date" style="font-size:12px;margin-bottom:4px">${r.date}${r.time?' · '+r.time:''}</div>
+      <div style="font-size:22px;font-weight:800;color:var(--text);font-family:'Impact','Arial Black',Arial,sans-serif;letter-spacing:0.5px;text-transform:uppercase">${title}</div>
+      ${statsHtml}
+      ${r.analysis?.observations ? `<div style="font-size:15px;color:var(--text-2);line-height:1.65;margin-bottom:12px">${r.analysis.observations}</div>` : ''}
+      ${r.analysis?.recommendation ? `<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;font-size:13px;color:var(--text-3);line-height:1.6"><strong style="color:var(--text);display:block;margin-bottom:4px">HIT Recommendation</strong>${r.analysis.recommendation}</div>` : ''}
+      ${r.note ? `<div style="margin-top:12px;font-size:14px;color:var(--text-2);font-style:italic">"${r.note}"</div>` : ''}
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button onclick="document.getElementById('rec-detail-ov').remove()" style="flex:1;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:13px;font-size:14px;color:var(--text-2);cursor:pointer">Close</button>
+        <button onclick="recDelete('${r.id}');document.getElementById('rec-detail-ov').remove()" style="background:none;border:1px solid rgba(212,20,20,0.4);border-radius:var(--r-md);padding:13px 18px;font-size:14px;color:var(--accent);cursor:pointer">Delete</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+
+  // Pull-down to dismiss
+  const sheet = document.getElementById('rec-detail-sheet');
+  let dy0 = 0, drag = false;
+  sheet.addEventListener('touchstart', e => { if (sheet.scrollTop > 0) return; dy0 = e.touches[0].clientY; drag = true; }, { passive: true });
+  sheet.addEventListener('touchmove',  e => { if (!drag) return; const d = e.touches[0].clientY - dy0; if (d > 0) sheet.style.transform = `translateY(${d}px)`; }, { passive: true });
+  sheet.addEventListener('touchend',   e => { if (!drag) return; drag = false; if (e.changedTouches[0].clientY - dy0 > 80) ov.remove(); else sheet.style.transform = ''; }, { passive: true });
+}
+
+function recOpenFilterSheet() {
+  const ui = window._recUI;
+  const sorted = [...recoveryLogs].sort((a,b) => b.date.localeCompare(a.date));
+  const activities = [...new Set(sorted.map(r => r.analysis?.activity).filter(Boolean))];
+  const zones      = [...new Set(sorted.map(r => r.analysis?.zone).filter(Boolean))];
+  const TOD_ORDER  = ['Morning','Afternoon','Evening','Night'];
+  const timesOfDay = [...new Set(sorted.map(r => r.timeOfDay).filter(Boolean))].sort((a,b) => TOD_ORDER.indexOf(a)-TOD_ORDER.indexOf(b));
+  const months     = [...new Set(sorted.map(r => r.month || r.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const fmtMonth   = m => { const [y,mo] = m.split('-'); return REC_MONTHS[parseInt(mo)-1]+' '+y; };
+
+  // Track pending selections separately so Apply commits them
+  window._recPending = { activity: ui.activity, zone: ui.zone, timeOfDay: ui.timeOfDay, month: ui.month };
+
+  const group = (label, items, key) => !items.length ? '' : `
+    <div class="rec-fgroup">
+      <div class="rec-fgroup-label">${label}</div>
+      <div class="rec-fgroup-chips">${items.map(v =>
+        `<button class="rec-fchip" id="rfchip-${key}-${v.replace(/[^a-z0-9]/gi,'_')}" onclick="recPendingToggle('${key}','${v.replace(/'/g,"\\'")}',this)">${v instanceof Object ? v.label : v}</button>`
+      ).join('')}</div>
+    </div>`;
+
+  const ov = document.createElement('div');
+  ov.className = 'rec-overlay'; ov.id = 'rec-fov';
+  ov.innerHTML = `<div class="rec-fsheet" id="rec-fsheet">
+    <div class="rec-drag-handle" style="margin:12px auto 0"></div>
+    <div class="rec-fsheet-head">
+      <span class="rec-fsheet-title">Filter Sessions</span>
+      <button class="rec-fsheet-clear" onclick="recPendingClear()">Clear all</button>
+    </div>
+    <div class="rec-fsheet-body">
+      ${group('Activity',    activities, 'activity')}
+      ${group('Zone',        zones,      'zone')}
+      ${group('Time of day', timesOfDay, 'timeOfDay')}
+      ${group('Month',       months.map(m => ({ toString:()=>fmtMonth(m), val:m, label:fmtMonth(m) })), 'month')}
+    </div>
+    <div class="rec-fsheet-footer">
+      <button class="rec-fsheet-apply" onclick="recApplyFilters()">Show results</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+
+  // Mark initially-active chips
+  setTimeout(() => {
+    if (ui.activity)  document.getElementById(`rfchip-activity-${ui.activity.replace(/[^a-z0-9]/gi,'_')}`)?.classList.add('on');
+    if (ui.zone)      document.getElementById(`rfchip-zone-${ui.zone.replace(/[^a-z0-9]/gi,'_')}`)?.classList.add('on');
+    if (ui.timeOfDay) document.getElementById(`rfchip-timeOfDay-${ui.timeOfDay.replace(/[^a-z0-9]/gi,'_')}`)?.classList.add('on');
+    if (ui.month) {
+      const mKey = months.find(m => m === ui.month);
+      if (mKey) document.getElementById(`rfchip-month-${fmtMonth(mKey).replace(/[^a-z0-9]/gi,'_')}`)?.classList.add('on');
+    }
+  }, 0);
+
+  // Pull-down to dismiss
+  const sheet = document.getElementById('rec-fsheet');
+  let dy0 = 0, drag = false;
+  sheet.addEventListener('touchstart', e => { if (sheet.querySelector('.rec-fsheet-body').scrollTop > 0) return; dy0 = e.touches[0].clientY; drag = true; }, { passive: true });
+  sheet.addEventListener('touchmove',  e => { if (!drag) return; const d = e.touches[0].clientY - dy0; if (d > 0) sheet.style.transform = `translateY(${d}px)`; }, { passive: true });
+  sheet.addEventListener('touchend',   e => { if (!drag) return; drag = false; if (e.changedTouches[0].clientY - dy0 > 80) ov.remove(); else sheet.style.transform = ''; }, { passive: true });
+}
+
+function recPendingToggle(key, val, btn) {
+  // For month chips, val is the fmtMonth label — need to reverse-map to YYYY-MM
+  if (key === 'month') {
+    const sorted = [...recoveryLogs].sort((a,b) => b.date.localeCompare(a.date));
+    const months = [...new Set(sorted.map(r => r.month || r.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+    const fmtMonth = m => { const [y,mo] = m.split('-'); return REC_MONTHS[parseInt(mo)-1]+' '+y; };
+    val = months.find(m => fmtMonth(m) === val) || val;
+  }
+  window._recPending[key] = window._recPending[key] === val ? null : val;
+  // Update chip styles within the same group
+  btn.closest('.rec-fgroup-chips').querySelectorAll('.rec-fchip').forEach(c => c.classList.remove('on'));
+  if (window._recPending[key]) btn.classList.add('on');
+}
+
+function recPendingClear() {
+  window._recPending = { activity: null, zone: null, timeOfDay: null, month: null };
+  document.querySelectorAll('.rec-fchip').forEach(c => c.classList.remove('on'));
+}
+
+function recApplyFilters() {
+  Object.assign(window._recUI, window._recPending);
+  window._recUI.collapsed = false;
+  document.getElementById('rec-fov')?.remove();
+  renderInsights();
 }
 
 function recSectionHtml() {
@@ -2357,13 +2515,23 @@ function recSectionHtml() {
   if (ui.month)     filtered = filtered.filter(r => (r.month || r.date?.slice(0,7)) === ui.month);
 
   const anyFilter = ui.activity || ui.zone || ui.timeOfDay || ui.month;
-  const filterChips = [
-    ...activities.map(a => `<button class="rec-filter-chip${ui.activity===a?' on':''}" onclick="recSetFilter('activity','${a}')">${a}</button>`),
-    ...zones.map(z      => `<button class="rec-filter-chip${ui.zone===z?' on':''}" onclick="recSetFilter('zone','${z}')">${z}</button>`),
-    ...timesOfDay.map(t => `<button class="rec-filter-chip${ui.timeOfDay===t?' on':''}" onclick="recSetFilter('timeOfDay','${t}')">${t}</button>`),
-    ...months.map(m     => `<button class="rec-filter-chip${ui.month===m?' on':''}" onclick="recSetFilter('month','${m}')">${fmtMonth(m)}</button>`),
-    anyFilter ? `<button class="rec-filter-chip" onclick="recClearFilters()" style="color:var(--accent)">✕ Clear</button>` : ''
+  const activeCount = [ui.activity, ui.zone, ui.timeOfDay, ui.month].filter(Boolean).length;
+  const activeTags = [
+    ui.activity  && `<span class="rec-active-tag">${ui.activity}<button onclick="recSetFilter('activity',null)">×</button></span>`,
+    ui.zone      && `<span class="rec-active-tag">${ui.zone}<button onclick="recSetFilter('zone',null)">×</button></span>`,
+    ui.timeOfDay && `<span class="rec-active-tag">${ui.timeOfDay}<button onclick="recSetFilter('timeOfDay',null)">×</button></span>`,
+    ui.month     && `<span class="rec-active-tag">${fmtMonth(ui.month)}<button onclick="recSetFilter('month',null)">×</button></span>`,
   ].filter(Boolean).join('');
+
+  const hasFilters = activities.length || zones.length || timesOfDay.length || months.length;
+  const filterBar = hasFilters ? `<div class="rec-filter-bar">
+    <button class="rec-filter-btn${anyFilter?' active':''}" onclick="recOpenFilterSheet()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+      Filter${activeCount ? '' : ''}
+      ${activeCount ? `<span class="rec-filter-badge">${activeCount}</span>` : ''}
+    </button>
+    ${activeTags ? `<div class="rec-active-tags">${activeTags}</div>` : ''}
+  </div>` : '';
 
   const shown   = ui.collapsed ? filtered.slice(0,1) : filtered;
   const cards   = shown.map(recCardHtml).join('');
@@ -2388,7 +2556,7 @@ function recSectionHtml() {
       </div>
     </div>
     ${!recoveryLogs.length ? `<div class="rec-empty">No recovery sessions logged yet. Tap <strong>Log session</strong> or <strong>Bulk import</strong> to get started.</div>` : `
-      ${filterChips ? `<div class="rec-filters">${filterChips}</div>` : ''}
+      ${filterBar}
       ${filtered.length ? `<div class="rec-list">${cards}</div>` : `<div class="rec-empty">No sessions match this filter.</div>`}
       ${!ui.collapsed && hasMore ? '' : ui.collapsed && hasMore ? `<button class="rec-show-more" onclick="recToggle()">Show all ${filtered.length} sessions ↓</button>` : ''}
     `}
