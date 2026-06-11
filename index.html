@@ -2548,10 +2548,10 @@ function recOpenDetail(id) {
   sheet.addEventListener('touchend',   e => { if (!drag) return; drag = false; if (e.changedTouches[0].clientY - dy0 > 80) ov.remove(); else sheet.style.transform = ''; }, { passive: true });
 }
 
-async function recReanalyseAll() {
+async function recReanalyseAll(onlyMissing = false) {
   const key = localStorage.getItem('hd_claude_key');
   if (!key) { toast('No API key set', true); return; }
-  const targets = recoveryLogs.filter(r => r.hasPhoto || r.thumb);
+  const targets = recoveryLogs.filter(r => (r.hasPhoto || r.thumb) && (!onlyMissing || !r.analysis));
   if (!targets.length) { toast('No sessions with photos to analyse', true); return; }
   const btn = document.getElementById('dbg-reanalyse-btn');
   if (btn) { btn.disabled = true; }
@@ -3223,28 +3223,50 @@ function aiDebugState() {
   const lsSize = Object.keys(localStorage).reduce((acc, k) => acc + (localStorage.getItem(k)||'').length, 0);
   const profile = getProfile();
   const lastRec = recoveryLogs.length ? recoveryLogs[recoveryLogs.length - 1] : null;
+  const apiStatus = window._apiStatus || 'untested';
+  const statusDot = apiStatus === 'ok' ? '#4ade80' : apiStatus === 'fail' ? 'var(--accent)' : 'var(--text-3)';
+  const statusLabel = apiStatus === 'ok' ? '● Connected' : apiStatus === 'fail' ? '● Disconnected' : '● Testing…';
   const rows = [
     ['Workouts', workouts.length],
     ['Recovery logs', recoveryLogs.length],
     ['Profile saved', profile ? profile.savedAt || '✓' : '✗'],
     ['API key', localStorage.getItem('hd_claude_key') ? '✓ present' : '✗ missing'],
+    ['API status', `<span style="color:${statusDot};font-weight:700">${statusLabel}</span>`],
     ['localStorage', (lsSize / 1024).toFixed(1) + ' KB'],
-    ['SW cache', 'heavy-duty-v10'],
+    ['SW cache', 'heavy-duty-v11'],
   ];
   if (lastRec) {
     rows.push(['Last recovery', lastRec.date + ' · ' + (lastRec.analysis?.activity || lastRec.note || '—')]);
     rows.push(['Last rec AI', lastRec.analysis ? (lastRec.analysis.zone || '—') : 'no analysis']);
   }
   const withPhoto = recoveryLogs.filter(r => r.hasPhoto || r.thumb).length;
-  const noAnalysis = recoveryLogs.filter(r => !r.analysis).length;
-  const actionRow = localStorage.getItem('hd_claude_key') && withPhoto ? `
-    <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
-      <button onclick="recReanalyseAll()" id="dbg-reanalyse-btn" style="width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase">
-        Re-analyse all ${withPhoto} sessions${noAnalysis ? ' ('+noAnalysis+' missing)' : ''}
-      </button>
+  const missing = recoveryLogs.filter(r => (r.hasPhoto || r.thumb) && !r.analysis).length;
+  const hasKey = !!localStorage.getItem('hd_claude_key');
+  const actionRows = hasKey && withPhoto ? `
+    <div style="padding:10px 14px 4px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:6px">
+      ${missing ? `<button onclick="recReanalyseAll(true)" id="dbg-reanalyse-missing-btn" style="width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase">Analyse missing (${missing})</button>` : ''}
+      <button onclick="recReanalyseAll(false)" id="dbg-reanalyse-btn" style="width:100%;background:var(--surface-3);color:var(--text-2);border:1px solid var(--border);border-radius:8px;padding:9px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase">Re-analyse all (${withPhoto})</button>
     </div>` : '';
-  return rows.map(([k,v]) => `<div style="display:flex;justify-content:space-between;padding:7px 14px;border-bottom:1px solid var(--border);font-size:11px;font-family:monospace">
-    <span style="color:var(--text-3)">${k}</span><span style="color:var(--text)">${v}</span></div>`).join('') + actionRow;
+  return rows.map(([k,v]) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 14px;border-bottom:1px solid var(--border);font-size:11px;font-family:monospace">
+    <span style="color:var(--text-3)">${k}</span><span style="color:var(--text)">${v}</span></div>`).join('') + actionRows;
+}
+
+async function aiTestConnection() {
+  const key = localStorage.getItem('hd_claude_key');
+  if (!key) { window._apiStatus = 'fail'; aiRenderLog(); return; }
+  window._apiStatus = 'untested';
+  aiRenderLog();
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 1, messages: [{ role: 'user', content: 'hi' }] })
+    });
+    window._apiStatus = (res.ok || res.status === 400) ? 'ok' : 'fail';
+  } catch(e) {
+    window._apiStatus = 'fail';
+  }
+  aiRenderLog();
 }
 
 window._aiDebugTab = window._aiDebugTab || 'log';
@@ -3258,6 +3280,7 @@ function aiRenderLog() {
 
   if (tab === 'state') {
     panel.innerHTML = tabs + aiDebugState();
+    aiTestConnection();
     return;
   }
 
