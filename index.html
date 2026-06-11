@@ -2419,26 +2419,42 @@ async function recProcessBulk(files) {
       let analysis = null;
       if (key) {
         setStatus('Analysing with Claude…');
-        try {
-          const api_img = await recResizeImage(file, 512, 0.82);
-          const res = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-            body: JSON.stringify({
-              model: 'claude-opus-4-8', max_tokens: 400,
-              messages: [{ role: 'user', content: [
-                { type: 'image', source: { type: 'base64', media_type: api_img.mediaType, data: api_img.b64 } },
-                { type: 'text', text: `HIT recovery coach. Analyse this photo. Respond ONLY with raw JSON:\n{"activity":"e.g. Cycling","zone":"e.g. Zone 2","duration":"e.g. 30 min or null","observations":"1 sentence","recommendation":"1 sentence HIT context"}` }
-              ]}]
-            })
-          });
-          if (res.ok) {
-            const data = await res.json();
-            const raw  = (data.content||[]).find(b=>b.type==='text')?.text||'';
-            const m    = raw.replace(/```[a-z]*\n?/gi,'').trim().match(/\{[\s\S]*\}/);
-            if (m) analysis = JSON.parse(m[0]);
+        const api_img = await recResizeImage(file, 512, 0.82);
+        const reqBody = JSON.stringify({
+          model: 'claude-opus-4-8', max_tokens: 400,
+          messages: [{ role: 'user', content: [
+            { type: 'image', source: { type: 'base64', media_type: api_img.mediaType, data: api_img.b64 } },
+            { type: 'text', text: `HIT recovery coach. Analyse this photo. Respond ONLY with raw JSON:\n{"activity":"e.g. Cycling","zone":"e.g. Zone 2","duration":"e.g. 30 min or null","observations":"1 sentence","recommendation":"1 sentence HIT context"}` }
+          ]}]
+        });
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            const res = await fetch('https://api.anthropic.com/v1/messages', {
+              method: 'POST',
+              headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+              body: reqBody
+            });
+            if (res.status === 429 || res.status === 529) {
+              const wait = attempt * 8000;
+              setStatus(`Rate limited — waiting ${wait/1000}s…`);
+              await new Promise(r => setTimeout(r, wait));
+              continue;
+            }
+            if (res.ok) {
+              const data = await res.json();
+              const raw  = (data.content||[]).find(b=>b.type==='text')?.text||'';
+              const m    = raw.replace(/```[a-z]*\n?/gi,'').trim().match(/\{[\s\S]*\}/);
+              if (m) analysis = JSON.parse(m[0]);
+            } else {
+              setStatus(`Analysis failed (HTTP ${res.status})`);
+            }
+            break;
+          } catch(e) {
+            if (attempt === 3) setStatus(`Analysis error: ${e.message}`);
           }
-        } catch(e) { /* skip analysis, still save */ }
+        }
+        // Small pause between photos to respect rate limits
+        await new Promise(r => setTimeout(r, 1500));
       }
 
       const entryId = 'r'+Date.now()+Math.random().toString(36).slice(2,5);
