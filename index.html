@@ -2457,9 +2457,11 @@ function recOpenFilterSheet() {
   const group = (label, items, key) => !items.length ? '' : `
     <div class="rec-fgroup">
       <div class="rec-fgroup-label">${label}</div>
-      <div class="rec-fgroup-chips">${items.map(v =>
-        `<button class="rec-fchip" id="rfchip-${key}-${v.replace(/[^a-z0-9]/gi,'_')}" onclick="recPendingToggle('${key}','${v.replace(/'/g,"\\'")}',this)">${v instanceof Object ? v.label : v}</button>`
-      ).join('')}</div>
+      <div class="rec-fgroup-chips">${items.map(v => {
+        const label = v instanceof Object ? v.label : v;
+        const val   = v instanceof Object ? v.val   : v;
+        return `<button class="rec-fchip" id="rfchip-${key}-${label.replace(/[^a-z0-9]/gi,'_')}" onclick="recPendingToggle('${key}','${val.replace(/'/g,"\\'")}',this)">${label}</button>`;
+      }).join('')}</div>
     </div>`;
 
   const ov = document.createElement('div');
