@@ -264,7 +264,19 @@ input, textarea, select {
 input:focus, textarea:focus, select:focus { border-color: var(--accent); background: var(--surface-3); }
 input::placeholder, textarea::placeholder { color: var(--text-3); }
 .rec-date-row { display:flex; gap:8px; margin-bottom:14px; }
-.rec-date-row select { flex:1; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; padding-right:28px; }
+.rec-date-btn { flex:1; background:var(--surface-2); border:1.5px solid var(--border); border-radius:var(--r-sm); padding:10px 8px; display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; transition:border-color 0.15s; }
+.rec-date-btn:focus, .rec-date-btn.active { border-color:var(--accent); background:var(--surface-3); }
+.rec-date-btn-val { font-size:18px; font-weight:700; color:var(--text); line-height:1; }
+.rec-date-btn-sub { font-size:10px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:var(--text-3); }
+.rec-pick-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:300; display:flex; align-items:flex-end; }
+.rec-pick-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; max-height:55vh; display:flex; flex-direction:column; }
+.rec-pick-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px 10px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.rec-pick-title { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-3); }
+.rec-pick-done { background:var(--accent); color:#fff; border:none; border-radius:var(--r-sm); padding:6px 16px; font-size:13px; font-weight:700; cursor:pointer; }
+.rec-pick-list { overflow-y:auto; flex:1; }
+.rec-pick-item { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); font-size:17px; font-weight:500; color:var(--text); cursor:pointer; }
+.rec-pick-item.selected { color:var(--accent); font-weight:700; }
+.rec-pick-item.selected::after { content:'✓'; font-size:16px; }
 .rec-photo-row { display:flex; gap:8px; margin-bottom:14px; }
 .rec-photo-row button { flex:1; height:80px; background:var(--surface-2); border:1.5px dashed var(--border-hi); border-radius:var(--r-lg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; cursor:pointer; color:var(--text-3); font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; }
 textarea { resize: none; height: 90px; line-height: 1.5; }
@@ -541,11 +553,15 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .rec-thumb { width:80px; min-height:80px; object-fit:cover; flex-shrink:0; display:block; }
 .rec-thumb-placeholder { width:80px; min-height:80px; background:var(--surface-3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .rec-body { padding:10px 12px; flex:1; min-width:0; }
-.rec-date { font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--text-3); margin-bottom:4px; }
-.rec-activity { font-size:13px; font-weight:600; color:var(--text); margin-bottom:3px; }
-.rec-obs { font-size:12px; color:var(--text-2); line-height:1.5; }
-.rec-delete { background:none; border:none; padding:10px 10px 0 0; color:var(--text-3); cursor:pointer; font-size:16px; align-self:flex-start; flex-shrink:0; }
-.rec-empty { font-size:13px; color:var(--text-3); padding:8px 0 14px; }
+.rec-date { font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--text-3); margin-bottom:4px; }
+.rec-activity { font-size:15px; font-weight:700; color:var(--text); margin-bottom:4px; }
+.rec-obs { font-size:13px; color:var(--text-2); line-height:1.55; }
+.rec-delete { background:none; border:none; padding:10px 10px 0 0; color:var(--text-3); cursor:pointer; font-size:18px; align-self:flex-start; flex-shrink:0; }
+.rec-empty { font-size:14px; color:var(--text-3); padding:8px 0 14px; }
+.rec-filters { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+.rec-filter-chip { background:var(--surface-2); border:1px solid var(--border); border-radius:20px; padding:5px 12px; font-size:12px; font-weight:600; color:var(--text-2); cursor:pointer; white-space:nowrap; }
+.rec-filter-chip.on { background:rgba(212,20,20,0.15); border-color:var(--accent); color:var(--text); }
+.rec-show-more { width:100%; background:none; border:1px solid var(--border); border-radius:var(--r-md); padding:10px; font-size:13px; color:var(--text-3); cursor:pointer; margin-top:8px; }
 /* Recovery sheet overlay */
 .rec-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; display:flex; align-items:flex-end; }
 .rec-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; padding:12px 20px max(env(safe-area-inset-bottom,0px),24px); max-height:90vh; overflow-y:auto; transition:transform 0.2s ease; touch-action:pan-y; }
@@ -553,8 +569,9 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .rec-sheet-title { font-size:16px; font-weight:700; margin-bottom:16px; }
 .rec-photo-btn { width:100%; height:140px; background:var(--surface-2); border:1.5px dashed var(--border-hi); border-radius:var(--r-lg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; cursor:pointer; margin-bottom:14px; color:var(--text-3); font-size:13px; }
 .rec-photo-preview { width:100%; height:160px; object-fit:cover; border-radius:var(--r-lg); margin-bottom:14px; display:none; }
-.rec-analysis-box { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-md); padding:12px 14px; font-size:13px; color:var(--text-2); line-height:1.6; margin-bottom:14px; }
-.rec-analysis-box strong { color:var(--text); }
+.rec-analysis-box { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-md); padding:14px 16px; font-size:14px; color:var(--text-2); line-height:1.65; margin-bottom:14px; }
+.rec-analysis-box strong { color:var(--text); font-size:15px; }
+.rec-analysis-rec { font-size:13px; color:var(--text-3); margin-top:6px; display:block; line-height:1.55; }
 .rec-sheet-row { display:flex; gap:10px; margin-bottom:14px; }
 .rec-sheet-save { flex:1; background:var(--accent); color:#fff; border:none; border-radius:var(--r-md); padding:13px; font-size:14px; font-weight:700; cursor:pointer; }
 .rec-sheet-cancel { background:var(--surface-2); color:var(--text-2); border:1px solid var(--border); border-radius:var(--r-md); padding:13px 18px; font-size:14px; cursor:pointer; }
@@ -2065,14 +2082,27 @@ function apSummaryHtml(p) {
 
 // ── Recovery Log ──────────────────────────────────────
 
+const REC_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 function recDateRowHtml() {
   const now = new Date();
-  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const days   = Array.from({length:31},(_,i)=>`<option value="${String(i+1).padStart(2,'0')}"${now.getDate()===i+1?' selected':''}>${String(i+1).padStart(2,'0')}</option>`).join('');
-  const months = MONTHS.map((m,i)=>`<option value="${String(i+1).padStart(2,'0')}"${now.getMonth()===i?' selected':''}>${m}</option>`).join('');
-  const yr = now.getFullYear();
-  const years = [yr-1,yr,yr+1].map(y=>`<option value="${y}"${y===yr?' selected':''}>${y}</option>`).join('');
-  return `<div class="rec-date-row"><select id="rec-day">${days}</select><select id="rec-month">${months}</select><select id="rec-year">${years}</select></div>`;
+  const d = String(now.getDate()).padStart(2,'0');
+  const m = String(now.getMonth()+1).padStart(2,'0');
+  const y = String(now.getFullYear());
+  return `<div class="rec-date-row">
+    <input type="hidden" id="rec-day"   value="${d}">
+    <input type="hidden" id="rec-month" value="${m}">
+    <input type="hidden" id="rec-year"  value="${y}">
+    <button type="button" class="rec-date-btn" id="rdb-day"   onclick="recDatePick('day')">
+      <span class="rec-date-btn-val">${d}</span><span class="rec-date-btn-sub">Day</span>
+    </button>
+    <button type="button" class="rec-date-btn" id="rdb-month" onclick="recDatePick('month')">
+      <span class="rec-date-btn-val">${REC_MONTHS[now.getMonth()]}</span><span class="rec-date-btn-sub">Month</span>
+    </button>
+    <button type="button" class="rec-date-btn" id="rdb-year"  onclick="recDatePick('year')">
+      <span class="rec-date-btn-val">${y}</span><span class="rec-date-btn-sub">Year</span>
+    </button>
+  </div>`;
 }
 
 function recGetDate() {
@@ -2082,35 +2112,119 @@ function recGetDate() {
   return (d && m && y) ? `${y}-${m}-${d}` : today();
 }
 
+function recDatePick(part) {
+  const now = new Date();
+  const yr  = now.getFullYear();
+  let items = [];
+  if (part === 'day')   items = Array.from({length:31},(_,i)=>({ val: String(i+1).padStart(2,'0'), label: String(i+1).padStart(2,'0') }));
+  if (part === 'month') items = REC_MONTHS.map((m,i)=>({ val: String(i+1).padStart(2,'0'), label: m }));
+  if (part === 'year')  items = [yr-2,yr-1,yr,yr+1].map(y=>({ val: String(y), label: String(y) }));
+  const cur = document.getElementById(`rec-${part}`)?.value || '';
+  const title = part.charAt(0).toUpperCase() + part.slice(1);
+  const list  = items.map(it => `<div class="rec-pick-item${it.val===cur?' selected':''}" onclick="recDateSet('${part}','${it.val}','${it.label}')">${it.label}</div>`).join('');
+  const ov = document.createElement('div');
+  ov.className = 'rec-pick-overlay'; ov.id = 'rec-pick-ov';
+  ov.innerHTML = `<div class="rec-pick-sheet">
+    <div class="rec-pick-header"><span class="rec-pick-title">${title}</span><button class="rec-pick-done" onclick="document.getElementById('rec-pick-ov').remove()">Done</button></div>
+    <div class="rec-pick-list">${list}</div>
+  </div>`;
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  document.body.appendChild(ov);
+  // scroll selected item into view
+  setTimeout(() => {
+    const sel = ov.querySelector('.rec-pick-item.selected');
+    if (sel) sel.scrollIntoView({ block: 'center' });
+  }, 50);
+}
+
+function recDateSet(part, val, label) {
+  const hidden = document.getElementById(`rec-${part}`);
+  const btn    = document.getElementById(`rdb-${part}`);
+  if (hidden) hidden.value = val;
+  if (btn)    btn.querySelector('.rec-date-btn-val').textContent = label;
+  document.getElementById('rec-pick-ov')?.remove();
+}
+
+window._recUI = window._recUI || { collapsed: true, activity: null, zone: null };
+
+function recCardHtml(r) {
+  const img   = r.thumb
+    ? `<img class="rec-thumb" src="${r.thumb}" alt="">`
+    : `<div class="rec-thumb-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
+  const title = r.analysis?.activity || r.note || 'Recovery session';
+  const zone  = r.analysis?.zone ? `<span style="font-size:11px;color:var(--accent);font-weight:700;margin-left:6px">${r.analysis.zone}</span>` : '';
+  const dur   = r.analysis?.duration ? `<span style="font-size:11px;color:var(--text-3);margin-left:6px">${r.analysis.duration}</span>` : '';
+  const obs   = r.analysis?.observations || (r.note && !r.analysis ? r.note : '');
+  return `<div class="rec-card">
+    ${img}
+    <div class="rec-body">
+      <div class="rec-date">${r.date}</div>
+      <div class="rec-activity">${title}${zone}${dur}</div>
+      ${obs ? `<div class="rec-obs">${obs}</div>` : ''}
+    </div>
+    <button class="rec-delete" onclick="recDelete('${r.id}')" title="Delete">×</button>
+  </div>`;
+}
+
 function recSectionHtml() {
-  const cards = [...recoveryLogs].reverse().map(r => {
-    const img = r.thumb
-      ? `<img class="rec-thumb" src="${r.thumb}" alt="">`
-      : `<div class="rec-thumb-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
-    const title = r.analysis?.activity || r.note || 'Recovery session';
-    const zone  = r.analysis?.zone ? `<span style="font-size:10px;color:var(--accent);font-weight:700;margin-left:6px">${r.analysis.zone}</span>` : '';
-    const obs   = r.analysis?.observations || (r.note && !r.analysis ? r.note : '');
-    return `<div class="rec-card">
-      ${img}
-      <div class="rec-body">
-        <div class="rec-date">${r.date}</div>
-        <div class="rec-activity">${title}${zone}</div>
-        ${obs ? `<div class="rec-obs">${obs}</div>` : ''}
-      </div>
-      <button class="rec-delete" onclick="recDelete('${r.id}')" title="Delete">×</button>
-    </div>`;
-  }).join('');
+  const ui = window._recUI;
+  const sorted = [...recoveryLogs].sort((a,b) => b.date.localeCompare(a.date));
+
+  // Build filter options from metadata
+  const activities = [...new Set(sorted.map(r => r.analysis?.activity).filter(Boolean))];
+  const zones      = [...new Set(sorted.map(r => r.analysis?.zone).filter(Boolean))];
+
+  // Apply filters
+  let filtered = sorted;
+  if (ui.activity) filtered = filtered.filter(r => r.analysis?.activity === ui.activity);
+  if (ui.zone)     filtered = filtered.filter(r => r.analysis?.zone === ui.zone);
+
+  const filterChips = [
+    ...activities.map(a => `<button class="rec-filter-chip${ui.activity===a?' on':''}" onclick="recSetFilter('activity','${a}')">${a}</button>`),
+    ...zones.map(z      => `<button class="rec-filter-chip${ui.zone===z?' on':''}" onclick="recSetFilter('zone','${z}')">${z}</button>`),
+    (ui.activity||ui.zone) ? `<button class="rec-filter-chip" onclick="recClearFilters()" style="color:var(--accent)">✕ Clear</button>` : ''
+  ].filter(Boolean).join('');
+
+  const shown   = ui.collapsed ? filtered.slice(0,1) : filtered;
+  const cards   = shown.map(recCardHtml).join('');
+  const hasMore = filtered.length > 1;
+  const chevron = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;transform:rotate(${ui.collapsed?'0':'180'}deg)"><polyline points="6 9 12 15 18 9"/></svg>`;
 
   return `<div class="rec-section">
     <div class="rec-section-header">
-      <span class="rec-section-title">Active Recovery</span>
+      <button style="background:none;border:none;display:flex;align-items:center;gap:7px;cursor:pointer;padding:0" onclick="recToggle()">
+        <span class="rec-section-title">Active Recovery${recoveryLogs.length ? ' ('+recoveryLogs.length+')' : ''}</span>
+        ${recoveryLogs.length ? chevron : ''}
+      </button>
       <button class="rec-add-btn" onclick="recOpenSheet()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Log session
       </button>
     </div>
-    ${recoveryLogs.length ? `<div class="rec-list">${cards}</div>` : `<div class="rec-empty">No recovery sessions logged yet.</div>`}
+    ${!recoveryLogs.length ? `<div class="rec-empty">No recovery sessions logged yet.</div>` : `
+      ${filterChips ? `<div class="rec-filters">${filterChips}</div>` : ''}
+      ${filtered.length ? `<div class="rec-list">${cards}</div>` : `<div class="rec-empty">No sessions match this filter.</div>`}
+      ${!ui.collapsed && hasMore && filtered.length > 1 ? '' : ui.collapsed && hasMore ? `<button class="rec-show-more" onclick="recToggle()">Show all ${filtered.length} sessions ↓</button>` : ''}
+    `}
   </div>`;
+}
+
+function recToggle() {
+  window._recUI.collapsed = !window._recUI.collapsed;
+  renderInsights();
+}
+
+function recSetFilter(key, val) {
+  if (window._recUI[key] === val) window._recUI[key] = null;
+  else window._recUI[key] = val;
+  window._recUI.collapsed = false;
+  renderInsights();
+}
+
+function recClearFilters() {
+  window._recUI.activity = null;
+  window._recUI.zone = null;
+  renderInsights();
 }
 
 function recDelete(id) {
@@ -2227,7 +2341,7 @@ async function recPhotoSelected(input) {
     if (!parsed) throw new Error('Could not parse response');
     window._recState.analysis = parsed;
     aiLogPush({ source: 'recovery', status: httpStatus, requestId, durationMs: Date.now()-t0, activity: parsed.activity, zone: parsed.zone });
-    if (box) box.innerHTML = `<strong>${parsed.activity}${parsed.zone ? ' · '+parsed.zone : ''}${parsed.duration ? ' · '+parsed.duration : ''}</strong><br>${parsed.observations}<br><span style="color:var(--text-3);font-size:11px;margin-top:4px;display:block">${parsed.recommendation}</span>`;
+    if (box) box.innerHTML = `<strong>${parsed.activity}${parsed.zone ? ' · '+parsed.zone : ''}${parsed.duration ? ' · '+parsed.duration : ''}</strong><br>${parsed.observations}<span class="rec-analysis-rec">${parsed.recommendation}</span>`;
   } catch(err) {
     aiLogPush({ source: 'recovery', status: httpStatus, requestId, durationMs: Date.now()-t0, error: err.message });
     if (box) box.innerHTML = `<span style="color:var(--text-3);font-size:12px">Analysis unavailable — ${err.message}</span>`;
