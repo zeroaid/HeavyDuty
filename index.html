@@ -2039,7 +2039,7 @@ function apAiToggle() {
   const collapsed = body.style.display === 'none';
   body.style.display = collapsed ? '' : 'none';
   if (chevron) chevron.style.transform = `rotate(${collapsed ? '180' : '0'}deg)`;
-  localStorage.setItem('hd_ai_insights_collapsed', collapsed ? '0' : '1');
+  localStorage.setItem('hd_ai_insights_v2_collapsed', collapsed ? '0' : '1');
 }
 
 async function apAiInsights(force) {
@@ -2049,7 +2049,7 @@ async function apAiInsights(force) {
   if (!key || !profile || !el) return;
 
   // Cache key: profile savedAt + workout count
-  const cacheKey = `hd_ai_insights_${profile.savedAt}_${workouts.length}`;
+  const cacheKey = `hd_ai_insights_v2_${profile.savedAt}_${workouts.length}`;
   if (!force) {
     const cached = localStorage.getItem(cacheKey);
     if (cached) { el.innerHTML = cached; return; }
@@ -2126,7 +2126,7 @@ Be direct, specific, and Mentzer-like in tone. Reference actual numbers from the
     }
     if (!parsed) throw new Error('Invalid response format');
 
-    const collapsed = localStorage.getItem('hd_ai_insights_collapsed') === '1';
+    const collapsed = localStorage.getItem('hd_ai_insights_v2_collapsed') === '1';
     const html = `<div class="ap-ai-card">
       <div class="ap-ai-header" onclick="apAiToggle()" style="cursor:pointer">
         <span class="ap-ai-badge">AI</span>
@@ -2146,7 +2146,7 @@ Be direct, specific, and Mentzer-like in tone. Reference actual numbers from the
     // Cache it (clear any old keys for this profile first)
     try {
       for (const k of Object.keys(localStorage)) {
-        if (k.startsWith('hd_ai_insights_')) localStorage.removeItem(k);
+        if (k.startsWith('hd_ai_insights_v2_')) localStorage.removeItem(k);
       }
     } catch(e) {}
     localStorage.setItem(cacheKey, html);
