@@ -2204,17 +2204,35 @@ function extractExifDate(buffer) {
         const le = v.getUint16(t) === 0x4949;
         const u16 = o => v.getUint16(o, le);
         const u32 = o => v.getUint32(o, le);
-        const readDate = o => { try { let s=''; for(let i=0;i<19;i++) s+=String.fromCharCode(v.getUint8(o+i)); return s; } catch(e){return null;} };
-        const scanIfd = ifd => {
-          const n = u16(ifd);
-          for (let i = 0; i < n; i++) {
-            const e = ifd + 2 + i * 12, tag = u16(e);
-            if (tag === 0x9003 || tag === 0x0132) return readDate(t + u32(e + 8));
-            if (tag === 0x8769) { const r = scanIfd(t + u32(e + 8)); if (r) return r; }
-          }
-          return null;
+        const readStr = (o, len) => { try { let s=''; for(let i=0;i<len;i++){ const c=v.getUint8(o+i); if(!c) break; s+=String.fromCharCode(c); } return s; } catch(e){return null;} };
+
+        // Scan a single IFD level; returns map of tag->value
+        const readIfd = ifd => {
+          const tags = {};
+          try {
+            const n = u16(ifd);
+            for (let i = 0; i < n; i++) {
+              const e = ifd + 2 + i * 12;
+              tags[u16(e)] = u32(e + 8); // store value/offset for each tag
+            }
+          } catch(e) {}
+          return tags;
         };
-        const result = scanIfd(t + u32(t + 4));
+
+        // Priority: ExifIFD DateTimeOriginal (0x9003) > ExifIFD DateTimeDigitized (0x9004)
+        //           > IFD0 DateTimeOriginal (0x9003) > IFD0 DateTime (0x0132)
+        const ifd0Tags  = readIfd(t + u32(t + 4));
+        let result = null;
+
+        // Check ExifIFD first (tag 0x8769 in IFD0 points to it)
+        if (ifd0Tags[0x8769] !== undefined) {
+          const exifTags = readIfd(t + ifd0Tags[0x8769]);
+          if (exifTags[0x9003] !== undefined) result = readStr(t + exifTags[0x9003], 19);
+          if (!result && exifTags[0x9004] !== undefined) result = readStr(t + exifTags[0x9004], 19);
+        }
+        // Fall back to IFD0 tags
+        if (!result && ifd0Tags[0x9003] !== undefined) result = readStr(t + ifd0Tags[0x9003], 19);
+        if (!result && ifd0Tags[0x0132] !== undefined) result = readStr(t + ifd0Tags[0x0132], 19);
         if (result) return result;
       }
     }
@@ -3109,7 +3127,24 @@ ${profile.activeRecovery ? (() => {
 Use this background to calibrate your analysis — e.g. someone with 15 years of high-volume training will have different recovery capacity and muscle maturity than a beginner; age and occupation directly affect recovery between HIT sessions.
 ` : `No athlete profile has been filled in yet. Analyse based on workout data alone and note that a profile would improve accuracy.`;
 
-  const systemPrompt = `You are an expert coach specialising in Mike Mentzer's Heavy Duty high-intensity training (HIT). You are analysing a user's complete workout history.
+  const recoveryLogs = loadRecovery();
+  const recoverySection = recoveryLogs.length > 0 ? (() => {
+    const entries = recoveryLogs.map(r => ({
+      date: r.date,
+      time: r.time || null,
+      timeOfDay: r.timeOfDay || null,
+      activity: r.analysis?.activity || null,
+      zone: r.analysis?.zone || null,
+      duration: r.analysis?.duration || null,
+      observations: r.analysis?.observations || null,
+      recommendation: r.analysis?.recommendation || null,
+      note: r.note || null
+    }));
+    return `The user's active recovery log (${entries.length} sessions, newest first):
+${JSON.stringify(entries, null, 1)}`;
+  })() : 'No active recovery sessions logged yet.';
+
+  const systemPrompt = `You are an expert coach specialising in Mike Mentzer's Heavy Duty high-intensity training (HIT). You are analysing a user's complete workout history and active recovery sessions.
 
 ${profileSection}
 
@@ -3126,8 +3161,11 @@ Key Heavy Duty principles to apply when analysing:
 The user's full workout log (${sessions.length} sessions, chronological):
 ${JSON.stringify(sessions, null, 1)}
 
+${recoverySection}
+
 When you respond:
 - Be specific — reference actual dates, weights, and reps from their log
+- Cross-reference active recovery sessions with surrounding workout dates where relevant
 - Factor in their background (age, training history, lifestyle) when making recommendations
 - Be honest about plateaus or warning signs
 - Keep the response focused and actionable (no fluff)
