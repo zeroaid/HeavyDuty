@@ -2049,10 +2049,10 @@ async function apAiInsights(force) {
 
   // Build a compact profile summary for Claude
   const recentSessions = workouts.slice(-20).map(w => ({
-    date: w.date, type: w.type, exercises: (w.exercises||[]).map(e => ({
-      name: e.name,
-      sets: (e.sets||[]).map(s => `${s.reps}r@${s.weight}${s.weightUnit||'kg'}`)
-    }))
+    date: w.date,
+    type: w.type,
+    bodyweight: w.bw || null,
+    exercises: (w.ex||[]).map(e => `${e.n}: ${e.w||0}kg x ${e.r||'?'} reps${e.note ? ' ('+e.note+')' : ''}`)
   }));
 
   const profileSummary = {
