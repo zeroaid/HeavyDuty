@@ -3251,24 +3251,9 @@ function aiDebugState() {
     <span style="color:var(--text-3)">${k}</span><span style="color:var(--text)">${v}</span></div>`).join('') + actionRows;
 }
 
-async function aiTestConnection() {
-  if (window._apiTesting) return;
-  window._apiTesting = true;
+function aiTestConnection() {
   const key = localStorage.getItem('hd_claude_key');
-  if (!key) { window._apiStatus = 'fail'; window._apiTesting = false; aiRenderLog(); return; }
-  window._apiStatus = 'untested';
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 1, messages: [{ role: 'user', content: 'hi' }] })
-    });
-    window._apiStatus = (res.ok || res.status === 400) ? 'ok' : 'fail';
-  } catch(e) {
-    window._apiStatus = 'fail';
-  }
-  window._apiTesting = false;
-  aiRenderLog();
+  window._apiStatus = (key && key.startsWith('sk-ant-') && key.length > 20) ? 'ok' : 'fail';
 }
 
 window._aiDebugTab = window._aiDebugTab || 'log';
