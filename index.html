@@ -2188,6 +2188,16 @@ function recDateSet(part, val, label) {
 
 window._recUI = window._recUI || { collapsed: true, activity: null, zone: null, timeOfDay: null, month: null };
 
+// ── Image fingerprinting ──────────────────────────────
+async function recFingerprint(buf) {
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).slice(0, 8).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function recDuplicateId(fp) {
+  if (!fp) return null;
+  return loadRecovery().find(r => r.fingerprint === fp)?.id || null;
+}
+
 // ── EXIF date extraction ──────────────────────────────
 function extractExifDate(buffer) {
   const v = new DataView(buffer);
@@ -2306,6 +2316,11 @@ async function recProcessBulk(files) {
     try {
       // Read buffer for EXIF before resizing
       const buf = await file.arrayBuffer();
+      const fp = await recFingerprint(buf);
+      if (recDuplicateId(fp)) {
+        setStatus('Already imported — skipped');
+        continue;
+      }
       const exif = parseExifDate(extractExifDate(buf));
 
       const resized = await recResizeImage(file, 512);
@@ -2344,6 +2359,7 @@ async function recProcessBulk(files) {
       setStatus(analysis ? `${analysis.activity||'Saved'} · ${analysis.zone||''}` : (key ? 'Saved (analysis failed)' : 'Saved (no API key)'));
       recoveryLogs.push({
         id: 'r'+Date.now()+Math.random().toString(36).slice(2,5),
+        fingerprint: fp,
         date: entryDate, time: entryTime, timeOfDay: entryTOD, month: entryMonth,
         thumb: resized.dataUrl, note: '', analysis, savedAt: new Date().toISOString()
       });
@@ -2678,6 +2694,13 @@ async function recPhotoSelected(input) {
   // Extract EXIF date before resizing (needs raw buffer)
   try {
     const buf  = await file.arrayBuffer();
+    const fp   = await recFingerprint(buf);
+    const dupId = recDuplicateId(fp);
+    if (dupId) {
+      toast('This photo has already been imported', true);
+      input.value = '';
+      return;
+    }
     const exif = parseExifDate(extractExifDate(buf));
     if (exif) {
       const [y, m, d] = exif.date.split('-');
@@ -2689,6 +2712,7 @@ async function recPhotoSelected(input) {
       const yBtn  = document.getElementById('rdb-year');  if (yBtn)    yBtn.querySelector('.rec-date-btn-val').textContent = y;
       window._recState.exif = exif;
     }
+    window._recState.fingerprint = fp;
   } catch(e) { /* EXIF read failed — leave date as today */ }
 
   const resized = await recResizeImage(file, 512);
@@ -2744,7 +2768,7 @@ function recSave() {
   const s    = window._recState || {};
   if (!s.thumb && !note) { toast('Add a photo or note first', true); return; }
   const exif = s.exif || null;
-  recoveryLogs.push({ id: 'r'+Date.now()+Math.random().toString(36).slice(2,5), date, time: exif?.time||null, timeOfDay: exif ? getTimeOfDay(exif.hour) : null, month: date.slice(0,7), thumb: s.thumb||null, note, analysis: s.analysis||null, savedAt: new Date().toISOString() });
+  recoveryLogs.push({ id: 'r'+Date.now()+Math.random().toString(36).slice(2,5), fingerprint: s.fingerprint||null, date, time: exif?.time||null, timeOfDay: exif ? getTimeOfDay(exif.hour) : null, month: date.slice(0,7), thumb: s.thumb||null, note, analysis: s.analysis||null, savedAt: new Date().toISOString() });
   saveRecovery();
   recCloseSheet();
   renderInsights();
