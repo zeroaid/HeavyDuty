@@ -2779,7 +2779,7 @@ function recSectionHtml() {
 
   return `<div class="rec-section">
     <div class="rec-section-header">
-      <button style="background:none;border:none;display:flex;align-items:center;gap:7px;cursor:pointer;padding:0" onclick="recToggle()">
+      <button style="background:none;border:none;display:flex;align-items:center;gap:7px;cursor:pointer;padding:0;margin-right:12px" onclick="recToggle()">
         <span class="rec-section-title">Active Recovery${recoveryLogs.length ? ' ('+recoveryLogs.length+')' : ''}</span>
         ${recoveryLogs.length ? chevron : ''}
       </button>
