@@ -94,6 +94,14 @@ MIT — see [LICENSE](LICENSE).
 
 ---
 
+## Disclaimer
+
+This app has no affiliation with [mikementzer.org](https://mikementzer.org) or Mike Mentzer's estate. It has been created independently to help followers of the Heavy Duty / HIT training methodology track their progress.
+
+If the estate wishes to get in contact, please email: **zeroaid@gmail.com**
+
+---
+
 ## Acknowledgements
 
 Inspired by the work and philosophy of **Mike Mentzer** (1951–2001), whose *Heavy Duty* system proved that intensity, not volume, is the stimulus for growth.
