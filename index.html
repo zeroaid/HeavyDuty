@@ -3252,10 +3252,11 @@ function aiDebugState() {
 }
 
 async function aiTestConnection() {
+  if (window._apiTesting) return;
+  window._apiTesting = true;
   const key = localStorage.getItem('hd_claude_key');
-  if (!key) { window._apiStatus = 'fail'; aiRenderLog(); return; }
+  if (!key) { window._apiStatus = 'fail'; window._apiTesting = false; aiRenderLog(); return; }
   window._apiStatus = 'untested';
-  aiRenderLog();
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -3266,6 +3267,7 @@ async function aiTestConnection() {
   } catch(e) {
     window._apiStatus = 'fail';
   }
+  window._apiTesting = false;
   aiRenderLog();
 }
 
