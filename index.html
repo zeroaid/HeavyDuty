@@ -254,15 +254,19 @@ body {
 .form-field { flex: 1; }
 .form-field label { display: block; font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
 
-input, textarea {
+input, textarea, select {
   width: 100%; background: var(--surface-2); border: 1.5px solid var(--border);
   border-radius: var(--r-sm); color: var(--text); font-size: 16px;
   padding: 13px 14px; outline: none;
   transition: border-color 0.15s, background 0.15s;
   -webkit-appearance: none; appearance: none;
 }
-input:focus, textarea:focus { border-color: var(--accent); background: var(--surface-3); }
+input:focus, textarea:focus, select:focus { border-color: var(--accent); background: var(--surface-3); }
 input::placeholder, textarea::placeholder { color: var(--text-3); }
+.rec-date-row { display:flex; gap:8px; margin-bottom:14px; }
+.rec-date-row select { flex:1; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; padding-right:28px; }
+.rec-photo-row { display:flex; gap:8px; margin-bottom:14px; }
+.rec-photo-row button { flex:1; height:80px; background:var(--surface-2); border:1.5px dashed var(--border-hi); border-radius:var(--r-lg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; cursor:pointer; color:var(--text-3); font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; }
 textarea { resize: none; height: 90px; line-height: 1.5; }
 
 .ex-form-card {
@@ -2061,6 +2065,23 @@ function apSummaryHtml(p) {
 
 // ── Recovery Log ──────────────────────────────────────
 
+function recDateRowHtml() {
+  const now = new Date();
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const days   = Array.from({length:31},(_,i)=>`<option value="${String(i+1).padStart(2,'0')}"${now.getDate()===i+1?' selected':''}>${String(i+1).padStart(2,'0')}</option>`).join('');
+  const months = MONTHS.map((m,i)=>`<option value="${String(i+1).padStart(2,'0')}"${now.getMonth()===i?' selected':''}>${m}</option>`).join('');
+  const yr = now.getFullYear();
+  const years = [yr-1,yr,yr+1].map(y=>`<option value="${y}"${y===yr?' selected':''}>${y}</option>`).join('');
+  return `<div class="rec-date-row"><select id="rec-day">${days}</select><select id="rec-month">${months}</select><select id="rec-year">${years}</select></div>`;
+}
+
+function recGetDate() {
+  const d = document.getElementById('rec-day')?.value;
+  const m = document.getElementById('rec-month')?.value;
+  const y = document.getElementById('rec-year')?.value;
+  return (d && m && y) ? `${y}-${m}-${d}` : today();
+}
+
 function recSectionHtml() {
   const cards = [...recoveryLogs].reverse().map(r => {
     const img = r.thumb
@@ -2107,14 +2128,22 @@ function recOpenSheet() {
     <div class="rec-sheet" id="rec-sheet">
       <div class="rec-drag-handle"></div>
       <div class="rec-sheet-title">Log Recovery Session</div>
-      <div class="form-field" style="margin-bottom:14px">
-        <label>Date</label>
-        <input type="date" id="rec-date" value="${today()}">
-      </div>
-      <input type="file" id="rec-file-input" accept="image/*" capture="environment" style="display:none" onchange="recPhotoSelected(this)">
-      <div class="rec-photo-btn" id="rec-photo-btn" onclick="document.getElementById('rec-file-input').click()">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        Tap to add photo
+      <div class="form-field" style="margin-bottom:6px"><label>Date</label></div>
+      ${recDateRowHtml()}
+      <input type="file" id="rec-file-camera"  accept="image/*" capture="environment" style="display:none" onchange="recPhotoSelected(this)">
+      <input type="file" id="rec-file-gallery" accept="image/*" style="display:none" onchange="recPhotoSelected(this)">
+      <div id="rec-photo-area">
+        <div class="form-field" style="margin-bottom:6px"><label>Photo</label></div>
+        <div class="rec-photo-row">
+          <button onclick="document.getElementById('rec-file-camera').click()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Camera
+          </button>
+          <button onclick="document.getElementById('rec-file-gallery').click()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Gallery
+          </button>
+        </div>
       </div>
       <img id="rec-preview" class="rec-photo-preview" alt="">
       <div id="rec-analysis-box" class="rec-analysis-box" style="display:none"></div>
@@ -2164,10 +2193,10 @@ async function recPhotoSelected(input) {
   window._recState.thumb = resized.dataUrl;
   window._recState.b64   = resized.b64;
   window._recState.mediaType = resized.mediaType;
-  const preview  = document.getElementById('rec-preview');
-  const photoBtn = document.getElementById('rec-photo-btn');
-  if (preview)  { preview.src = resized.dataUrl; preview.style.display = 'block'; }
-  if (photoBtn) photoBtn.style.display = 'none';
+  const preview   = document.getElementById('rec-preview');
+  const photoArea = document.getElementById('rec-photo-area');
+  if (preview)   { preview.src = resized.dataUrl; preview.style.display = 'block'; }
+  if (photoArea) photoArea.style.display = 'none';
   if (!key) return;
   const box     = document.getElementById('rec-analysis-box');
   const saveBtn = document.getElementById('rec-save-btn');
@@ -2202,7 +2231,7 @@ async function recPhotoSelected(input) {
 }
 
 function recSave() {
-  const date = document.getElementById('rec-date')?.value || today();
+  const date = recGetDate();
   const note = document.getElementById('rec-note')?.value.trim() || '';
   const s    = window._recState || {};
   if (!s.thumb && !note) { toast('Add a photo or note first', true); return; }
