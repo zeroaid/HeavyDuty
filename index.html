@@ -2424,7 +2424,7 @@ async function recProcessBulk(files) {
           model: 'claude-opus-4-8', max_tokens: 400,
           messages: [{ role: 'user', content: [
             { type: 'image', source: { type: 'base64', media_type: api_img.mediaType, data: api_img.b64 } },
-            { type: 'text', text: `HIT recovery coach. Analyse this photo. Respond ONLY with raw JSON:\n{"activity":"e.g. Cycling","zone":"e.g. Zone 2","duration":"e.g. 30 min or null","observations":"1 sentence","recommendation":"1 sentence HIT context"}` }
+            { type: 'text', text: `You are a coach for Mike Mentzer's Heavy Duty training — HIT means Heavy Duty high-intensity weight training, NOT HIIT cardio. This photo shows an ACTIVE RECOVERY session (light cardio or movement done between heavy weight training sessions to aid recovery). Analyse the photo and respond ONLY with raw JSON:\n{"activity":"e.g. Cycling","zone":"e.g. Zone 2","duration":"e.g. 30 min or null","observations":"1 sentence describing what you see","recommendation":"1 sentence on how this active recovery session supports recovery from heavy compound weight training"}` }
           ]}]
         });
         for (let attempt = 1; attempt <= 3; attempt++) {
@@ -2566,7 +2566,7 @@ async function recReanalyse(id) {
           model: 'claude-opus-4-8', max_tokens: 400,
           messages: [{ role: 'user', content: [
             { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
-            { type: 'text', text: `HIT recovery coach. Analyse this photo. Respond ONLY with raw JSON:\n{"activity":"e.g. Cycling","zone":"e.g. Zone 2","duration":"e.g. 30 min or null","observations":"1 sentence","recommendation":"1 sentence HIT context"}` }
+            { type: 'text', text: `You are a coach for Mike Mentzer's Heavy Duty training — HIT means Heavy Duty high-intensity weight training, NOT HIIT cardio. This photo shows an ACTIVE RECOVERY session (light cardio or movement done between heavy weight training sessions to aid recovery). Analyse the photo and respond ONLY with raw JSON:\n{"activity":"e.g. Cycling","zone":"e.g. Zone 2","duration":"e.g. 30 min or null","observations":"1 sentence describing what you see","recommendation":"1 sentence on how this active recovery session supports recovery from heavy compound weight training"}` }
           ]}]
         })
       });
@@ -2895,7 +2895,7 @@ async function recPhotoSelected(input) {
         max_tokens: 400,
         messages: [{ role: 'user', content: [
           { type: 'image', source: { type: 'base64', media_type: api_img.mediaType, data: api_img.b64 } },
-          { type: 'text', text: `You are a HIT (High Intensity Training) recovery coach. Analyse this active recovery session photo. Respond with ONLY raw JSON, no markdown:\n{"activity":"short activity name e.g. Cycling / Walking / Swimming","zone":"e.g. Zone 2 / Light / Moderate","duration":"estimated or visible duration, or null","observations":"1 concise sentence describing what you see","recommendation":"1 sentence on how this serves HIT recovery"}` }
+          { type: 'text', text: `You are a coach for Mike Mentzer's Heavy Duty training — HIT means Heavy Duty high-intensity weight training, NOT HIIT cardio. This photo shows an ACTIVE RECOVERY session (light cardio or movement done between heavy weight training sessions to aid recovery). Analyse the photo and respond with ONLY raw JSON, no markdown:\n{"activity":"short activity name e.g. Cycling / Walking / Swimming","zone":"e.g. Zone 2 / Light / Moderate","duration":"estimated or visible duration, or null","observations":"1 concise sentence describing what you see","recommendation":"1 sentence on how this active recovery session supports recovery from heavy compound weight training"}` }
         ]}]
       })
     });
