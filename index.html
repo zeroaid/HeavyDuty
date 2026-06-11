@@ -2107,7 +2107,7 @@ function recOpenSheet() {
       <div class="rec-sheet-title">Log Recovery Session</div>
       <div class="form-field" style="margin-bottom:14px">
         <label>Date</label>
-        <input type="date" id="rec-date" value="${today()}" style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px;color:var(--text);font-size:14px;outline:none">
+        <input type="date" id="rec-date" value="${today()}">
       </div>
       <input type="file" id="rec-file-input" accept="image/*" capture="environment" style="display:none" onchange="recPhotoSelected(this)">
       <div class="rec-photo-btn" id="rec-photo-btn" onclick="document.getElementById('rec-file-input').click()">
@@ -2118,7 +2118,7 @@ function recOpenSheet() {
       <div id="rec-analysis-box" class="rec-analysis-box" style="display:none"></div>
       <div class="form-field" style="margin-bottom:14px">
         <label>Notes <span style="color:var(--text-3);font-weight:400">(optional)</span></label>
-        <textarea id="rec-note" rows="2" placeholder="e.g. 45 min Zone 2 cycling…" style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px;color:var(--text);font-size:14px;outline:none;resize:none;font-family:inherit"></textarea>
+        <textarea id="rec-note" rows="2" placeholder="e.g. 45 min Zone 2 cycling…" style="resize:none"></textarea>
       </div>
       <div class="rec-sheet-row">
         <button class="rec-sheet-cancel" onclick="recCloseSheet()">Cancel</button>
