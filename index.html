@@ -3266,8 +3266,8 @@ function aiRenderLog() {
   const tabs = `<div style="display:flex;border-bottom:1px solid var(--border)">${tabBtn('log','API Log')}${tabBtn('state','State')}</div>`;
 
   if (tab === 'state') {
-    panel.innerHTML = tabs + aiDebugState();
     aiTestConnection();
+    panel.innerHTML = tabs + aiDebugState();
     return;
   }
 
