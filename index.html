@@ -1842,7 +1842,7 @@ function renderSettings() {
     <div class="sec"><div class="sec-label">Cloud Backup</div></div>
     <div style="margin:0 20px">
       <div class="settings-card">
-        ${gdIsConnected() ? `
+        ${localStorage.getItem('hd_gd_email') ? `
         <div class="settings-row">
           <div class="settings-row-left">
             <div class="settings-icon" style="background:rgba(66,133,244,0.12);color:#4285f4">
@@ -3451,7 +3451,17 @@ async function gdGetValidToken() {
 
 async function gdBackup() {
   const token = await gdGetValidToken();
-  if (!token) return;
+  if (!token) {
+    if (localStorage.getItem('hd_gd_email')) {
+      toast('Drive session expired — tap Connect to re-authenticate', true);
+      // Clear stale token so settings shows reconnect option
+      localStorage.removeItem('hd_gd_token');
+      localStorage.removeItem('hd_gd_expiry');
+      localStorage.removeItem('hd_gd_email');
+      if (cur === 'settings') renderSettings();
+    }
+    return;
+  }
 
   const body = JSON.stringify({ version: 2, exportedAt: new Date().toISOString(), profile: getProfile() || {}, workouts, recoveryLogs }, null, 2);
   let fileId = localStorage.getItem('hd_gd_file_id');
