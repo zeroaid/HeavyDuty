@@ -548,6 +548,8 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .rec-section-title { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-3); }
 .rec-add-btn { display:flex; align-items:center; gap:5px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-md); padding:6px 12px; font-size:12px; font-weight:600; color:var(--text-2); cursor:pointer; }
 .rec-add-btn svg { flex-shrink:0; }
+.rec-log-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:var(--accent); border:none; border-radius:var(--r-md); padding:13px 16px; font-size:15px; font-weight:700; color:#fff; cursor:pointer; letter-spacing:0.2px; margin-bottom:12px; box-sizing:border-box; }
+.rec-log-btn:active { opacity:0.85; }
 .rec-list { display:flex; flex-direction:column; gap:10px; }
 .rec-card { background:var(--surface-1); border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; display:flex; gap:0; }
 .rec-thumb { width:80px; min-height:80px; object-fit:cover; flex-shrink:0; display:block; }
@@ -2783,18 +2785,15 @@ function recSectionHtml() {
         <span class="rec-section-title">Active Recovery${recoveryLogs.length ? ' ('+recoveryLogs.length+')' : ''}</span>
         ${recoveryLogs.length ? chevron : ''}
       </button>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button class="rec-bulk-btn" onclick="recBulkImport()" title="Bulk import photos">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          Bulk import
-        </button>
-        <button class="rec-add-btn" onclick="recOpenSheet()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Log session
-        </button>
-      </div>
+      <button class="rec-bulk-btn" onclick="recBulkImport()" title="Bulk import photos" style="padding:6px 8px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </button>
     </div>
-    ${!recoveryLogs.length ? `<div class="rec-empty">No recovery sessions logged yet. Tap <strong>Log session</strong> or <strong>Bulk import</strong> to get started.</div>` : `
+    <button class="rec-log-btn" onclick="recOpenSheet()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Log Recovery Session
+    </button>
+    ${!recoveryLogs.length ? '' : `
       ${filterBar}
       ${filtered.length ? `<div class="rec-list">${cards}</div>` : `<div class="rec-empty">No sessions match this filter.</div>`}
       ${!ui.collapsed && hasMore ? '' : ui.collapsed && hasMore ? `<button class="rec-show-more" onclick="recToggle()">Show all ${filtered.length} sessions ↓</button>` : ''}
