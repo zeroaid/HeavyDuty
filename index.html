@@ -526,16 +526,6 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .ap-card-sub { font-size:11px; color:var(--text-3); margin-top:3px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
 .ap-edit-row { display:flex; justify-content:flex-end; padding:4px 20px 12px; }
 .ap-edit-btn { background:none; border:none; font-size:12px; color:var(--text-3); cursor:pointer; padding:4px 0; }
-.ap-ai-card { margin:0 20px 14px; background:var(--surface-1); border:1px solid var(--border); border-radius:var(--r-lg); padding:14px 16px; }
-.ap-ai-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
-.ap-ai-badge { font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; background:var(--accent); color:#fff; padding:2px 6px; border-radius:3px; }
-.ap-ai-title { font-size:12px; font-weight:600; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px; }
-.ap-ai-body { font-size:13px; color:var(--text-2); line-height:1.65; }
-.ap-ai-body strong { color:var(--text); font-weight:600; }
-.ap-ai-body ul { margin:6px 0 0 0; padding-left:16px; }
-.ap-ai-body li { margin-bottom:4px; }
-.ap-ai-loading { display:flex; align-items:center; gap:8px; color:var(--text-3); font-size:12px; }
-.ap-ai-refresh { background:none; border:none; font-size:11px; color:var(--text-3); cursor:pointer; padding:0; margin-left:auto; }
 .ap-banner { margin:0 20px 14px; background:var(--surface-2); border:1px solid rgba(204,17,17,0.2); border-radius:14px; padding:14px 16px; display:flex; align-items:center; gap:14px; }
 .ap-banner svg { flex-shrink:0; width:28px; height:28px; stroke:var(--accent); }
 .ap-banner-text { font-size:13px; color:var(--text-2); line-height:1.5; flex:1; }
@@ -1963,10 +1953,6 @@ function renderInsights() {
     <div style="height:32px"></div>
   `;
 
-  // Fire AI insights after DOM is painted (only when not editing and profile+key exist)
-  if (!editing && profile && key) {
-    setTimeout(() => apAiInsights(false), 0);
-  }
 }
 
 // ── Athlete profile helpers ────────────────────────────
@@ -2028,138 +2014,9 @@ function apSummaryHtml(p) {
         <div class="ap-card-sub">recovery<br>${p.activeRecovery?.daysPerWeek ? p.activeRecovery.daysPerWeek + 'd cardio' : (p.sleepHours ? p.sleepHours + 'h sleep' : '')}</div>
       </div>
     </div>
-    <div class="ap-edit-row"><button class="ap-edit-btn" onclick="apStartEdit()">Edit profile ›</button></div>
-    <div id="ap-ai-insights"></div>`;
+    <div class="ap-edit-row"><button class="ap-edit-btn" onclick="apStartEdit()">Edit profile ›</button></div>`;
 }
 
-function apAiToggle() {
-  const body    = document.getElementById('ap-ai-body');
-  const chevron = document.getElementById('ap-ai-chevron');
-  if (!body) return;
-  const collapsed = body.style.display === 'none';
-  body.style.display = collapsed ? '' : 'none';
-  if (chevron) chevron.style.transform = `rotate(${collapsed ? '180' : '0'}deg)`;
-  localStorage.setItem('hd_ai_insights_v2_collapsed', collapsed ? '0' : '1');
-}
-
-async function apAiInsights(force) {
-  const key     = localStorage.getItem('hd_claude_key');
-  const profile = getProfile();
-  const el      = document.getElementById('ap-ai-insights');
-  if (!key || !profile || !el) return;
-
-  // Cache key: profile savedAt + workout count
-  const cacheKey = `hd_ai_insights_v2_${profile.savedAt}_${workouts.length}`;
-  if (!force) {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) { el.innerHTML = cached; return; }
-  }
-
-  el.innerHTML = `<div class="ap-ai-card"><div class="ap-ai-loading"><div class="ai-loading"><span></span><span></span><span></span></div><span>Generating AI analysis…</span></div></div>`;
-
-  // Build a compact profile summary for Claude
-  const recentSessions = workouts.slice(-20).map(w => ({
-    date: w.date,
-    type: w.type,
-    bodyweight: w.bw || null,
-    exercises: (w.ex||[]).map(e => `${e.n}: ${e.w||0}kg x ${e.r||'?'} reps${e.note ? ' ('+e.note+')' : ''}`)
-  }));
-
-  const profileSummary = {
-    age: profile.age,
-    yearsTraining: profile.yearsTraining,
-    yearsHighVolume: profile.yearsHighVolume,
-    prevStyles: profile.prevStyles,
-    goal: profile.goal,
-    sleepHours: profile.sleepHours,
-    stress: profile.stress,
-    occupation: profile.occupation,
-    activeRecovery: profile.activeRecovery,
-    injuries: profile.injuries,
-    totalSessions: workouts.length
-  };
-
-  const prompt = `You are a Mike Mentzer HIT (High Intensity Training) expert coach. Analyse this athlete's profile and recent training data.
-
-PROFILE:
-${JSON.stringify(profileSummary, null, 2)}
-
-LAST 20 SESSIONS:
-${JSON.stringify(recentSessions, null, 2)}
-
-Respond with ONLY a JSON object — no markdown, no explanation, just raw JSON:
-{
-  "readiness": "1-2 sentence assessment of their current recovery readiness and training state",
-  "progress": "1-2 sentence assessment of strength/progress trends from the session data",
-  "recommendation": "1-2 sentence concrete HIT recommendation tailored to their goal, injuries, and data"
-}
-
-Be direct, specific, and Mentzer-like in tone. Reference actual numbers from their data where relevant.`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-opus-4-8',
-        max_tokens: 600,
-        thinking: { type: 'adaptive' },
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const raw  = (data.content || []).find(b => b.type === 'text')?.text || '';
-
-    let parsed;
-    // Strip markdown code fences if present, then extract first {...} block
-    const cleaned = raw.replace(/```[a-z]*\n?/gi, '').trim();
-    const m = cleaned.match(/\{[\s\S]*\}/);
-    try { parsed = m ? JSON.parse(m[0]) : null; } catch(e) { parsed = null; }
-    if (!parsed || !parsed.readiness) {
-      // Fallback: build object from raw text if Claude ignored JSON instruction
-      const lines = cleaned.split('\n').filter(Boolean);
-      const get = (key) => { const l = lines.find(l => new RegExp(key,'i').test(l)); return l ? l.replace(/^[^:]+:\s*/,'').trim() : ''; };
-      parsed = { readiness: get('readiness'), progress: get('progress'), recommendation: get('recommendation') };
-      if (!parsed.readiness && !parsed.progress && !parsed.recommendation) throw new Error('Could not parse response');
-    }
-
-    const collapsed = localStorage.getItem('hd_ai_insights_v2_collapsed') === '1';
-    const html = `<div class="ap-ai-card">
-      <div class="ap-ai-header" onclick="apAiToggle()" style="cursor:pointer">
-        <span class="ap-ai-badge">AI</span>
-        <span class="ap-ai-title">Claude Analysis</span>
-        <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
-          <button class="ap-ai-refresh" onclick="event.stopPropagation();apAiInsights(true)" title="Refresh">↻</button>
-          <svg id="ap-ai-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-3);transition:transform 0.2s;transform:rotate(${collapsed?'0':'180'}deg)"><polyline points="6 9 12 15 18 9"/></svg>
-        </span>
-      </div>
-      <div id="ap-ai-body" class="ap-ai-body" style="${collapsed?'display:none':''}">
-        <div style="margin-bottom:10px"><strong>Readiness</strong><br>${parsed.readiness}</div>
-        <div style="margin-bottom:10px"><strong>Progress</strong><br>${parsed.progress}</div>
-        <div><strong>Recommendation</strong><br>${parsed.recommendation}</div>
-      </div>
-    </div>`;
-
-    // Cache it (clear any old keys for this profile first)
-    try {
-      for (const k of Object.keys(localStorage)) {
-        if (k.startsWith('hd_ai_insights_v2_')) localStorage.removeItem(k);
-      }
-    } catch(e) {}
-    localStorage.setItem(cacheKey, html);
-    el.innerHTML = html;
-
-  } catch(err) {
-    el.innerHTML = `<div class="ap-ai-card"><div class="ap-ai-body" style="color:var(--text-3);font-size:12px">AI analysis unavailable — ${err.message}. <button class="ap-ai-refresh" style="font-size:12px;color:var(--accent)" onclick="apAiInsights(true)">Retry</button></div></div>`;
-  }
-}
 
 function apChips(options, selectedArr, id, multi) {
   return options.map(([val, label]) => {
@@ -2337,8 +2194,6 @@ function apSave() {
   window._apEditing = false;
   renderInsights();
   toast('Profile saved', false);
-  // Force fresh AI analysis after profile update
-  setTimeout(() => apAiInsights(true), 50);
 }
 
 function aiSetPrompt(text) {
