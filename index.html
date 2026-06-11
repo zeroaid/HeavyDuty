@@ -2406,7 +2406,7 @@ async function recProcessBulk(files) {
       }
       const exif = parseExifDate(extractExifDate(buf));
 
-      const thumb_small = await recResizeImage(file, 800, 0.88);
+      const thumb_small = await recResizeImage(file, 1600, 0.88);
       const thumb = document.getElementById(`bthumb-${done}`);
       if (thumb) { const img = document.createElement('img'); img.className='rec-progress-item-thumb'; img.src=thumb_small.dataUrl; thumb.replaceWith(img); }
 
@@ -2804,7 +2804,7 @@ async function recPhotoSelected(input) {
     window._recState.fingerprint = fp;
   } catch(e) { /* EXIF read failed — leave date as today */ }
 
-  const thumb_small = await recResizeImage(file, 800, 0.88);
+  const thumb_small = await recResizeImage(file, 1600, 0.88);
   window._recState.thumb    = thumb_small.dataUrl; // kept in memory for preview only
   window._recState.hasPhoto = true;
   const preview   = document.getElementById('rec-preview');
