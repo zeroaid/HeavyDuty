@@ -562,6 +562,20 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .rec-filter-chip { background:var(--surface-2); border:1px solid var(--border); border-radius:20px; padding:5px 12px; font-size:12px; font-weight:600; color:var(--text-2); cursor:pointer; white-space:nowrap; }
 .rec-filter-chip.on { background:rgba(212,20,20,0.15); border-color:var(--accent); color:var(--text); }
 .rec-show-more { width:100%; background:none; border:1px solid var(--border); border-radius:var(--r-md); padding:10px; font-size:13px; color:var(--text-3); cursor:pointer; margin-top:8px; }
+.rec-bulk-btn { display:flex; align-items:center; gap:5px; background:none; border:1px solid var(--border); border-radius:var(--r-md); padding:6px 10px; font-size:12px; font-weight:600; color:var(--text-3); cursor:pointer; }
+.rec-progress-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:300; display:flex; align-items:flex-end; }
+.rec-progress-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; padding:20px 20px max(env(safe-area-inset-bottom,0px),24px); max-height:70vh; display:flex; flex-direction:column; }
+.rec-progress-title { font-size:15px; font-weight:700; margin-bottom:4px; }
+.rec-progress-sub { font-size:12px; color:var(--text-3); margin-bottom:14px; }
+.rec-progress-bar-wrap { background:var(--surface-3); border-radius:4px; height:6px; margin-bottom:16px; overflow:hidden; }
+.rec-progress-bar-fill { height:100%; background:var(--accent); border-radius:4px; transition:width 0.3s; }
+.rec-progress-list { overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:8px; }
+.rec-progress-item { display:flex; align-items:center; gap:10px; font-size:13px; }
+.rec-progress-item-thumb { width:40px; height:40px; border-radius:4px; object-fit:cover; flex-shrink:0; background:var(--surface-3); }
+.rec-progress-item-info { flex:1; min-width:0; }
+.rec-progress-item-name { font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rec-progress-item-status { font-size:11px; color:var(--text-3); margin-top:1px; }
+.rec-progress-done-btn { margin-top:16px; background:var(--accent); color:#fff; border:none; border-radius:var(--r-md); padding:13px; font-size:14px; font-weight:700; cursor:pointer; width:100%; display:none; }
 /* Recovery sheet overlay */
 .rec-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; display:flex; align-items:flex-end; }
 .rec-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; padding:12px 20px max(env(safe-area-inset-bottom,0px),24px); max-height:90vh; overflow-y:auto; transition:transform 0.2s ease; touch-action:pan-y; }
@@ -1993,6 +2007,7 @@ function renderInsights() {
       <button class="ai-chip" onclick="aiSetPrompt('Which exercises show the most improvement? Which are stalling or declining?')">Strength trends</button>
       <button class="ai-chip" onclick="aiSetPrompt('Based on my training history, what should I focus on in my next workout?')">Next session advice</button>
       <button class="ai-chip" onclick="aiSetPrompt('Am I training too frequently or not frequently enough given Heavy Duty principles?')">Frequency check</button>
+      <button class="ai-chip" onclick="aiSetPrompt('Look at my active recovery sessions alongside my weight training. Is the volume, intensity and timing of my cardio supporting or undermining my HIT progress? What should I change?')">Recovery vs training</button>
     </div>
     <div style="padding:0 20px 18px">
       <div class="ai-input-wrap">
@@ -2145,7 +2160,162 @@ function recDateSet(part, val, label) {
   document.getElementById('rec-pick-ov')?.remove();
 }
 
-window._recUI = window._recUI || { collapsed: true, activity: null, zone: null };
+window._recUI = window._recUI || { collapsed: true, activity: null, zone: null, timeOfDay: null, month: null };
+
+// ── EXIF date extraction ──────────────────────────────
+function extractExifDate(buffer) {
+  const v = new DataView(buffer);
+  if (v.getUint16(0) !== 0xFFD8) return null;
+  let off = 2;
+  while (off < buffer.byteLength - 4) {
+    const marker = v.getUint16(off);
+    if (marker === 0xFFDA) break;
+    const segLen = v.getUint16(off + 2);
+    if (marker === 0xFFE1 && segLen > 6) {
+      const hdr = String.fromCharCode(...new Uint8Array(buffer, off + 4, 4));
+      if (hdr === 'Exif') {
+        const t = off + 10;
+        const le = v.getUint16(t) === 0x4949;
+        const u16 = o => v.getUint16(o, le);
+        const u32 = o => v.getUint32(o, le);
+        const readDate = o => { try { let s=''; for(let i=0;i<19;i++) s+=String.fromCharCode(v.getUint8(o+i)); return s; } catch(e){return null;} };
+        const scanIfd = ifd => {
+          const n = u16(ifd);
+          for (let i = 0; i < n; i++) {
+            const e = ifd + 2 + i * 12, tag = u16(e);
+            if (tag === 0x9003 || tag === 0x0132) return readDate(t + u32(e + 8));
+            if (tag === 0x8769) { const r = scanIfd(t + u32(e + 8)); if (r) return r; }
+          }
+          return null;
+        };
+        const result = scanIfd(t + u32(t + 4));
+        if (result) return result;
+      }
+    }
+    off += 2 + segLen;
+  }
+  return null;
+}
+
+function parseExifDate(raw) {
+  if (!raw) return null;
+  const m = raw.match(/(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2})/);
+  if (!m) return null;
+  return { date: `${m[1]}-${m[2]}-${m[3]}`, time: `${m[4]}:${m[5]}`, hour: parseInt(m[4]) };
+}
+
+function getTimeOfDay(hour) {
+  if (hour === null || hour === undefined) return null;
+  if (hour < 6)  return 'Night';
+  if (hour < 12) return 'Morning';
+  if (hour < 17) return 'Afternoon';
+  if (hour < 21) return 'Evening';
+  return 'Night';
+}
+
+// ── Bulk import ───────────────────────────────────────
+function recBulkImport() {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
+  inp.onchange = () => { if (inp.files.length) recProcessBulk(Array.from(inp.files)); };
+  inp.click();
+}
+
+async function recProcessBulk(files) {
+  const key = localStorage.getItem('hd_claude_key');
+  const total = files.length;
+
+  // Build progress sheet
+  const ov = document.createElement('div');
+  ov.className = 'rec-progress-overlay'; ov.id = 'rec-bulk-ov';
+  ov.innerHTML = `<div class="rec-progress-sheet">
+    <div class="rec-progress-title">Importing ${total} photo${total>1?'s':''}</div>
+    <div class="rec-progress-sub" id="rec-bulk-sub">Starting…</div>
+    <div class="rec-progress-bar-wrap"><div class="rec-progress-bar-fill" id="rec-bulk-bar" style="width:0%"></div></div>
+    <div class="rec-progress-list" id="rec-bulk-list"></div>
+    <button class="rec-progress-done-btn" id="rec-bulk-done" onclick="document.getElementById('rec-bulk-ov').remove();renderInsights()">Done — View sessions</button>
+  </div>`;
+  document.body.appendChild(ov);
+
+  const list = document.getElementById('rec-bulk-list');
+  let done = 0;
+
+  for (const file of files) {
+    done++;
+    const pct = Math.round((done - 1) / total * 100);
+    document.getElementById('rec-bulk-bar').style.width = pct + '%';
+    document.getElementById('rec-bulk-sub').textContent = `Analysing ${done} of ${total}…`;
+
+    // Row placeholder
+    const row = document.createElement('div');
+    row.className = 'rec-progress-item';
+    row.innerHTML = `<div class="rec-progress-item-thumb" id="bthumb-${done}"></div>
+      <div class="rec-progress-item-info">
+        <div class="rec-progress-item-name">${file.name}</div>
+        <div class="rec-progress-item-status" id="bstat-${done}">Resizing…</div>
+      </div>`;
+    list.appendChild(row);
+    list.scrollTop = list.scrollHeight;
+
+    const setStatus = s => { const el = document.getElementById(`bstat-${done}`); if (el) el.textContent = s; };
+
+    try {
+      // Read buffer for EXIF before resizing
+      const buf = await file.arrayBuffer();
+      const exif = parseExifDate(extractExifDate(buf));
+
+      const resized = await recResizeImage(file, 512);
+      const thumb = document.getElementById(`bthumb-${done}`);
+      if (thumb) { const img = document.createElement('img'); img.className='rec-progress-item-thumb'; img.src=resized.dataUrl; thumb.replaceWith(img); }
+
+      const entryDate    = exif?.date || today();
+      const entryTime    = exif?.time || null;
+      const entryTOD     = exif ? getTimeOfDay(exif.hour) : null;
+      const entryMonth   = entryDate.slice(0, 7); // YYYY-MM
+
+      let analysis = null;
+      if (key) {
+        setStatus('Analysing with Claude…');
+        try {
+          const res = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+            body: JSON.stringify({
+              model: 'claude-opus-4-8', max_tokens: 400,
+              messages: [{ role: 'user', content: [
+                { type: 'image', source: { type: 'base64', media_type: resized.mediaType, data: resized.b64 } },
+                { type: 'text', text: `HIT recovery coach. Analyse this photo. Respond ONLY with raw JSON:\n{"activity":"e.g. Cycling","zone":"e.g. Zone 2","duration":"e.g. 30 min or null","observations":"1 sentence","recommendation":"1 sentence HIT context"}` }
+              ]}]
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const raw  = (data.content||[]).find(b=>b.type==='text')?.text||'';
+            const m    = raw.replace(/```[a-z]*\n?/gi,'').trim().match(/\{[\s\S]*\}/);
+            if (m) analysis = JSON.parse(m[0]);
+          }
+        } catch(e) { /* skip analysis, still save */ }
+      }
+
+      setStatus(analysis ? `${analysis.activity||'Saved'} · ${analysis.zone||''}` : (key ? 'Saved (analysis failed)' : 'Saved (no API key)'));
+      recoveryLogs.push({
+        id: 'r'+Date.now()+Math.random().toString(36).slice(2,5),
+        date: entryDate, time: entryTime, timeOfDay: entryTOD, month: entryMonth,
+        thumb: resized.dataUrl, note: '', analysis, savedAt: new Date().toISOString()
+      });
+      saveRecovery();
+
+    } catch(err) {
+      setStatus('Failed: ' + err.message);
+    }
+  }
+
+  document.getElementById('rec-bulk-bar').style.width = '100%';
+  document.getElementById('rec-bulk-sub').textContent = `${total} photo${total>1?'s':''} imported`;
+  const doneBtn = document.getElementById('rec-bulk-done');
+  if (doneBtn) doneBtn.style.display = 'block';
+  aiLogPush({ source: 'recovery', status: 200, durationMs: 0, activity: `Bulk import: ${total} photos` });
+}
 
 function recCardHtml(r) {
   const img   = r.thumb
@@ -2173,16 +2343,26 @@ function recSectionHtml() {
   // Build filter options from metadata
   const activities = [...new Set(sorted.map(r => r.analysis?.activity).filter(Boolean))];
   const zones      = [...new Set(sorted.map(r => r.analysis?.zone).filter(Boolean))];
+  const timesOfDay = [...new Set(sorted.map(r => r.timeOfDay).filter(Boolean))];
+  const TOD_ORDER  = ['Morning','Afternoon','Evening','Night'];
+  timesOfDay.sort((a,b) => TOD_ORDER.indexOf(a) - TOD_ORDER.indexOf(b));
+  const months     = [...new Set(sorted.map(r => r.month || r.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+  const fmtMonth   = m => { const [y,mo] = m.split('-'); return REC_MONTHS[parseInt(mo)-1]+' '+y; };
 
   // Apply filters
   let filtered = sorted;
-  if (ui.activity) filtered = filtered.filter(r => r.analysis?.activity === ui.activity);
-  if (ui.zone)     filtered = filtered.filter(r => r.analysis?.zone === ui.zone);
+  if (ui.activity)  filtered = filtered.filter(r => r.analysis?.activity === ui.activity);
+  if (ui.zone)      filtered = filtered.filter(r => r.analysis?.zone === ui.zone);
+  if (ui.timeOfDay) filtered = filtered.filter(r => r.timeOfDay === ui.timeOfDay);
+  if (ui.month)     filtered = filtered.filter(r => (r.month || r.date?.slice(0,7)) === ui.month);
 
+  const anyFilter = ui.activity || ui.zone || ui.timeOfDay || ui.month;
   const filterChips = [
     ...activities.map(a => `<button class="rec-filter-chip${ui.activity===a?' on':''}" onclick="recSetFilter('activity','${a}')">${a}</button>`),
     ...zones.map(z      => `<button class="rec-filter-chip${ui.zone===z?' on':''}" onclick="recSetFilter('zone','${z}')">${z}</button>`),
-    (ui.activity||ui.zone) ? `<button class="rec-filter-chip" onclick="recClearFilters()" style="color:var(--accent)">✕ Clear</button>` : ''
+    ...timesOfDay.map(t => `<button class="rec-filter-chip${ui.timeOfDay===t?' on':''}" onclick="recSetFilter('timeOfDay','${t}')">${t}</button>`),
+    ...months.map(m     => `<button class="rec-filter-chip${ui.month===m?' on':''}" onclick="recSetFilter('month','${m}')">${fmtMonth(m)}</button>`),
+    anyFilter ? `<button class="rec-filter-chip" onclick="recClearFilters()" style="color:var(--accent)">✕ Clear</button>` : ''
   ].filter(Boolean).join('');
 
   const shown   = ui.collapsed ? filtered.slice(0,1) : filtered;
@@ -2196,15 +2376,21 @@ function recSectionHtml() {
         <span class="rec-section-title">Active Recovery${recoveryLogs.length ? ' ('+recoveryLogs.length+')' : ''}</span>
         ${recoveryLogs.length ? chevron : ''}
       </button>
-      <button class="rec-add-btn" onclick="recOpenSheet()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Log session
-      </button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="rec-bulk-btn" onclick="recBulkImport()" title="Bulk import photos">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Bulk import
+        </button>
+        <button class="rec-add-btn" onclick="recOpenSheet()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Log session
+        </button>
+      </div>
     </div>
-    ${!recoveryLogs.length ? `<div class="rec-empty">No recovery sessions logged yet.</div>` : `
+    ${!recoveryLogs.length ? `<div class="rec-empty">No recovery sessions logged yet. Tap <strong>Log session</strong> or <strong>Bulk import</strong> to get started.</div>` : `
       ${filterChips ? `<div class="rec-filters">${filterChips}</div>` : ''}
       ${filtered.length ? `<div class="rec-list">${cards}</div>` : `<div class="rec-empty">No sessions match this filter.</div>`}
-      ${!ui.collapsed && hasMore && filtered.length > 1 ? '' : ui.collapsed && hasMore ? `<button class="rec-show-more" onclick="recToggle()">Show all ${filtered.length} sessions ↓</button>` : ''}
+      ${!ui.collapsed && hasMore ? '' : ui.collapsed && hasMore ? `<button class="rec-show-more" onclick="recToggle()">Show all ${filtered.length} sessions ↓</button>` : ''}
     `}
   </div>`;
 }
@@ -2222,8 +2408,7 @@ function recSetFilter(key, val) {
 }
 
 function recClearFilters() {
-  window._recUI.activity = null;
-  window._recUI.zone = null;
+  Object.assign(window._recUI, { activity: null, zone: null, timeOfDay: null, month: null });
   renderInsights();
 }
 
@@ -2303,6 +2488,23 @@ async function recPhotoSelected(input) {
   const file = input.files[0];
   if (!file) return;
   const key = localStorage.getItem('hd_claude_key');
+
+  // Extract EXIF date before resizing (needs raw buffer)
+  try {
+    const buf  = await file.arrayBuffer();
+    const exif = parseExifDate(extractExifDate(buf));
+    if (exif) {
+      const [y, m, d] = exif.date.split('-');
+      const dayEl = document.getElementById('rec-day');   if (dayEl)   dayEl.value = d;
+      const monEl = document.getElementById('rec-month'); if (monEl)   monEl.value = m;
+      const yrEl  = document.getElementById('rec-year');  if (yrEl)    yrEl.value  = y;
+      const dBtn  = document.getElementById('rdb-day');   if (dBtn)    dBtn.querySelector('.rec-date-btn-val').textContent = d;
+      const mBtn  = document.getElementById('rdb-month'); if (mBtn)    mBtn.querySelector('.rec-date-btn-val').textContent = REC_MONTHS[parseInt(m)-1];
+      const yBtn  = document.getElementById('rdb-year');  if (yBtn)    yBtn.querySelector('.rec-date-btn-val').textContent = y;
+      window._recState.exif = exif;
+    }
+  } catch(e) { /* EXIF read failed — leave date as today */ }
+
   const resized = await recResizeImage(file, 512);
   window._recState.thumb = resized.dataUrl;
   window._recState.b64   = resized.b64;
@@ -2355,7 +2557,8 @@ function recSave() {
   const note = document.getElementById('rec-note')?.value.trim() || '';
   const s    = window._recState || {};
   if (!s.thumb && !note) { toast('Add a photo or note first', true); return; }
-  recoveryLogs.push({ id: 'r'+Date.now()+Math.random().toString(36).slice(2,5), date, thumb: s.thumb||null, note, analysis: s.analysis||null, savedAt: new Date().toISOString() });
+  const exif = s.exif || null;
+  recoveryLogs.push({ id: 'r'+Date.now()+Math.random().toString(36).slice(2,5), date, time: exif?.time||null, timeOfDay: exif ? getTimeOfDay(exif.hour) : null, month: date.slice(0,7), thumb: s.thumb||null, note, analysis: s.analysis||null, savedAt: new Date().toISOString() });
   saveRecovery();
   recCloseSheet();
   renderInsights();
