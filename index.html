@@ -2545,6 +2545,53 @@ function recOpenDetail(id) {
   sheet.addEventListener('touchend',   e => { if (!drag) return; drag = false; if (e.changedTouches[0].clientY - dy0 > 80) ov.remove(); else sheet.style.transform = ''; }, { passive: true });
 }
 
+async function recReanalyseAll() {
+  const key = localStorage.getItem('hd_claude_key');
+  if (!key) { toast('No API key set', true); return; }
+  const targets = recoveryLogs.filter(r => r.hasPhoto || r.thumb);
+  if (!targets.length) { toast('No sessions with photos to analyse', true); return; }
+  const btn = document.getElementById('dbg-reanalyse-btn');
+  if (btn) { btn.disabled = true; }
+  let done = 0, failed = 0;
+  const prompt = `You are a coach for Mike Mentzer's Heavy Duty training — HIT means Heavy Duty high-intensity weight training, NOT HIIT cardio. This photo shows an ACTIVE RECOVERY session (light cardio or movement done between heavy weight training sessions to aid recovery). Analyse the photo and respond ONLY with raw JSON:\n{"activity":"e.g. Cycling","zone":"e.g. Zone 2","duration":"e.g. 30 min or null","observations":"1 sentence describing what you see","recommendation":"1 sentence on how this active recovery session supports recovery from heavy compound weight training"}`;
+  for (const r of targets) {
+    if (btn) btn.textContent = `Analysing ${done + 1} / ${targets.length}…`;
+    try {
+      const dataUrl = await recLoadPhoto(r.id);
+      if (!dataUrl) { failed++; continue; }
+      const b64 = dataUrl.split(',')[1];
+      let success = false;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+          body: JSON.stringify({ model: 'claude-opus-4-8', max_tokens: 400, messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } }, { type: 'text', text: prompt }] }] })
+        });
+        if (res.status === 429 || res.status === 529) {
+          if (btn) btn.textContent = `Rate limited — waiting ${attempt * 10}s…`;
+          await new Promise(r => setTimeout(r, attempt * 10000));
+          continue;
+        }
+        if (res.ok) {
+          const data = await res.json();
+          const raw = (data.content||[]).find(b => b.type==='text')?.text||'';
+          const m = raw.replace(/```[a-z]*\n?/gi,'').trim().match(/\{[\s\S]*\}/);
+          if (m) { r.analysis = JSON.parse(m[0]); success = true; }
+        }
+        break;
+      }
+      if (!success) failed++;
+    } catch(e) { failed++; }
+    done++;
+    saveRecovery();
+    await new Promise(r => setTimeout(r, 1500));
+  }
+  aiRenderLog();
+  if (cur === 'insights') renderInsights();
+  toast(`Re-analysis complete — ${done - failed} updated, ${failed} failed`, false);
+  if (btn) { btn.disabled = false; btn.textContent = `Re-analyse all ${targets.length} sessions`; }
+}
+
 async function recReanalyse(id) {
   const r = recoveryLogs.find(x => x.id === id);
   if (!r) return;
@@ -3185,8 +3232,16 @@ function aiDebugState() {
     rows.push(['Last recovery', lastRec.date + ' · ' + (lastRec.analysis?.activity || lastRec.note || '—')]);
     rows.push(['Last rec AI', lastRec.analysis ? (lastRec.analysis.zone || '—') : 'no analysis']);
   }
+  const withPhoto = recoveryLogs.filter(r => r.hasPhoto || r.thumb).length;
+  const noAnalysis = recoveryLogs.filter(r => !r.analysis).length;
+  const actionRow = localStorage.getItem('hd_claude_key') && withPhoto ? `
+    <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+      <button onclick="recReanalyseAll()" id="dbg-reanalyse-btn" style="width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase">
+        Re-analyse all ${withPhoto} sessions${noAnalysis ? ' ('+noAnalysis+' missing)' : ''}
+      </button>
+    </div>` : '';
   return rows.map(([k,v]) => `<div style="display:flex;justify-content:space-between;padding:7px 14px;border-bottom:1px solid var(--border);font-size:11px;font-family:monospace">
-    <span style="color:var(--text-3)">${k}</span><span style="color:var(--text)">${v}</span></div>`).join('');
+    <span style="color:var(--text-3)">${k}</span><span style="color:var(--text)">${v}</span></div>`).join('') + actionRow;
 }
 
 window._aiDebugTab = window._aiDebugTab || 'log';
