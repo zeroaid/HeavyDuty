@@ -2202,6 +2202,8 @@ async function recPhotoSelected(input) {
   const saveBtn = document.getElementById('rec-save-btn');
   if (box) { box.style.display = ''; box.innerHTML = '<div style="display:flex;align-items:center;gap:8px;color:var(--text-3);font-size:12px"><div class="ai-loading" style="padding:0"><span></span><span></span><span></span></div>Analysing with Claude…</div>'; }
   if (saveBtn) saveBtn.disabled = true;
+  const t0 = Date.now();
+  let httpStatus = null, requestId = null;
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -2215,15 +2217,19 @@ async function recPhotoSelected(input) {
         ]}]
       })
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    httpStatus = res.status;
+    requestId  = res.headers.get('request-id') || res.headers.get('x-request-id') || '';
+    if (!res.ok) { const t = await res.text(); throw new Error((() => { try { return JSON.parse(t).error?.message || `HTTP ${res.status}`; } catch(e) { return `HTTP ${res.status}`; } })()); }
     const data = await res.json();
     const raw  = (data.content || []).find(b => b.type === 'text')?.text || '';
     const m    = raw.replace(/```[a-z]*\n?/gi,'').trim().match(/\{[\s\S]*\}/);
     const parsed = m ? JSON.parse(m[0]) : null;
     if (!parsed) throw new Error('Could not parse response');
     window._recState.analysis = parsed;
+    aiLogPush({ source: 'recovery', status: httpStatus, requestId, durationMs: Date.now()-t0, activity: parsed.activity, zone: parsed.zone });
     if (box) box.innerHTML = `<strong>${parsed.activity}${parsed.zone ? ' · '+parsed.zone : ''}${parsed.duration ? ' · '+parsed.duration : ''}</strong><br>${parsed.observations}<br><span style="color:var(--text-3);font-size:11px;margin-top:4px;display:block">${parsed.recommendation}</span>`;
   } catch(err) {
+    aiLogPush({ source: 'recovery', status: httpStatus, requestId, durationMs: Date.now()-t0, error: err.message });
     if (box) box.innerHTML = `<span style="color:var(--text-3);font-size:12px">Analysis unavailable — ${err.message}</span>`;
   } finally {
     if (saveBtn) saveBtn.disabled = false;
@@ -2478,22 +2484,58 @@ function aiToggleLog() {
   if (!open) aiRenderLog();
 }
 
+function aiDebugState() {
+  const lsSize = Object.keys(localStorage).reduce((acc, k) => acc + (localStorage.getItem(k)||'').length, 0);
+  const profile = getProfile();
+  const lastRec = recoveryLogs.length ? recoveryLogs[recoveryLogs.length - 1] : null;
+  const rows = [
+    ['Workouts', workouts.length],
+    ['Recovery logs', recoveryLogs.length],
+    ['Profile saved', profile ? profile.savedAt || '✓' : '✗'],
+    ['API key', localStorage.getItem('hd_claude_key') ? '✓ present' : '✗ missing'],
+    ['localStorage', (lsSize / 1024).toFixed(1) + ' KB'],
+    ['SW cache', 'heavy-duty-v10'],
+  ];
+  if (lastRec) {
+    rows.push(['Last recovery', lastRec.date + ' · ' + (lastRec.analysis?.activity || lastRec.note || '—')]);
+    rows.push(['Last rec AI', lastRec.analysis ? (lastRec.analysis.zone || '—') : 'no analysis']);
+  }
+  return rows.map(([k,v]) => `<div style="display:flex;justify-content:space-between;padding:7px 14px;border-bottom:1px solid var(--border);font-size:11px;font-family:monospace">
+    <span style="color:var(--text-3)">${k}</span><span style="color:var(--text)">${v}</span></div>`).join('');
+}
+
+window._aiDebugTab = window._aiDebugTab || 'log';
+
 function aiRenderLog() {
   const panel = document.getElementById('ai-log-panel');
   if (!panel) return;
-  if (!window._aiLog.length) { panel.innerHTML = '<div style="padding:12px 16px;font-size:12px;color:var(--text-3)">No entries yet.</div>'; return; }
-  panel.innerHTML = window._aiLog.map((e, i) => {
-    const ok = e.status >= 200 && e.status < 300;
-    const colour = ok ? 'var(--green)' : 'var(--accent)';
-    const summary = `${e.ts.slice(11,19)}  HTTP ${e.status||'—'}  ${e.requestId||''}  ${e.durationMs ? e.durationMs+'ms' : ''}`;
-    const detail = JSON.stringify(e, null, 2).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return `<div style="border-bottom:1px solid var(--border);padding:10px 14px">
-      <div style="font-size:11px;font-family:monospace;color:${colour};margin-bottom:4px">${summary}</div>
-      ${e.error ? `<div style="font-size:12px;color:var(--accent);margin-bottom:4px">${e.error}</div>` : ''}
-      <details><summary style="font-size:11px;color:var(--text-3);cursor:pointer">Raw</summary>
-      <pre style="font-size:10px;color:var(--text-2);white-space:pre-wrap;word-break:break-all;margin-top:6px;max-height:200px;overflow-y:auto">${detail}</pre></details>
-    </div>`;
-  }).join('');
+  const tab = window._aiDebugTab;
+  const tabBtn = (id, label) => `<button onclick="window._aiDebugTab='${id}';aiRenderLog()" style="flex:1;padding:7px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;background:${tab===id?'var(--surface-3)':'transparent'};border:none;border-bottom:2px solid ${tab===id?'var(--accent)':'transparent'};color:${tab===id?'var(--text)':'var(--text-3)'};cursor:pointer">${label}</button>`;
+  const tabs = `<div style="display:flex;border-bottom:1px solid var(--border)">${tabBtn('log','API Log')}${tabBtn('state','State')}</div>`;
+
+  if (tab === 'state') {
+    panel.innerHTML = tabs + aiDebugState();
+    return;
+  }
+
+  const entries = !window._aiLog.length
+    ? '<div style="padding:12px 16px;font-size:12px;color:var(--text-3)">No API calls yet.</div>'
+    : window._aiLog.map(e => {
+        const ok     = e.status >= 200 && e.status < 300;
+        const colour = ok ? 'var(--green)' : 'var(--accent)';
+        const badge  = e.source === 'recovery' ? '<span style="font-size:9px;background:#1a4a2e;color:#4ade80;padding:1px 5px;border-radius:2px;margin-right:6px;font-weight:700">REC</span>' : '<span style="font-size:9px;background:#3a1010;color:var(--accent);padding:1px 5px;border-radius:2px;margin-right:6px;font-weight:700">AI</span>';
+        const summary = `${e.ts.slice(11,19)}  HTTP ${e.status||'—'}  ${e.durationMs ? e.durationMs+'ms' : ''}`;
+        const detail  = JSON.stringify(e, null, 2).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        return `<div style="border-bottom:1px solid var(--border);padding:10px 14px">
+          <div style="font-size:11px;font-family:monospace;color:${colour};margin-bottom:4px">${badge}${summary}</div>
+          ${e.error ? `<div style="font-size:12px;color:var(--accent);margin-bottom:4px">${e.error}</div>` : ''}
+          ${e.activity ? `<div style="font-size:11px;color:var(--text-2);margin-bottom:4px">↳ ${e.activity}${e.zone?' · '+e.zone:''}</div>` : ''}
+          <details><summary style="font-size:11px;color:var(--text-3);cursor:pointer">Raw</summary>
+          <pre style="font-size:10px;color:var(--text-2);white-space:pre-wrap;word-break:break-all;margin-top:6px;max-height:200px;overflow-y:auto">${detail}</pre></details>
+        </div>`;
+      }).join('');
+
+  panel.innerHTML = tabs + entries;
 }
 
 function aiFollowUp() {
