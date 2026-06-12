@@ -1858,10 +1858,10 @@ function renderSettings() {
             </div>
           </div>
         </div>
-        <div class="settings-row" onclick="gdBackup()">
+        <div class="settings-row" onclick="gdBackup(true)">
           <div class="settings-row-left">
             <div class="settings-icon" style="background:var(--green-bg);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.46"/></svg></div>
-            <div><div class="settings-row-title">Backup Now</div><div class="settings-row-sub">Upload latest data to Drive</div></div>
+            <div><div class="settings-row-title">Backup Now${localStorage.getItem('hd_gd_pending') ? ' <span style="color:var(--accent);font-size:11px;font-weight:700">● Pending</span>' : ''}</div><div class="settings-row-sub">Upload latest data to Drive</div></div>
           </div>
           <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
         </div>
@@ -3698,16 +3698,22 @@ async function gdGetValidToken() {
   });
 }
 
-async function gdBackup() {
+async function gdBackup(userInitiated = false) {
   const token = await gdGetValidToken();
   if (!token) {
     if (localStorage.getItem('hd_gd_email')) {
-      toast('Drive session expired — tap Connect to re-authenticate', true);
-      // Clear stale token so settings shows reconnect option
-      localStorage.removeItem('hd_gd_token');
-      localStorage.removeItem('hd_gd_expiry');
-      localStorage.removeItem('hd_gd_email');
-      if (cur === 'settings') renderSettings();
+      if (userInitiated) {
+        toast('Drive session expired — tap Connect to re-authenticate', true);
+        localStorage.removeItem('hd_gd_token');
+        localStorage.removeItem('hd_gd_expiry');
+        localStorage.removeItem('hd_gd_email');
+        localStorage.removeItem('hd_gd_pending');
+        if (cur === 'settings') renderSettings();
+      } else {
+        // Background backup — token expired, don't pop up, just flag as pending
+        localStorage.setItem('hd_gd_pending', '1');
+        if (cur === 'settings') renderSettings();
+      }
     }
     return;
   }
@@ -3743,6 +3749,7 @@ async function gdBackup() {
     const file = await resp.json();
     localStorage.setItem('hd_gd_file_id',      file.id);
     localStorage.setItem('hd_gd_last_backup',   String(Date.now()));
+    localStorage.removeItem('hd_gd_pending');
     toast('Backed up to Google Drive ✓', false);
     if (cur === 'settings') renderSettings();
   } catch (e) {
@@ -3752,7 +3759,10 @@ async function gdBackup() {
 
 function gdScheduleBackup() {
   clearTimeout(gdBackupTimer);
-  gdBackupTimer = setTimeout(() => { if (localStorage.getItem('hd_gd_email')) gdBackup(); }, 4000);
+  gdBackupTimer = setTimeout(() => {
+    if (gdIsConnected()) gdBackup();
+    else if (localStorage.getItem('hd_gd_email')) { localStorage.setItem('hd_gd_pending', '1'); if (cur === 'settings') renderSettings(); }
+  }, 4000);
 }
 
 // Pre-load GIS if previously connected (email = ever connected; token may have expired)
