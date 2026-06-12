@@ -3752,7 +3752,7 @@ async function gdBackup() {
 
 function gdScheduleBackup() {
   clearTimeout(gdBackupTimer);
-  gdBackupTimer = setTimeout(() => { if (gdIsConnected()) gdBackup(); }, 4000);
+  gdBackupTimer = setTimeout(() => { if (localStorage.getItem('hd_gd_email')) gdBackup(); }, 4000);
 }
 
 // Pre-load GIS if previously connected
