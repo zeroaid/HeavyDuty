@@ -16,17 +16,44 @@ This app tracks your Consolidated and Legacy split workouts, logs every set with
 
 ## Features
 
+### Workout Tracking
 - **Workout logging** — A1/A2 (Consolidated) and Legacy Upper/Lower splits
 - **Progressive overload tracking** — see your last performance on every exercise before you lift
 - **Rest-pause set support** — log RP clusters with the exact cadence Mentzer prescribed
-- **Workout history** — full session log with calendar view and filtering
-- **Athlete profile** — training age, goal, recovery factors fed into AI analysis
-- **AI Insights** — Claude-powered analysis of your training data (bring your own API key)
-- **JSON backup / restore** — full export including workout history and athlete profile
-- **Google Drive auto-backup** — optional sync after every session
+- **Rest timer** — automatic countdown between sets
+- **Workout history** — full session log with calendar view and date filtering
 - **Exercise guide** — cues, technique notes, and Mentzer quotes for every movement
+
+### Active Recovery
+- **Recovery session logging** — log light cardio and movement sessions between heavy training days
+- **Photo capture** — attach a photo to each recovery session via camera or gallery
+- **AI photo analysis** — Claude analyses each photo and identifies activity, heart rate zone, duration, and recovery observations
+- **Bulk photo import** — import multiple sessions at once from your camera roll
+- **Duplicate detection** — SHA-256 fingerprinting prevents the same photo being imported twice
+- **Re-analyse** — re-run AI analysis on any individual session or all sessions at once
+- **Recovery filtering** — filter by activity type, zone, time of day, or month
+- **Pull-down to dismiss** — swipe down to close any recovery sheet
+
+### AI Insights
+- **Training analysis** — Claude-powered deep-dive into your workout history, progressive overload trends, and recovery patterns
+- **HIT-specific coaching** — analysis framed around Heavy Duty principles, not generic fitness advice
+- **Athlete profile** — age, training history, goal, and lifestyle factors fed into every analysis
+- **API key management** — bring your own Anthropic key, stored only in `localStorage`
+
+### Data & Backup
+- **JSON backup / restore** — full export including workouts, recovery logs, photos, and athlete profile (v3 format)
+- **Google Drive auto-backup** — automatic sync after every save when token is valid; pending indicator when re-auth is needed
+- **IndexedDB photo storage** — photos stored in IndexedDB (no localStorage quota limits)
+- **Automatic migration** — existing photos migrate from localStorage to IndexedDB on first launch
+
+### App
 - **Offline-first PWA** — works without a connection once installed
 - **Native Android app** — TWA with black navigation bar, no browser chrome
+- **Android back button support** — back button closes overlays and sheets before navigating screens
+- **Dark / light theme** — follows system preference
+- **Calendar view** — monthly overview of training and recovery sessions
+- **Debug panel** — tap Insights title 5× to access API log and app state (for troubleshooting)
+- **Version footer** — live version, date, and time in Settings
 
 ---
 
@@ -53,10 +80,12 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Data & privacy
 
-- All workout data is stored in your browser's `localStorage`
+- Workout and recovery metadata stored in `localStorage`
+- Photos stored in `IndexedDB` — no quota limits
 - No server, no account, no analytics
 - Export your data any time: Settings → Export JSON Backup
 - Optional Google Drive backup stores one JSON file in your own Drive account
+- Your Claude API key never leaves your device
 
 ---
 
@@ -68,9 +97,31 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 | Hosting | GitHub Pages |
 | PWA | Service worker (`sw.js`), Web App Manifest |
 | Android | Trusted Web Activity via `android-browser-helper` |
-| AI | Anthropic Claude API — raw `fetch` SSE streaming |
-| Storage | `localStorage` only |
+| AI | Anthropic Claude API (`claude-opus-4-8`) — raw `fetch` |
+| Storage | `localStorage` + `IndexedDB` (photos) |
 | Build | GitHub Actions (TWA APK signing + release) |
+
+---
+
+## Changelog
+
+### v1.0.1
+- Fixed HIT Recommendation text contrast — now readable in normal lighting
+- Fixed Google Drive auto-backup triggering a popup in the background
+- Fixed Google Drive auto-backup not firing when token had expired
+- Fixed Android back button — now closes overlays and sheets before leaving the screen
+- Improved "+ Log Session" button — full-width accent CTA inspired by top fitness apps
+
+### v1.0.0
+- Initial release
+- Workout tracking (Consolidated + Legacy splits)
+- Active Recovery logging with AI photo analysis
+- Google Drive backup
+- JSON export / import (v3 format with photos)
+- IndexedDB photo storage with automatic migration
+- Bulk photo import with duplicate detection and rate-limit retry
+- AI Insights powered by Claude
+- PWA + Android TWA
 
 ---
 
