@@ -3755,8 +3755,8 @@ function gdScheduleBackup() {
   gdBackupTimer = setTimeout(() => { if (localStorage.getItem('hd_gd_email')) gdBackup(); }, 4000);
 }
 
-// Pre-load GIS if previously connected
-if (localStorage.getItem('hd_gd_token')) gdLoad();
+// Pre-load GIS if previously connected (email = ever connected; token may have expired)
+if (localStorage.getItem('hd_gd_email')) gdLoad();
 
 // ── Calendar ──────────────────────────────────────────
 let calMonth, calYear;
