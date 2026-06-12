@@ -20,7 +20,6 @@ This app tracks your Consolidated and Legacy split workouts, logs every set with
 - **Workout logging** — A1/A2 (Consolidated) and Legacy Upper/Lower splits
 - **Progressive overload tracking** — see your last performance on every exercise before you lift
 - **Rest-pause set support** — log RP clusters with the exact cadence Mentzer prescribed
-- **Rest timer** — automatic countdown between sets
 - **Workout history** — full session log with calendar view and date filtering
 - **Exercise guide** — cues, technique notes, and Mentzer quotes for every movement
 
