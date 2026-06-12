@@ -1153,6 +1153,14 @@ function go(screen, opts={}, fromPop=false) {
 }
 
 window.addEventListener('popstate', e => {
+  // Close any open overlay first before navigating screens
+  const detail = document.getElementById('rec-detail-ov');
+  if (detail) { detail.remove(); return; }
+  const sheet = document.getElementById('rec-overlay');
+  if (sheet) { recCloseSheet(); return; }
+  const bulk = document.getElementById('rec-bulk-overlay');
+  if (bulk) { bulk.remove(); return; }
+
   const state = e.state;
   if (state && state.screen) {
     go(state.screen, state.opts || {}, true);
@@ -2508,6 +2516,7 @@ function recCardHtml(r) {
 function recOpenDetail(id) {
   const r = recoveryLogs.find(x => x.id === id);
   if (!r) return;
+  history.pushState({ overlay: 'rec-detail' }, '');
   const title = r.analysis?.activity || r.note || 'Recovery session';
   const stats = [
     r.analysis?.zone     && { val: r.analysis.zone,     lbl: 'Zone' },
@@ -2827,6 +2836,7 @@ function recDelete(id) {
 }
 
 function recOpenSheet() {
+  history.pushState({ overlay: 'rec-sheet' }, '');
   window._recState = { thumb: null, b64: null, mediaType: null, analysis: null };
   const overlay = document.createElement('div');
   overlay.className = 'rec-overlay';
