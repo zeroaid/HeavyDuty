@@ -48,11 +48,8 @@ This app tracks your Consolidated and Legacy split workouts, logs every set with
 ### App
 - **Offline-first PWA** — works without a connection once installed
 - **Native Android app** — TWA with black navigation bar, no browser chrome
-- **Android back button support** — back button closes overlays and sheets before navigating screens
-- **Dark / light theme** — follows system preference
 - **Calendar view** — monthly overview of training and recovery sessions
-- **Debug panel** — tap Insights title 5× to access API log and app state (for troubleshooting)
-- **Version footer** — live version, date, and time in Settings
+- **Dark theme** — full dark UI optimised for gym lighting
 
 ---
 
