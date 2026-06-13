@@ -4944,8 +4944,8 @@ function _renderCustomWkForm(name, exs) {
         </div>
       </div>
       <div class="custom-form-footer">
-        <button class="btn-save" style="margin:0" onclick="cwFormSave()">${_cwFormId || _cwFormIsBuiltIn ? 'Save Changes' : 'Create Workout'}</button>
-        ${_cwFormIsBuiltIn ? `<button class="sheet-btn sheet-btn-danger" style="width:100%;margin:0;padding:15px;border-radius:var(--r-md)" onclick="cwFormDelete()">Reset to Default</button>` : (_cwFormId ? `<button class="sheet-btn sheet-btn-danger" style="width:100%;margin:0;padding:15px;border-radius:var(--r-md)" onclick="cwFormDelete()">Delete Workout</button>` : '')}
+        <button class="btn-save" style="margin:0;width:100%" onclick="cwFormSave()">${_cwFormId || _cwFormIsBuiltIn ? 'Save Changes' : 'Create Workout'}</button>
+        ${_cwFormIsBuiltIn ? `<button class="sheet-btn sheet-btn-danger" style="width:100%;margin:0;padding:18px;border-radius:var(--r-lg)" onclick="cwFormDelete()">Reset to Default</button>` : (_cwFormId ? `<button class="sheet-btn sheet-btn-danger" style="width:100%;margin:0;padding:18px;border-radius:var(--r-lg)" onclick="cwFormDelete()">Delete Workout</button>` : '')}
       </div>
     </div>`;
   window._cwFormExs = [...exs];
@@ -5126,7 +5126,7 @@ Analyse this modification under Mike Mentzer's Heavy Duty / HIT principles. Be d
       },
       body: JSON.stringify({
         model: 'claude-opus-4-8',
-        max_tokens: 350,
+        max_tokens: 700,
         stream: true,
         messages: [{ role: 'user', content: prompt }],
       }),
