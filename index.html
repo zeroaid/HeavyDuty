@@ -605,6 +605,23 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .custom-form-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:300; display:flex; align-items:flex-end; }
 .custom-form-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; max-height:88vh; overflow-y:auto; }
 .custom-form-head { padding:16px 20px 14px; border-bottom:1px solid var(--border); }
+/* Workout mod AI analysis sheet */
+.wkmod-analysis-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:400; display:flex; align-items:flex-end; }
+.wkmod-analysis-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; max-height:82vh; display:flex; flex-direction:column; }
+.wkmod-analysis-head { padding:16px 20px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.wkmod-analysis-title { font-size:16px; font-weight:800; color:var(--text); }
+.wkmod-analysis-subtitle { font-size:11px; color:var(--text-3); margin-top:2px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; }
+.wkmod-analysis-body { padding:20px; overflow-y:auto; flex:1; }
+.wkmod-analysis-text { font-size:14px; line-height:1.7; color:var(--text-2); white-space:pre-wrap; }
+.wkmod-analysis-text strong { color:var(--text); font-weight:700; }
+.wkmod-analysis-loading { display:flex; align-items:center; gap:10px; color:var(--text-3); font-size:13px; padding:8px 0; }
+.wkmod-analysis-loading-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); animation:pulse 1.2s infinite; }
+.wkmod-analysis-loading-dot:nth-child(2) { animation-delay:0.2s; }
+.wkmod-analysis-loading-dot:nth-child(3) { animation-delay:0.4s; }
+.wkmod-analysis-footer { padding:14px 20px max(env(safe-area-inset-bottom,0px),20px); border-top:1px solid var(--border); flex-shrink:0; }
+.wkmod-analysis-warn { font-size:11px; color:var(--text-3); margin-top:10px; text-align:center; }
+/* Mentzer verdict badge on home row */
+.wk-analysis-chip { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700; letter-spacing:0.5px; padding:2px 7px; border-radius:10px; background:rgba(212,20,20,0.12); color:var(--accent); border:1px solid rgba(212,20,20,0.2); cursor:pointer; margin-left:6px; vertical-align:middle; }
 .cw-form-add-btn { width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-md); padding:13px; font-size:13px; font-weight:700; color:var(--text-2); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; -webkit-tap-highlight-color:transparent; }
 .cw-form-add-btn:active { background:rgba(255,255,255,0.06); }
 
@@ -1357,11 +1374,15 @@ function renderHome() {
     const fg  = isLegacy ? '#94a3b8'               : 'var(--accent)';
     const badge = isNext ? ' <span class="next-pill">NEXT</span>' : '';
     const editedBadge = isEdited ? ' <span class="next-pill" style="background:rgba(255,255,255,0.15);color:var(--text-2)">EDITED</span>' : '';
+    const hasAnalysis = isEdited && wkModAnalysis[t];
+    const analysisChip = isEdited
+      ? ` <span class="wk-analysis-chip" onclick="event.stopPropagation();showWkModAnalysis('${t}')">${hasAnalysis ? '✦ AI REVIEW' : '✦ ANALYSE'}</span>`
+      : '';
     return `<div class="cw-row" onclick="go('log',{type:'${t}'})">
       <div class="cw-row-icon" style="background:${bg};color:${fg}">${WK_ICON[t]}</div>
       <div class="cw-row-body">
         <div class="cw-row-name">${wk.label}${badge}${editedBadge}</div>
-        <div class="cw-row-sub">${resolveWk(t).desc}</div>
+        <div class="cw-row-sub">${resolveWk(t).desc}${analysisChip}</div>
       </div>
       <button class="cw-row-edit-btn" onclick="event.stopPropagation();openWkEditForm('${t}')">${SVG.pencil}</button>
     </div>`;
@@ -2184,12 +2205,19 @@ function confirmDelete(id) {
   });
 }
 
+function refreshCurrent() {
+  if (cur === 'home')     renderHome();
+  if (cur === 'history')  renderHistory();
+  if (cur === 'settings') renderSettings();
+  if (cur === 'insights') renderInsights();
+  if (cur === 'guide')    renderGuide();
+}
+
 function saveClaudeKey(val) {
   const v = val.trim();
   if (v) localStorage.setItem('hd_claude_key', v);
   else localStorage.removeItem('hd_claude_key');
-  const status = document.getElementById('claude-key-status');
-  if (status) { status.textContent = v ? '✓ API key saved' : 'No key saved'; status.style.color = v ? 'var(--green)' : 'var(--text-3)'; }
+  renderSettings();
 }
 
 function toggleClaudeKeyVisibility() {
@@ -3373,6 +3401,7 @@ function apSave() {
   localStorage.setItem('hd_profile', JSON.stringify(p));
   window._apEditing = false;
   renderInsights();
+  if (cur === 'home') renderHome();
   toast('Profile saved', false);
 }
 
@@ -4633,7 +4662,8 @@ function renderGuide() {
 // ══════════════════════════════════════════════════════
 
 let customWks = [];
-let wkMods = {}; // overrides for built-in workouts {A1:[...exs], ...}
+let wkMods = {};       // overrides for built-in workouts {A1:[...exs], ...}
+let wkModAnalysis = {}; // cached Mentzer AI analysis {A1:'text', ...}
 
 function loadCustomWks() {
   try { customWks = JSON.parse(localStorage.getItem('hd_custom_wks') || '[]'); } catch(e) { customWks = []; }
@@ -4641,7 +4671,11 @@ function loadCustomWks() {
 function loadWkMods() {
   try { wkMods = JSON.parse(localStorage.getItem('hd_wk_mods') || '{}'); } catch(e) { wkMods = {}; }
 }
+function loadWkModAnalysis() {
+  try { wkModAnalysis = JSON.parse(localStorage.getItem('hd_wk_analysis') || '{}'); } catch(e) { wkModAnalysis = {}; }
+}
 function saveWkMods() { localStorage.setItem('hd_wk_mods', JSON.stringify(wkMods)); }
+function saveWkModAnalysis() { localStorage.setItem('hd_wk_analysis', JSON.stringify(wkModAnalysis)); }
 function saveCustomWks() {
   localStorage.setItem('hd_custom_wks', JSON.stringify(customWks));
 }
@@ -4939,11 +4973,18 @@ function cwFormRemoveEx(i) {
 function cwFormSave() {
   if (!window._cwFormExs.length) { toast('Add at least one exercise', true); return; }
   if (_cwFormIsBuiltIn) {
-    wkMods[_cwFormId] = [...window._cwFormExs];
+    const type = _cwFormId;
+    wkMods[type] = [...window._cwFormExs];
     saveWkMods();
     closeCustomWkForm();
     renderHome();
     toast('Workout updated', false);
+    // Trigger Mentzer AI analysis if key available
+    if (localStorage.getItem('hd_claude_key')) {
+      delete wkModAnalysis[type]; // clear stale analysis
+      saveWkModAnalysis();
+      setTimeout(() => showWkModAnalysis(type), 400);
+    }
     return;
   }
   const name = (document.getElementById('cw-name')?.value || '').trim();
@@ -4982,9 +5023,151 @@ function closeCustomWkForm() {
   document.getElementById('custom-form-overlay')?.remove();
 }
 
+// ── Mentzer AI Workout Analysis ───────────────────────────
+
+function closeWkModAnalysis() {
+  document.getElementById('wkmod-analysis-overlay')?.remove();
+}
+
+function showWkModAnalysis(type) {
+  const key = localStorage.getItem('hd_claude_key');
+  if (!key) return;
+
+  const original = WK[type];
+  const modified = wkMods[type] || original.exs;
+  const cached   = wkModAnalysis[type];
+
+  let el = document.getElementById('wkmod-analysis-overlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'wkmod-analysis-overlay';
+    el.className = 'wkmod-analysis-overlay';
+    document.body.appendChild(el);
+  }
+
+  const bodyId  = 'wkmod-analysis-body';
+  const textId  = 'wkmod-analysis-text';
+  const closeX  = `<button onclick="closeWkModAnalysis()" style="background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;line-height:0">${SVG.x}</button>`;
+
+  el.innerHTML = `
+    <div class="wkmod-analysis-sheet">
+      <div class="wkmod-analysis-head">
+        <div>
+          <div class="wkmod-analysis-title">Mentzer's Verdict</div>
+          <div class="wkmod-analysis-subtitle">${original.label}</div>
+        </div>
+        ${closeX}
+      </div>
+      <div class="wkmod-analysis-body" id="${bodyId}">
+        ${cached
+          ? `<div class="wkmod-analysis-text" id="${textId}">${_renderAnalysisMarkdown(cached)}</div>`
+          : `<div class="wkmod-analysis-loading" id="${textId}">
+               <div class="wkmod-analysis-loading-dot"></div>
+               <div class="wkmod-analysis-loading-dot"></div>
+               <div class="wkmod-analysis-loading-dot"></div>
+               <span>Analysing with Claude…</span>
+             </div>`}
+      </div>
+      <div class="wkmod-analysis-footer">
+        <button class="btn-save" style="margin:0;width:100%" onclick="closeWkModAnalysis()">Got it</button>
+        ${cached ? `<div class="wkmod-analysis-warn">Tap the AI chip on the workout row to re-analyse</div>` : ''}
+      </div>
+    </div>`;
+
+  if (!cached) _streamWkModAnalysis(type, key, original, modified, textId);
+}
+
+function _renderAnalysisMarkdown(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^#{1,3}\s+(.+)$/gm, '<strong style="font-size:13px;color:var(--text);display:block;margin:12px 0 4px">$1</strong>')
+    .replace(/^[-•]\s+(.+)$/gm, '<span style="display:block;padding-left:14px;position:relative"><span style="position:absolute;left:0">•</span>$1</span>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+async function _streamWkModAnalysis(type, key, original, modified, textId) {
+  const removed = original.exs.filter(e => !modified.includes(e));
+  const added   = modified.filter(e => !original.exs.includes(e));
+  const kept    = original.exs.filter(e => modified.includes(e));
+
+  const changeDesc = [
+    kept.length    ? `Kept: ${kept.join(', ')}`    : '',
+    removed.length ? `Removed: ${removed.join(', ')}` : '',
+    added.length   ? `Added: ${added.join(', ')}`   : '',
+  ].filter(Boolean).join('\n');
+
+  const prompt = `A user has modified their ${original.label} workout from Mike Mentzer's Heavy Duty programme.
+
+**Original Mentzer prescription:**
+${original.exs.join(', ')}
+
+**User's modified version:**
+${modified.join(', ')}
+
+**Changes made:**
+${changeDesc}
+
+Analyse this modification under Mike Mentzer's Heavy Duty / HIT principles. Be direct, specific, and honest — if they've made sound changes that align with HIT principles, validate them. If they've deviated (too much volume, poor sequencing, conflicting muscle groups, isolation before compound, etc.), call it out clearly and explain why. Keep it under 180 words. No generic preamble.`;
+
+  let fullText = '';
+  const textEl = document.getElementById(textId);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-8',
+        max_tokens: 350,
+        stream: true,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+
+    const reader = res.body.getReader();
+    const dec    = new TextDecoder();
+    let buf = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const d = JSON.parse(line.slice(6));
+          if (d.type === 'content_block_delta' && d.delta?.type === 'text_delta') {
+            fullText += d.delta.text;
+            if (textEl) textEl.innerHTML = _renderAnalysisMarkdown(fullText);
+          }
+        } catch {}
+      }
+    }
+
+    if (fullText) {
+      wkModAnalysis[type] = fullText;
+      saveWkModAnalysis();
+      renderHome(); // refresh ANALYSIS chip on home row
+    }
+  } catch (err) {
+    if (textEl) textEl.innerHTML = `<span style="color:var(--accent)">Analysis failed — check your API key in Settings.</span>`;
+  }
+}
+
 load();
 loadCustomWks();
 loadWkMods();
+loadWkModAnalysis();
 loadRecovery();
 recMigratePhotos();
 renderHome();
