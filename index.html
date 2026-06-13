@@ -4730,7 +4730,26 @@ function _renderExPicker() {
     el.id = 'ex-picker-overlay';
     el.className = 'ex-picker-overlay';
     document.body.appendChild(el);
+    el.innerHTML = `
+      <div class="ex-picker-sheet">
+        <div class="ex-picker-head">
+          <div class="ex-picker-title">Add Exercises</div>
+          <input id="ex-picker-search-input" class="ex-picker-search" type="text"
+                 placeholder="Search exercises…" autocomplete="nope" spellcheck="false"
+                 oninput="_exPickerType(this.value)">
+          <div id="ex-picker-chips-row" class="ex-picker-chips"></div>
+        </div>
+        <div id="ex-picker-results" class="ex-picker-list"></div>
+        <div class="ex-picker-footer">
+          <button class="rec-sheet-cancel" style="flex:1" onclick="exPickerCancel()">Cancel</button>
+          <button id="ex-picker-confirm-btn" class="rec-sheet-save" style="flex:2" onclick="exPickerConfirm()">Select exercises</button>
+        </div>
+      </div>`;
   }
+  _updateExPickerResults();
+}
+
+function _updateExPickerResults() {
   const chips = ['All',...GUIDE_GROUPS.slice(1)].map(g =>
     `<button class="ex-picker-chip${_pickerFilter===g?' active':''}" onclick="exPickerFilter('${g}')">${g}</button>`
   ).join('');
@@ -4745,27 +4764,21 @@ function _renderExPicker() {
       </div>`;
     }).join('');
   const n = _pickerSelected.length;
-  el.innerHTML = `
-    <div class="ex-picker-sheet">
-      <div class="ex-picker-head">
-        <div class="ex-picker-title">Add Exercises</div>
-        <div class="ex-picker-search fake-input" contenteditable="true" data-ph="Search exercises…" spellcheck="false" onkeydown="if(event.key==='Enter')event.preventDefault()" oninput="exPickerSearch(this.innerText.trim())">${_pickerSearch}</div>
-        <div class="ex-picker-chips">${chips}</div>
-      </div>
-      <div class="ex-picker-list">${items || '<div class="empty">No exercises found.</div>'}</div>
-      <div class="ex-picker-footer">
-        <button class="rec-sheet-cancel" style="flex:1" onclick="exPickerCancel()">Cancel</button>
-        <button class="rec-sheet-save" style="flex:2" onclick="exPickerConfirm()">${n ? `Add ${n} exercise${n>1?'s':''}` : 'Select exercises'}</button>
-      </div>
-    </div>`;
+  const chipsEl = document.getElementById('ex-picker-chips-row');
+  const resultsEl = document.getElementById('ex-picker-results');
+  const confirmEl = document.getElementById('ex-picker-confirm-btn');
+  if (chipsEl) chipsEl.innerHTML = chips;
+  if (resultsEl) resultsEl.innerHTML = items || '<div class="empty">No exercises found.</div>';
+  if (confirmEl) confirmEl.textContent = n ? `Add ${n} exercise${n>1?'s':''}` : 'Select exercises';
 }
 
-function exPickerFilter(f) { _pickerFilter = f; _renderExPicker(); }
-function exPickerSearch(v) { _pickerSearch = v; _renderExPicker(); }
+function _exPickerType(v) { _pickerSearch = v; _updateExPickerResults(); }
+function exPickerFilter(f) { _pickerFilter = f; _updateExPickerResults(); }
+function exPickerSearch(v) { _pickerSearch = v; _updateExPickerResults(); }
 function exPickerToggle(name) {
   const i = _pickerSelected.indexOf(name);
   if (i >= 0) _pickerSelected.splice(i, 1); else _pickerSelected.push(name);
-  _renderExPicker();
+  _updateExPickerResults();
 }
 function exPickerConfirm() {
   const cb = _pickerCallback;
