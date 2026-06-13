@@ -534,6 +534,55 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .bar-seg-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 .guide-tech-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); margin-top: 4px; }
 .guide-warning { font-size: 12px; color: #f59e0b; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 6px; padding: 8px 10px; margin-bottom: 12px; line-height: 1.5; }
+/* Guide filter chips */
+.guide-filters { display:flex; gap:7px; padding:0 20px 4px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.guide-filters::-webkit-scrollbar { display:none; }
+.guide-filter-chip { flex-shrink:0; padding:6px 14px; border-radius:20px; border:1px solid var(--border); background:var(--surface-1); font-size:12px; font-weight:700; color:var(--text-3); cursor:pointer; letter-spacing:0.3px; white-space:nowrap; }
+.guide-filter-chip.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+/* Guide tab toggle */
+.guide-tab-row { display:flex; gap:0; margin:0 20px 12px; border-radius:var(--r-md); overflow:hidden; border:1px solid var(--border); }
+.guide-tab-btn { flex:1; padding:9px 0; background:transparent; border:none; font-size:13px; font-weight:700; color:var(--text-3); cursor:pointer; }
+.guide-tab-btn.active { background:var(--accent); color:#fff; }
+/* Collapsible guide cards */
+.guide-card-body { padding:14px 16px 16px; display:none; }
+.guide-card.open .guide-card-body { display:block; }
+.guide-card-head { cursor:pointer; user-select:none; }
+.guide-card-head-row { display:flex; align-items:center; justify-content:space-between; }
+.guide-card-chevron { flex-shrink:0; width:20px; height:20px; color:var(--text-3); transition:transform 0.2s; }
+.guide-card.open .guide-card-chevron { transform:rotate(90deg); }
+/* Custom workout cards */
+.custom-wk-scroll { display:flex; gap:10px; padding:0 20px 4px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.custom-wk-scroll::-webkit-scrollbar { display:none; }
+.custom-wk-card { flex-shrink:0; min-width:160px; background:var(--surface-1); border:1px solid var(--border); border-radius:var(--r-md); padding:14px; cursor:pointer; }
+.custom-wk-card:active { opacity:0.75; }
+.custom-wk-name { font-size:13px; font-weight:800; color:var(--text); margin-bottom:4px; }
+.custom-wk-count { font-size:11px; color:var(--text-3); }
+.custom-wk-add { flex-shrink:0; min-width:80px; background:transparent; border:1px dashed var(--border); border-radius:var(--r-md); padding:14px; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--text-3); font-size:11px; font-weight:700; }
+/* Exercise picker sheet */
+.ex-picker-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:300; display:flex; align-items:flex-end; }
+.ex-picker-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; max-height:88vh; display:flex; flex-direction:column; }
+.ex-picker-head { padding:16px 20px 12px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.ex-picker-title { font-size:16px; font-weight:800; color:var(--text); margin-bottom:10px; }
+.ex-picker-search { width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-md); padding:9px 12px; font-size:14px; color:var(--text); box-sizing:border-box; }
+.ex-picker-chips { display:flex; gap:6px; padding:10px 0 0; overflow-x:auto; scrollbar-width:none; }
+.ex-picker-chips::-webkit-scrollbar { display:none; }
+.ex-picker-chip { flex-shrink:0; padding:5px 12px; border-radius:16px; border:1px solid var(--border); background:var(--surface-2); font-size:11px; font-weight:700; color:var(--text-3); cursor:pointer; }
+.ex-picker-chip.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+.ex-picker-list { overflow-y:auto; flex:1; padding:8px 0; }
+.ex-picker-item { display:flex; align-items:center; padding:12px 20px; gap:12px; cursor:pointer; }
+.ex-picker-item:active { background:var(--surface-2); }
+.ex-picker-check { width:22px; height:22px; border-radius:50%; border:2px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.ex-picker-check.checked { background:var(--accent); border-color:var(--accent); }
+.ex-picker-item-name { font-size:14px; font-weight:600; color:var(--text); }
+.ex-picker-item-muscles { font-size:11px; color:var(--text-3); margin-top:2px; }
+.ex-picker-footer { padding:14px 20px max(env(safe-area-inset-bottom,0px),20px); border-top:1px solid var(--border); flex-shrink:0; display:flex; gap:10px; }
+/* Custom workout form sheet */
+.custom-form-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:300; display:flex; align-items:flex-end; }
+.custom-form-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; max-height:88vh; overflow-y:auto; }
+.custom-form-head { padding:16px 20px 14px; border-bottom:1px solid var(--border); }
+.custom-ex-item { display:flex; align-items:center; justify-content:space-between; padding:11px 20px; border-bottom:1px solid var(--border); }
+.custom-ex-item-name { font-size:13px; font-weight:700; color:var(--text); }
+.custom-ex-item-muscles { font-size:11px; color:var(--text-3); margin-top:2px; }
 
 /* ── Athlete Profile ────────────────────────────────── */
 .ap-stats { display:flex; gap:10px; margin:0 20px 6px; }
@@ -949,18 +998,30 @@ const WK = {
 };
 
 const MUSCLE_MAP = {
-  'Smith Close Grip Bench Press':  'Chest · Triceps · Anterior Deltoid',
-  'Close Palm Grip Pull Downs':    'Latissimus Dorsi · Biceps · Rear Deltoid',
-  'Smith Squat':                   'Quadriceps · Glutes · Hamstrings',
-  'Deadlifts':                     'Entire Posterior Chain · Traps · Forearms',
-  'Dips':                          'Chest · Triceps · Anterior Deltoid',
-  'Close Grip Pull Ups':           'Latissimus Dorsi · Biceps · Rear Deltoid',
-  'Pull Ups':                      'Latissimus Dorsi · Biceps · Rear Deltoid',
-  'Chin Ups':                      'Latissimus Dorsi · Biceps',
-  'Leg Press':                     'Quadriceps · Glutes · Hamstrings',
-  'Seated Leg Curl':               'Hamstrings',
-  'Wide Grip Pull Ups':            'Latissimus Dorsi · Teres Major · Biceps',
-  'Leg Extension':                 'Quadriceps (Isolation)',
+  'Smith Close Grip Bench Press':       'Chest · Triceps · Anterior Deltoid',
+  'Incline Barbell Bench Press':        'Upper Chest · Anterior Deltoid · Triceps',
+  'Pec Deck / Dumbbell Flyes':          'Chest (Isolation)',
+  'Dips':                               'Chest · Triceps · Anterior Deltoid',
+  'Close Palm Grip Pull Downs':         'Latissimus Dorsi · Biceps · Rear Deltoid',
+  'Close Grip Pull Ups':                'Latissimus Dorsi · Biceps · Rear Deltoid',
+  'Wide Grip Pull Ups':                 'Latissimus Dorsi · Teres Major · Biceps',
+  'Dumbbell Pullover':                  'Latissimus Dorsi · Serratus · Long Head Triceps',
+  'Straight-Arm Pulldown':              'Latissimus Dorsi (Isolation)',
+  'Bent-Over Barbell Row':              'Latissimus Dorsi · Rhomboids · Rear Deltoid · Biceps',
+  'Pull Ups':                           'Latissimus Dorsi · Biceps · Rear Deltoid',
+  'Chin Ups':                           'Latissimus Dorsi · Biceps',
+  'Smith Squat':                        'Quadriceps · Glutes · Hamstrings',
+  'Deadlifts':                          'Entire Posterior Chain · Traps · Forearms',
+  'Leg Press':                          'Quadriceps · Glutes · Hamstrings',
+  'Leg Extension':                      'Quadriceps (Isolation)',
+  'Seated Leg Curl':                    'Hamstrings',
+  'Standing Calf Raises':               'Gastrocnemius · Soleus',
+  'Dumbbell Lateral Raises':            'Medial Deltoid (Isolation)',
+  'Reverse Pec Deck / Rear Delt Raise': 'Rear Deltoid · Rhomboids · Teres Minor',
+  'Barbell Overhead Press':             'Anterior Deltoid · Medial Deltoid · Triceps',
+  'Barbell Curl':                       'Biceps · Brachialis · Forearms',
+  'Cable Triceps Pressdown':            'Triceps (All three heads)',
+  'Weighted Decline Sit-ups':           'Rectus Abdominis · Hip Flexors',
 };
 
 // ══════════════════════════════════════════════════════
@@ -1154,6 +1215,10 @@ function go(screen, opts={}, fromPop=false) {
 
 window.addEventListener('popstate', e => {
   // Close any open overlay first before navigating screens
+  const exPicker = document.getElementById('ex-picker-overlay');
+  if (exPicker) { exPickerCancel(); return; }
+  const customForm = document.getElementById('custom-form-overlay');
+  if (customForm) { closeCustomWkForm(); return; }
   const detail = document.getElementById('rec-detail-ov');
   if (detail) { detail.remove(); return; }
   const sheet = document.getElementById('rec-overlay');
@@ -1201,17 +1266,43 @@ function renderHome() {
   `;
 
   const recent = asc().slice(-3).reverse().map(w=>{
+    const wkDef = resolveWk(w.type);
     const pills = w.ex.filter(e=>e.r).map(e=>`<span class="pill">${e.n.split(' ').slice(-1)[0]}: <strong>${e.w>0?e.w+'kg':'BW'} ×${e.r}</strong></span>`).join('');
     return `<div class="hist-card" id="recent-${w.id}" onclick="go('detail',{id:'${w.id}'})">
-      <div class="badge">${w.type}</div>
+      <div class="badge${w.method==='custom'?' badge-legacy':''}">${w.method==='custom'?'CX':w.type}</div>
       <div class="hist-body">
-        <div class="hist-type">${WK[w.type].desc}</div>
+        <div class="hist-type">${wkDef?.desc||w.type}</div>
         <div class="hist-date"><span class="hist-date-link" onclick="event.stopPropagation();showCalendar('${w.date}')">${fmtDate(w.date)}</span>${w.bw?` · ${w.bw}kg`:''}</div>
         <div class="hist-pills">${pills}</div>
       </div>
       <div class="hist-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
     </div>`;
   }).join('');
+
+  const customCards = customWks.map(cw =>
+    `<div class="custom-wk-card" onclick="go('log',{type:'${cw.id}'})">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px">
+        <div class="custom-wk-name">${cw.name}</div>
+        <button onclick="event.stopPropagation();openCustomWkForm('${cw.id}')" style="background:none;border:none;padding:0;color:var(--text-3);cursor:pointer;flex-shrink:0;line-height:1">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+      </div>
+      <div class="custom-wk-count">${cw.exs.length} exercise${cw.exs.length!==1?'s':''}</div>
+    </div>`
+  ).join('');
+
+  const customSection = `
+    <div class="sec" style="margin-top:4px">
+      <div class="sec-label">Custom Workouts</div>
+      <button onclick="openCustomWkForm(null)" style="background:none;border:none;font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;padding:0">+ New</button>
+    </div>
+    <div class="custom-wk-scroll">
+      ${customCards}
+      <button class="custom-wk-add" onclick="openCustomWkForm(null)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Create
+      </button>
+    </div>`;
 
   document.getElementById('s-home').innerHTML = `
     <div class="hd-logo-wrap">
@@ -1240,6 +1331,8 @@ function renderHome() {
       </button>
     </div>
 
+    ${customSection}
+
     <div class="stat-row">${statChips}</div>
 
     <div class="sec"><div class="sec-label">Recent Sessions</div></div>
@@ -1254,11 +1347,13 @@ function renderHome() {
 // ══════════════════════════════════════════════════════
 
 function histCard(w) {
-  const wk = WK[w.type] || {desc: w.type, method: w.method||'consolidated'};
+  const wk = resolveWk(w.type) || {desc: w.type, method: w.method||'consolidated'};
   const isLegacy = w.method === 'legacy';
+  const isCustom = w.method === 'custom';
+  const badge = isCustom ? 'CX' : w.type;
   const pills = w.ex.filter(e=>e.r).map(e=>`<span class="pill">${e.n.split(' ').slice(-1)[0]}: <strong>${e.w>0?e.w+'kg':'BW'} ×${e.r}</strong></span>`).join('');
   return `<div class="hist-card" onclick="go('detail',{id:'${w.id}'})">
-    <div class="badge ${isLegacy?'badge-legacy':''}">${w.type}</div>
+    <div class="badge ${isLegacy||isCustom?'badge-legacy':''}">${badge}</div>
     <div class="hist-body">
       <div class="hist-type">${wk.desc}</div>
       <div class="hist-date"><span class="hist-date-link" onclick="event.stopPropagation();showCalendar('${w.date}')">${fmtDate(w.date)}</span>${w.bw?` · ${w.bw} kg`:''}</div>
@@ -1312,21 +1407,39 @@ function setHistFilter(f) {
 function renderHistory() {
   const allConsolidated = desc().filter(w=>w.method==='consolidated');
   const allLegacy       = desc().filter(w=>w.method==='legacy');
+  const allCustom       = desc().filter(w=>w.method==='custom');
 
-  if (!allConsolidated.length && !allLegacy.length) {
+  if (!allConsolidated.length && !allLegacy.length && !allCustom.length) {
     document.getElementById('s-history').innerHTML = `<div class="page-top"><div class="page-title">History</div></div><div class="empty">No workouts logged yet.</div>`;
     return;
   }
 
   const consolidated = histFilter==='all' ? allConsolidated : allConsolidated.filter(w=>w.type===histFilter);
   const legacy       = histFilter==='all' ? allLegacy       : allLegacy.filter(w=>w.type===histFilter);
+  const custom       = histFilter==='all'||histFilter==='CX' ? allCustom : [];
 
   const chevSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
 
-  const filterBtns = ['all','A1','B1','A2','B2','LA','LB'].map(f => {
+  const filterBtns = ['all','A1','B1','A2','B2','LA','LB',...(allCustom.length?['CX']:[])].map(f => {
     const label = f === 'all' ? 'All' : f === 'LA' ? 'A' : f === 'LB' ? 'B (L)' : f;
     return `<button class="hist-filter-btn ${histFilter===f?'active':''}" onclick="setHistFilter('${f}')">${label}</button>`;
   }).join('');
+
+  const customSection = allCustom.length ? `
+    <div class="method-header method-legacy" onclick="toggleSection('custom')">
+      <div class="method-header-inner">
+        <span class="method-dot" style="background:var(--accent)"></span>
+        <div>
+          <div class="method-title">Custom Workouts</div>
+          <div class="method-sub">${custom.length} session${custom.length!==1?'s':''}</div>
+        </div>
+        <div class="method-chevron ${histCollapsed.custom?'':'open'}" id="hist-chev-custom">${chevSvg}</div>
+      </div>
+    </div>
+    <div class="method-body ${histCollapsed.custom?'collapsed':''}" id="hist-body-custom"
+         style="max-height:${histCollapsed.custom?'0':'99999px'}">
+      ${custom.length ? custom.map(histCard).join('') : '<div class="empty" style="padding:20px">No sessions match this filter.</div>'}
+    </div>` : '';
 
   document.getElementById('s-history').innerHTML = `
     <div class="page-top">
@@ -1341,7 +1454,7 @@ function renderHistory() {
         <span class="method-dot method-dot-red"></span>
         <div>
           <div class="method-title">Consolidated Method</div>
-          <div class="method-sub">${consolidated.length} session${consolidated.length!==1?'s':''} · June 2025 – present · A1/B1/A2/B2</div>
+          <div class="method-sub">${consolidated.length} session${consolidated.length!==1?'s':''} · A1/B1/A2/B2</div>
         </div>
         <div class="method-chevron ${histCollapsed.consolidated?'':'open'}" id="hist-chev-consolidated">${chevSvg}</div>
       </div>
@@ -1356,7 +1469,7 @@ function renderHistory() {
         <span class="method-dot method-dot-grey"></span>
         <div>
           <div class="method-title">Legacy Training Method</div>
-          <div class="method-sub">${legacy.length} session${legacy.length!==1?'s':''} · July 2023 – May 2025 · A / B format</div>
+          <div class="method-sub">${legacy.length} session${legacy.length!==1?'s':''} · A / B format</div>
         </div>
         <div class="method-chevron ${histCollapsed.legacy?'':'open'}" id="hist-chev-legacy">${chevSvg}</div>
       </div>
@@ -1366,9 +1479,12 @@ function renderHistory() {
       ${legacy.length ? legacy.map(histCard).join('') : '<div class="empty" style="padding:20px">No sessions match this filter.</div>'}
     </div>
 
+    ${customSection}
     <div class="gap"></div>
   `;
 }
+const histCollapsedCustom = { custom: true };
+Object.assign(histCollapsed, histCollapsedCustom);
 
 // ══════════════════════════════════════════════════════
 //  DETAIL
@@ -1378,7 +1494,7 @@ function renderDetail(id) {
   detailId = id;
   const w = workouts.find(x=>x.id===id);
   if (!w) { go('history'); return; }
-  const wk = WK[w.type];
+  const wk = resolveWk(w.type) || {label:w.type, short:'CX', desc:w.type, method:w.method||'custom', exs:w.ex.map(e=>e.n)};
   const metaParts = [w.bw?`${w.bw} kg body weight`:null, w.bf?`${w.bf}% body fat`:null].filter(Boolean);
   const backTo = prev==='home'?'home':'history';
 
@@ -1457,7 +1573,7 @@ function renderDetail(id) {
 
 function renderLog(type) {
   logType = type;
-  const wk = WK[type];
+  const wk = resolveWk(type);
 
   const blocks = wk.exs.map((en,i) => {
     const p = lastFor(en, null);
@@ -1527,7 +1643,7 @@ function renderLog(type) {
     </div>
 
     <div class="form-hero">
-      <div class="form-hero-tag">${type} · ${wk.desc}</div>
+      <div class="form-hero-tag">${wk.method==='custom'?'Custom':type} · ${wk.desc}</div>
       <div class="form-hero-title">${wk.label}</div>
     </div>
 
@@ -1581,7 +1697,7 @@ function toggleBeltSwitch(i) {
 }
 
 function saveWorkout() {
-  const wk = WK[logType];
+  const wk = resolveWk(logType);
   const date = document.getElementById('ldate').value;
   if (!date) { toast('Please enter a date', true); return; }
   const bw = parseFloat(document.getElementById('lbw').value)||null;
@@ -1602,7 +1718,7 @@ function saveWorkout() {
       ...(isDL && bar && { bar }),
     };
   });
-  workouts.push({id:uid(),date,type:logType,method:WK[logType].method,bw,bf,ex,note});
+  workouts.push({id:uid(),date,type:logType,method:resolveWk(logType).method,bw,bf,ex,note});
   save(); toast('Workout saved!', false); go('home');
 }
 
@@ -1614,7 +1730,7 @@ function renderEdit(id) {
   editId = id;
   const w = workouts.find(x=>x.id===id);
   if (!w) { go('detail',{id:detailId}); return; }
-  const wk = WK[w.type];
+  const wk = resolveWk(w.type) || {label:w.type, short:'CX', desc:w.type, method:w.method||'custom', exs:w.ex.map(e=>e.n)};
 
   const blocks = wk.exs.map((en,i) => {
     const e = w.ex.find(x=>x.n===en) || {w:0,r:null,note:'',belt:false,bar:null};
@@ -1678,7 +1794,7 @@ function renderEdit(id) {
     </div>
 
     <div class="form-hero">
-      <div class="form-hero-tag">${w.type} · ${wk.desc}</div>
+      <div class="form-hero-tag">${wk.method==='custom'?'Custom':w.type} · ${wk.desc}</div>
       <div class="form-hero-title">Edit Workout</div>
     </div>
 
@@ -1720,7 +1836,7 @@ function renderEdit(id) {
 function updateWorkout(id) {
   const w = workouts.find(x=>x.id===id);
   if (!w) return;
-  const wk = WK[w.type];
+  const wk = resolveWk(w.type) || {exs:w.ex.map(e=>e.n)};
   const date = document.getElementById('edate').value;
   if (!date) { toast('Please enter a date', true); return; }
   const bw = parseFloat(document.getElementById('ebw').value)||null;
@@ -3954,8 +4070,10 @@ function toast(msg, err, duration = 2500) {
 // ══════════════════════════════════════════════════════
 
 const EXERCISES = [
+  // ── Chest ──────────────────────────────────────────────
   {
     name: 'Smith Close Grip Bench Press',
+    muscleGroup: 'Chest',
     muscles: 'Chest · Triceps · Anterior Deltoid',
     program: ['A1 – Consolidated'],
     cues: [
@@ -3968,7 +4086,51 @@ const EXERCISES = [
     yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+chest',
   },
   {
+    name: 'Incline Barbell Bench Press',
+    muscleGroup: 'Chest',
+    muscles: 'Upper Chest · Anterior Deltoid · Triceps',
+    program: ['HD I', 'HD II', 'HIT Mentzer Way'],
+    cues: [
+      'Set bench to 30–45 degrees — not too steep',
+      'Lower bar to upper chest, not the neck',
+      '4-second negative — feel the upper pec stretch',
+      'Press to lockout and squeeze the chest hard at the top',
+    ],
+    mentzer: 'The incline press targets the upper chest with greater specificity than the flat bench, producing a fuller, more complete pectoral development.',
+    yt: 'https://www.youtube.com/results?search_query=mike+mentzer+incline+bench+press',
+  },
+  {
+    name: 'Pec Deck / Dumbbell Flyes',
+    muscleGroup: 'Chest',
+    muscles: 'Chest (Isolation)',
+    program: ['HD I', 'HD II', 'HIT Mentzer Way'],
+    cues: [
+      'Used as a pre-exhaust before a pressing compound',
+      'Focus on the stretch at the bottom — control the range',
+      'Squeeze the chest hard at peak contraction',
+      'Move immediately to the compound with zero rest',
+    ],
+    mentzer: 'By pre-exhausting the chest with an isolation movement, you guarantee the pectorals — not the triceps — reach failure first on the press.',
+    yt: 'https://www.youtube.com/results?search_query=mike+mentzer+pec+deck+pre+exhaust',
+  },
+  {
+    name: 'Dips',
+    muscleGroup: 'Chest',
+    muscles: 'Chest · Triceps · Anterior Deltoid',
+    program: ['A2 – Consolidated', 'Workout A – Legacy', 'Workout B – Legacy'],
+    cues: [
+      'Lean slightly forward to emphasise the chest',
+      'Lower until upper arms are parallel to the floor',
+      'Add a weight belt once bodyweight reps exceed 15',
+      '2-second negative — control the descent fully',
+    ],
+    mentzer: 'Dips are the upper body squat. They demand everything from the pressing muscles simultaneously.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+dips',
+  },
+  // ── Back ───────────────────────────────────────────────
+  {
     name: 'Close Palm Grip Pull Downs',
+    muscleGroup: 'Back',
     muscles: 'Latissimus Dorsi · Biceps · Rear Deltoid',
     program: ['A1 – Consolidated', 'Workout A – Legacy', 'Workout B – Legacy'],
     cues: [
@@ -3981,7 +4143,79 @@ const EXERCISES = [
     yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+pulldowns',
   },
   {
+    name: 'Close Grip Pull Ups',
+    muscleGroup: 'Back',
+    muscles: 'Latissimus Dorsi · Biceps · Rear Deltoid',
+    program: ['A2 – Consolidated'],
+    cues: [
+      'Palms facing you (supinated) for maximum lat stretch',
+      'Dead hang at the bottom — full extension',
+      'Pull until chin clears the bar; squeeze at the top',
+      'Add belt weight when bodyweight reps exceed 8–10',
+    ],
+    mentzer: 'Pull-ups with a close grip provide the deepest lat stretch of any back exercise you can perform.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+pull+ups',
+  },
+  {
+    name: 'Wide Grip Pull Ups',
+    muscleGroup: 'Back',
+    muscles: 'Latissimus Dorsi · Teres Major · Biceps',
+    program: ['Workout A – Legacy', 'Workout B – Legacy'],
+    cues: [
+      'Grip wider than shoulder-width, palms facing away',
+      'Full dead hang — do not cheat the bottom',
+      'Pull until the bar reaches upper chest level',
+      'Slow the negative — 3–4 seconds on the way down',
+    ],
+    mentzer: 'Wide-grip pull-ups are unrivalled for developing lat width — the flare that creates the V-taper.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+pull+ups',
+  },
+  {
+    name: 'Dumbbell Pullover',
+    muscleGroup: 'Back',
+    muscles: 'Latissimus Dorsi · Serratus · Long Head Triceps',
+    program: ['HD I', 'HIT Mentzer Way'],
+    cues: [
+      'Lie perpendicular to bench, shoulders on pad, hips low',
+      'Arms slightly bent — lower dumbbell behind head slowly',
+      'Feel the deep lat and serratus stretch at the bottom',
+      'Pull through in an arc back to the start — do not press',
+    ],
+    mentzer: 'The pullover is the only exercise that directly works the lats through their full range of motion without involving the biceps — a true lat isolation.',
+    yt: 'https://www.youtube.com/results?search_query=mike+mentzer+dumbbell+pullover',
+  },
+  {
+    name: 'Straight-Arm Pulldown',
+    muscleGroup: 'Back',
+    muscles: 'Latissimus Dorsi (Isolation)',
+    program: ['HD II'],
+    cues: [
+      'Stand back from the cable, arms straight throughout',
+      'Hinge forward slightly — keep arms locked at the elbow',
+      'Pull the bar down to your thighs using only the lats',
+      'Squeeze hard at the bottom; return slowly — 3 seconds',
+    ],
+    mentzer: 'Straight-arm pulldowns pre-exhaust the lats in isolation before the compound row or pull-down, ensuring the back — not the biceps — reaches failure.',
+    yt: 'https://www.youtube.com/results?search_query=mike+mentzer+straight+arm+pulldown',
+  },
+  {
+    name: 'Bent-Over Barbell Row',
+    muscleGroup: 'Back',
+    muscles: 'Latissimus Dorsi · Rhomboids · Rear Deltoid · Biceps',
+    program: ['HD I'],
+    cues: [
+      'Hinge to roughly 45 degrees — back flat, not rounded',
+      'Pull the bar to the lower ribcage, elbows tight to the body',
+      'Lead with the elbows, not the hands',
+      '3-second negative — lower under full control',
+    ],
+    mentzer: 'The bent-over row builds the thickness of the back that no pull-down can match — the mass that fills the upper back from every angle.',
+    yt: 'https://www.youtube.com/results?search_query=mike+mentzer+bent+over+row',
+  },
+  // ── Legs ───────────────────────────────────────────────
+  {
     name: 'Smith Squat',
+    muscleGroup: 'Legs',
     muscles: 'Quadriceps · Glutes · Hamstrings',
     program: ['B1 – Consolidated', 'Workout A – Legacy'],
     cues: [
@@ -3995,6 +4229,7 @@ const EXERCISES = [
   },
   {
     name: 'Deadlifts',
+    muscleGroup: 'Legs',
     muscles: 'Entire Posterior Chain · Traps · Forearms',
     program: ['B1 – Consolidated', 'Workout A – Legacy'],
     cues: [
@@ -4007,33 +4242,8 @@ const EXERCISES = [
     yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+deadlift',
   },
   {
-    name: 'Dips',
-    muscles: 'Chest · Triceps · Anterior Deltoid',
-    program: ['A2 – Consolidated', 'Workout A – Legacy', 'Workout B – Legacy'],
-    cues: [
-      'Lean slightly forward to emphasise the chest',
-      'Lower until upper arms are parallel to the floor',
-      'Add a weight belt once bodyweight reps exceed 15',
-      '2-second negative — control the descent fully',
-    ],
-    mentzer: 'Dips are the upper body squat. They demand everything from the pressing muscles simultaneously.',
-    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+dips',
-  },
-  {
-    name: 'Close Grip Pull Ups',
-    muscles: 'Latissimus Dorsi · Biceps · Rear Deltoid',
-    program: ['A2 – Consolidated'],
-    cues: [
-      'Palms facing you (supinated) for maximum lat stretch',
-      'Dead hang at the bottom — full extension',
-      'Pull until chin clears the bar; squeeze at the top',
-      'Add belt weight when bodyweight reps exceed 8–10',
-    ],
-    mentzer: 'Pull-ups with a close grip provide the deepest lat stretch of any back exercise you can perform.',
-    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+pull+ups',
-  },
-  {
     name: 'Leg Press',
+    muscleGroup: 'Legs',
     muscles: 'Quadriceps · Glutes · Hamstrings',
     program: ['B2 – Consolidated', 'Workout B – Legacy'],
     cues: [
@@ -4046,7 +4256,22 @@ const EXERCISES = [
     yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+leg+press',
   },
   {
+    name: 'Leg Extension',
+    muscleGroup: 'Legs',
+    muscles: 'Quadriceps (Isolation)',
+    program: ['Workout B – Legacy'],
+    cues: [
+      'Adjust pad to rest just above the ankle',
+      'Extend fully and hold for 1–2 seconds at the top',
+      'Lower slowly — 3 seconds back to start',
+      'Keep hips pressed firmly into the seat',
+    ],
+    mentzer: 'Leg extensions pre-exhaust the quads so that the subsequent compound movement reaches deeper into the muscle fibres.',
+    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+leg+extension',
+  },
+  {
     name: 'Seated Leg Curl',
+    muscleGroup: 'Legs',
     muscles: 'Hamstrings',
     program: ['B2 – Consolidated', 'Workout B – Legacy'],
     cues: [
@@ -4059,30 +4284,105 @@ const EXERCISES = [
     yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+leg+curl',
   },
   {
-    name: 'Wide Grip Pull Ups',
-    muscles: 'Latissimus Dorsi · Teres Major · Biceps',
-    program: ['Workout A – Legacy', 'Workout B – Legacy'],
+    name: 'Standing Calf Raises',
+    muscleGroup: 'Legs',
+    muscles: 'Gastrocnemius · Soleus',
+    program: ['HD I', 'HD II', 'HIT Mentzer Way'],
     cues: [
-      'Grip wider than shoulder-width, palms facing away',
-      'Full dead hang — do not cheat the bottom',
-      'Pull until the bar reaches upper chest level',
-      'Slow the negative — 3–4 seconds on the way down',
+      'Full stretch at the bottom — heel below platform level',
+      'Rise to the highest possible point on the toes',
+      '2-second hold at the top; do not bounce at the bottom',
+      'Perform on a calf raise machine or a step with a barbell',
     ],
-    mentzer: 'Wide-grip pull-ups are unrivalled for developing lat width — the flare that creates the V-taper.',
-    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+pull+ups',
+    mentzer: 'Calves require the same intensity principles as every other muscle — one all-out set with a full stretch and peak contraction, nothing more.',
+    yt: 'https://www.youtube.com/results?search_query=mike+mentzer+calf+raises',
+  },
+  // ── Shoulders ──────────────────────────────────────────
+  {
+    name: 'Dumbbell Lateral Raises',
+    muscleGroup: 'Shoulders',
+    muscles: 'Medial Deltoid (Isolation)',
+    program: ['HD I', 'HD II', 'HIT Mentzer Way'],
+    cues: [
+      'Slight bend in the elbow — do not straighten the arm',
+      'Raise to shoulder height — no higher',
+      'Lead with the elbow, not the wrist',
+      '3-second negative — resist gravity on the way down',
+    ],
+    mentzer: 'Lateral raises are the only exercise that truly isolates the medial deltoid — the muscle responsible for shoulder width and the appearance of broader shoulders.',
+    yt: 'https://www.youtube.com/results?search_query=mike+mentzer+lateral+raises',
   },
   {
-    name: 'Leg Extension',
-    muscles: 'Quadriceps (Isolation)',
-    program: ['Workout B – Legacy'],
+    name: 'Reverse Pec Deck / Rear Delt Raise',
+    muscleGroup: 'Shoulders',
+    muscles: 'Rear Deltoid · Rhomboids · Teres Minor',
+    program: ['HD II', 'HIT Mentzer Way'],
     cues: [
-      'Adjust pad to rest just above the ankle',
-      'Extend fully and hold for 1–2 seconds at the top',
-      'Lower slowly — 3 seconds back to start',
-      'Keep hips pressed firmly into the seat',
+      'Reverse the pec deck machine — face the pad, arms to the rear',
+      'Keep a slight bend in the elbow throughout',
+      'Raise arms to shoulder height, squeezing rear delts hard',
+      'Control the return — 3 seconds',
     ],
-    mentzer: 'Leg extensions pre-exhaust the quads so that the subsequent compound movement reaches deeper into the muscle fibres.',
-    yt: 'https://www.youtube.com/results?search_query=heavy+duty+college+leg+extension',
+    mentzer: 'Rear deltoid work is essential for complete shoulder development and shoulder health — the muscle most lifters ignore entirely.',
+    yt: 'https://www.youtube.com/results?search_query=mike+mentzer+rear+delt+raise',
+  },
+  {
+    name: 'Barbell Overhead Press',
+    muscleGroup: 'Shoulders',
+    muscles: 'Anterior Deltoid · Medial Deltoid · Triceps',
+    program: ['Consolidated (alt)'],
+    cues: [
+      'Press from the front — bar travels in a straight line',
+      'Grip slightly wider than shoulder-width',
+      'Lower to chin level — full range without sacrificing control',
+      'Lock out fully at the top; squeeze the delts',
+    ],
+    mentzer: 'The overhead press is the most productive shoulder compound available — it develops pressing strength and deltoid mass simultaneously.',
+    yt: 'https://www.youtube.com/results?search_query=mike+mentzer+overhead+press',
+  },
+  // ── Arms ───────────────────────────────────────────────
+  {
+    name: 'Barbell Curl',
+    muscleGroup: 'Arms',
+    muscles: 'Biceps · Brachialis · Forearms',
+    program: ['HD I', 'HD II', 'HIT Mentzer Way'],
+    cues: [
+      'Full supination of the wrist at the top — pinky up',
+      'Do not swing the torso — strict form only',
+      'Full extension at the bottom — do not cut the negative short',
+      '2-second hold at peak contraction',
+    ],
+    mentzer: 'The barbell curl, performed strictly with full supination, is the most direct and productive bicep exercise in existence.',
+    yt: 'https://www.youtube.com/results?search_query=mike+mentzer+barbell+curl',
+  },
+  {
+    name: 'Cable Triceps Pressdown',
+    muscleGroup: 'Arms',
+    muscles: 'Triceps (All three heads)',
+    program: ['HD I', 'HD II', 'HIT Mentzer Way'],
+    cues: [
+      'Keep elbows pinned to your sides throughout',
+      'Press to full lockout — squeeze the triceps hard',
+      'Control the negative — 3 seconds back to start',
+      'Use a straight bar or V-bar attachment',
+    ],
+    mentzer: 'Cable pressdowns, done with strict form and full lockout, isolate the triceps completely — the key to adding mass to the back of the arm.',
+    yt: 'https://www.youtube.com/results?search_query=mike+mentzer+triceps+pressdown',
+  },
+  // ── Core ───────────────────────────────────────────────
+  {
+    name: 'Weighted Decline Sit-ups',
+    muscleGroup: 'Core',
+    muscles: 'Rectus Abdominis · Hip Flexors',
+    program: ['HD I', 'HD II', 'HIT Mentzer Way'],
+    cues: [
+      'Hold a plate to your chest or behind your head',
+      'Lower all the way down — full stretch at the bottom',
+      'Rise until torso is perpendicular to the floor',
+      'Add weight progressively — treat abs like any other muscle',
+    ],
+    mentzer: 'The abdominals respond to the same high-intensity principles as every other muscle. One hard set on a decline with added weight is all that is required.',
+    yt: 'https://www.youtube.com/results?search_query=mike+mentzer+decline+sit+ups',
   },
 ];
 
@@ -4174,41 +4474,76 @@ const TECHNIQUES = [
 
 const ytSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.5 6.2s-.2-1.6-.9-2.3c-.9-.9-1.9-.9-2.3-1C17.6 2.7 12 2.7 12 2.7s-5.6 0-8.3.2c-.4.1-1.4.1-2.3 1-.7.7-.9 2.3-.9 2.3S.2 8 .2 9.8v1.7c0 1.8.3 3.6.3 3.6s.2 1.6.9 2.3c.9.9 2 .9 2.6 1 1.9.2 8 .2 8 .2s5.6 0 8.3-.2c.4-.1 1.4-.1 2.3-1 .7-.7.9-2.3.9-2.3s.3-1.8.3-3.6V9.8c0-1.8-.3-3.6-.3-3.6zM9.7 15.5V8.1l6.3 3.7-6.3 3.7z"/></svg>`;
 
-function renderGuide() {
-  const exCards = EXERCISES.map(ex => {
-    const programPills = ex.program.map(p=>`<span class="guide-prog-pill">${p}</span>`).join('');
-    const cuesList = ex.cues.map(c=>`<li>${c}</li>`).join('');
-    return `
-    <div class="guide-card">
-      <div class="guide-card-head">
-        <div class="guide-ex-name">${ex.name}</div>
-        <div class="guide-muscles">${ex.muscles}</div>
-        <div class="guide-pills">${programPills}</div>
-      </div>
-      <div class="guide-card-body">
-        <div class="guide-quote">"${ex.mentzer}"</div>
-        <ul class="guide-cues">${cuesList}</ul>
-        <a class="guide-yt-link" href="${ex.yt}" target="_blank" rel="noopener">${ytSvg} Watch on Heavy Duty College</a>
-      </div>
-    </div>`;
-  }).join('');
+const GUIDE_GROUPS = ['All','Chest','Back','Legs','Shoulders','Arms','Core'];
+let _guideFilter = 'All';
+let _guideTab = 'exercises';
 
-  const techCards = TECHNIQUES.map(t => {
-    const steps = t.howto.map(s=>`<li>${s}</li>`).join('');
-    return `
-    <div class="guide-card guide-card-tech">
-      <div class="guide-card-head">
-        <div class="guide-ex-name">${t.name}</div>
-        <div class="guide-tech-tag">${t.tag}</div>
-      </div>
-      <div class="guide-card-body">
-        <div class="guide-quote">"${t.mentzer}"</div>
-        <ul class="guide-cues">${steps}</ul>
-        <div class="guide-warning">⚠ ${t.warning}</div>
-        <a class="guide-yt-link" href="${t.yt}" target="_blank" rel="noopener">${ytSvg} Watch on Heavy Duty College</a>
-      </div>
+function guideSetFilter(f) { _guideFilter = f; renderGuide(); }
+function guideSetTab(t) { _guideTab = t; _guideFilter = 'All'; renderGuide(); }
+function guideToggleCard(el) { el.closest('.guide-card').classList.toggle('open'); }
+
+function renderGuide() {
+  const chevSvg = `<svg class="guide-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+
+  const filterChips = GUIDE_GROUPS.map(g =>
+    `<button class="guide-filter-chip${_guideFilter===g?' active':''}" onclick="guideSetFilter('${g}')">${g}</button>`
+  ).join('');
+
+  const tabRow = `
+    <div class="guide-tab-row">
+      <button class="guide-tab-btn${_guideTab==='exercises'?' active':''}" onclick="guideSetTab('exercises')">Exercises</button>
+      <button class="guide-tab-btn${_guideTab==='techniques'?' active':''}" onclick="guideSetTab('techniques')">Techniques</button>
     </div>`;
-  }).join('');
+
+  let cards = '';
+
+  if (_guideTab === 'exercises') {
+    const filtered = _guideFilter === 'All' ? EXERCISES : EXERCISES.filter(e => e.muscleGroup === _guideFilter);
+    cards = filtered.map(ex => {
+      const programPills = ex.program.map(p=>`<span class="guide-prog-pill">${p}</span>`).join('');
+      const cuesList = ex.cues.map(c=>`<li>${c}</li>`).join('');
+      return `
+      <div class="guide-card">
+        <div class="guide-card-head" onclick="guideToggleCard(this)">
+          <div class="guide-card-head-row">
+            <div>
+              <div class="guide-ex-name">${ex.name}</div>
+              <div class="guide-muscles">${ex.muscles}</div>
+            </div>
+            ${chevSvg}
+          </div>
+          <div class="guide-pills" style="margin-top:8px">${programPills}</div>
+        </div>
+        <div class="guide-card-body">
+          <div class="guide-quote">"${ex.mentzer}"</div>
+          <ul class="guide-cues">${cuesList}</ul>
+          <a class="guide-yt-link" href="${ex.yt}" target="_blank" rel="noopener">${ytSvg} Watch on Heavy Duty College</a>
+        </div>
+      </div>`;
+    }).join('') || `<div class="empty">No exercises in this category.</div>`;
+  } else {
+    cards = TECHNIQUES.map(t => {
+      const steps = t.howto.map(s=>`<li>${s}</li>`).join('');
+      return `
+      <div class="guide-card guide-card-tech">
+        <div class="guide-card-head" onclick="guideToggleCard(this)">
+          <div class="guide-card-head-row">
+            <div>
+              <div class="guide-ex-name">${t.name}</div>
+              <div class="guide-tech-tag">${t.tag}</div>
+            </div>
+            ${chevSvg}
+          </div>
+        </div>
+        <div class="guide-card-body">
+          <div class="guide-quote">"${t.mentzer}"</div>
+          <ul class="guide-cues">${steps}</ul>
+          <div class="guide-warning">⚠ ${t.warning}</div>
+          <a class="guide-yt-link" href="${t.yt}" target="_blank" rel="noopener">${ytSvg} Watch on Heavy Duty College</a>
+        </div>
+      </div>`;
+    }).join('');
+  }
 
   document.getElementById('s-guide').innerHTML = `
     <div class="page-top">
@@ -4219,15 +4554,200 @@ function renderGuide() {
       <img src="mike-mentzer-doing-barbell-curls-2000511149.jpg" alt="Mike Mentzer training" class="guide-hero-img">
       <div class="guide-hero-fade"></div>
     </div>
-    <div class="sec"><div class="sec-label">Exercises</div></div>
-    ${exCards}
-    <div class="sec" style="margin-top:16px"><div class="sec-label">Advanced Techniques</div></div>
-    ${techCards}
+    <div style="padding:14px 20px 10px">${tabRow}</div>
+    ${_guideTab === 'exercises' ? `<div class="guide-filters">${filterChips}</div>` : ''}
+    <div style="height:10px"></div>
+    ${cards}
     <div class="gap"></div>
   `;
 }
 
+// ══════════════════════════════════════════════════════
+//  CUSTOM WORKOUTS
+// ══════════════════════════════════════════════════════
+
+let customWks = [];
+
+function loadCustomWks() {
+  try { customWks = JSON.parse(localStorage.getItem('hd_custom_wks') || '[]'); } catch(e) { customWks = []; }
+}
+function saveCustomWks() {
+  localStorage.setItem('hd_custom_wks', JSON.stringify(customWks));
+}
+function getCustomWk(id) {
+  return customWks.find(w => w.id === id) || null;
+}
+function resolveWk(type) {
+  return WK[type] || (getCustomWk(type) ? { label: getCustomWk(type).name, short: 'CX', desc: getCustomWk(type).exs.slice(0,2).join(' & '), method: 'custom', exs: getCustomWk(type).exs } : null);
+}
+
+// ── Exercise picker ────────────────────────────────────
+let _pickerFilter = 'All';
+let _pickerSearch = '';
+let _pickerSelected = [];
+let _pickerCallback = null;
+
+function openExPicker(selected, callback) {
+  _pickerFilter = 'All';
+  _pickerSearch = '';
+  _pickerSelected = [...selected];
+  _pickerCallback = callback;
+  history.pushState({ overlay: 'ex-picker' }, '');
+  _renderExPicker();
+}
+
+function _renderExPicker() {
+  let el = document.getElementById('ex-picker-overlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'ex-picker-overlay';
+    el.className = 'ex-picker-overlay';
+    document.body.appendChild(el);
+  }
+  const chips = ['All',...GUIDE_GROUPS.slice(1)].map(g =>
+    `<button class="ex-picker-chip${_pickerFilter===g?' active':''}" onclick="exPickerFilter('${g}')">${g}</button>`
+  ).join('');
+  const q = _pickerSearch.toLowerCase();
+  const items = EXERCISES
+    .filter(e => (_pickerFilter === 'All' || e.muscleGroup === _pickerFilter) && (!q || e.name.toLowerCase().includes(q)))
+    .map(e => {
+      const checked = _pickerSelected.includes(e.name);
+      return `<div class="ex-picker-item" onclick="exPickerToggle('${e.name.replace(/'/g,"\\'")}')">
+        <div class="ex-picker-check${checked?' checked':''}">${checked?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
+        <div><div class="ex-picker-item-name">${e.name}</div><div class="ex-picker-item-muscles">${e.muscles}</div></div>
+      </div>`;
+    }).join('');
+  const n = _pickerSelected.length;
+  el.innerHTML = `
+    <div class="ex-picker-sheet">
+      <div class="ex-picker-head">
+        <div class="ex-picker-title">Add Exercises</div>
+        <input class="ex-picker-search" type="text" placeholder="Search exercises…" value="${_pickerSearch}" oninput="exPickerSearch(this.value)" autocomplete="off">
+        <div class="ex-picker-chips">${chips}</div>
+      </div>
+      <div class="ex-picker-list">${items || '<div class="empty">No exercises found.</div>'}</div>
+      <div class="ex-picker-footer">
+        <button class="rec-sheet-cancel" style="flex:1" onclick="exPickerCancel()">Cancel</button>
+        <button class="rec-sheet-save" style="flex:2" onclick="exPickerConfirm()">${n ? `Add ${n} exercise${n>1?'s':''}` : 'Select exercises'}</button>
+      </div>
+    </div>`;
+}
+
+function exPickerFilter(f) { _pickerFilter = f; _renderExPicker(); }
+function exPickerSearch(v) { _pickerSearch = v; _renderExPicker(); }
+function exPickerToggle(name) {
+  const i = _pickerSelected.indexOf(name);
+  if (i >= 0) _pickerSelected.splice(i, 1); else _pickerSelected.push(name);
+  _renderExPicker();
+}
+function exPickerConfirm() {
+  const cb = _pickerCallback;
+  exPickerCancel();
+  if (cb) cb([..._pickerSelected]);
+}
+function exPickerCancel() {
+  document.getElementById('ex-picker-overlay')?.remove();
+  _pickerCallback = null;
+}
+
+// ── Custom workout form ────────────────────────────────
+let _cwFormId = null; // null = create, else edit id
+
+function openCustomWkForm(id) {
+  const existing = id ? getCustomWk(id) : null;
+  _cwFormId = id || null;
+  history.pushState({ overlay: 'custom-form' }, '');
+  _renderCustomWkForm(existing?.name || '', existing?.exs || []);
+}
+
+function _renderCustomWkForm(name, exs) {
+  let el = document.getElementById('custom-form-overlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'custom-form-overlay';
+    el.className = 'custom-form-overlay';
+    document.body.appendChild(el);
+  }
+  const exList = exs.map((n,i) => `
+    <div class="custom-ex-item">
+      <div><div class="custom-ex-item-name">${n}</div><div class="custom-ex-item-muscles">${MUSCLE_MAP[n]||''}</div></div>
+      <button onclick="cwFormRemoveEx(${i})" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:4px 8px">×</button>
+    </div>`).join('');
+  el.innerHTML = `
+    <div class="custom-form-sheet">
+      <div class="custom-form-head">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:17px;font-weight:800;color:var(--text)">${_cwFormId ? 'Edit Workout' : 'New Custom Workout'}</div>
+          <button onclick="closeCustomWkForm()" style="background:none;border:none;color:var(--text-3);font-size:22px;cursor:pointer;padding:0 4px">×</button>
+        </div>
+        <div class="form-field">
+          <label>Workout Name</label>
+          <input type="text" id="cw-name" value="${name}" placeholder="e.g. Push Day, Arms & Shoulders…" autocomplete="off">
+        </div>
+      </div>
+      <div style="padding:12px 0">
+        <div class="sec" style="margin-bottom:0"><div class="sec-label">Exercises (${exs.length})</div></div>
+        ${exList}
+        <div style="padding:10px 20px">
+          <button onclick="cwFormPickExercises()" style="width:100%;background:var(--surface-2);border:1px dashed var(--border);border-radius:var(--r-md);padding:12px;font-size:13px;font-weight:700;color:var(--text-2);cursor:pointer">+ Add Exercises</button>
+        </div>
+      </div>
+      <div style="padding:0 20px max(env(safe-area-inset-bottom,0px),24px);display:flex;flex-direction:column;gap:10px">
+        <button class="btn-save" style="margin:0" onclick="cwFormSave()">Save Workout</button>
+        ${_cwFormId ? `<button class="sheet-btn sheet-btn-danger" style="width:100%;margin:0;padding:15px;border-radius:var(--r-md)" onclick="cwFormDelete()">Delete Workout</button>` : ''}
+      </div>
+    </div>`;
+  window._cwFormExs = [...exs];
+  window._cwFormName = name;
+}
+
+function cwFormPickExercises() {
+  openExPicker(window._cwFormExs, (selected) => {
+    window._cwFormExs = selected;
+    const nameEl = document.getElementById('cw-name');
+    window._cwFormName = nameEl ? nameEl.value : window._cwFormName;
+    _renderCustomWkForm(window._cwFormName, window._cwFormExs);
+  });
+}
+
+function cwFormRemoveEx(i) {
+  const nameEl = document.getElementById('cw-name');
+  window._cwFormName = nameEl ? nameEl.value : window._cwFormName;
+  window._cwFormExs.splice(i, 1);
+  _renderCustomWkForm(window._cwFormName, window._cwFormExs);
+}
+
+function cwFormSave() {
+  const name = (document.getElementById('cw-name')?.value || '').trim();
+  if (!name) { toast('Please name your workout', true); return; }
+  if (!window._cwFormExs.length) { toast('Add at least one exercise', true); return; }
+  if (_cwFormId) {
+    const w = getCustomWk(_cwFormId);
+    if (w) { w.name = name; w.exs = window._cwFormExs; }
+  } else {
+    customWks.push({ id: 'CX_' + uid(), name, exs: window._cwFormExs });
+  }
+  saveCustomWks();
+  closeCustomWkForm();
+  renderHome();
+  toast(_cwFormId ? 'Workout updated' : 'Custom workout created', false);
+}
+
+function cwFormDelete() {
+  if (!_cwFormId) return;
+  customWks = customWks.filter(w => w.id !== _cwFormId);
+  saveCustomWks();
+  closeCustomWkForm();
+  renderHome();
+  toast('Workout deleted', false);
+}
+
+function closeCustomWkForm() {
+  document.getElementById('custom-form-overlay')?.remove();
+}
+
 load();
+loadCustomWks();
 loadRecovery();
 recMigratePhotos();
 renderHome();
