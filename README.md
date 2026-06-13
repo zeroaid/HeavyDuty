@@ -18,10 +18,12 @@ This app tracks your Consolidated and Legacy split workouts, logs every set with
 
 ### Workout Tracking
 - **Workout logging** — A1/A2 (Consolidated) and Legacy Upper/Lower splits
+- **Built-in workout editing** — modify any Consolidated or Legacy workout; changes are saved and tracked as EDITED
+- **Exercise variation selection** — for exercises like Pec Deck / Dumbbell Flyes, choose which variation you performed at log time
 - **Progressive overload tracking** — see your last performance on every exercise before you lift
 - **Rest-pause set support** — log RP clusters with the exact cadence Mentzer prescribed
 - **Workout history** — full session log with calendar view and date filtering
-- **Exercise guide** — cues, technique notes, and Mentzer quotes for every movement
+- **Exercise guide** — cues, technique notes, and Mentzer quotes for every movement; full HD I / HD II / HIT program attribution on every exercise
 
 ### Active Recovery
 - **Recovery session logging** — log light cardio and movement sessions between heavy training days
@@ -36,6 +38,7 @@ This app tracks your Consolidated and Legacy split workouts, logs every set with
 ### AI Insights
 - **Training analysis** — Claude-powered deep-dive into your workout history, progressive overload trends, and recovery patterns
 - **HIT-specific coaching** — analysis framed around Heavy Duty principles, not generic fitness advice
+- **Mentzer's Verdict** — when you modify a built-in workout, Claude analyses your changes through the lens of Heavy Duty principles and streams a live verdict
 - **Athlete profile** — age, training history, goal, and lifestyle factors fed into every analysis
 - **API key management** — bring your own Anthropic key, stored only in `localStorage`
 
@@ -100,6 +103,20 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 ---
 
 ## Changelog
+
+### v1.1.0
+- Added built-in workout editing — modify any Consolidated or Legacy workout; EDITED badge and AI REVIEW chip appear on the home screen
+- Added Mentzer's Verdict — Claude analyses workout modifications in real time through the lens of Heavy Duty principles
+- Added exercise variation selection at log time for dual-exercise movements (e.g. Pec Deck / Dumbbell Flyes)
+- Added full HD I / HD II / HIT Mentzer Way program attribution to every exercise in the Guide
+- Replaced pencil edit button with a subtle three-dot overflow button on workout rows, matching leading fitness app patterns
+- Settings page now refreshes automatically after any change — workouts, API key, and Google Drive state all update in place
+- Exercise search now matches muscle group and muscles, not just exercise name (searching "chest" or "biceps" now works)
+- Fixed exercise picker search rebuilding the DOM on every keystroke — input now keeps focus and cursor while typing
+- Fixed AI verdict sheet rendering in broken columns during streaming (flex container was used instead of block)
+- Fixed custom workout form buttons being cut off — Save and Delete buttons are now pinned to a sticky footer
+- Fixed Chrome autofill prompt on API key field
+- Fixed EDITED badge and AI chip overflowing their row — moved to a dedicated tag row below the exercise list
 
 ### v1.0.1
 - Fixed HIT Recommendation text contrast — now readable in normal lighting
