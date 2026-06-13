@@ -5010,6 +5010,7 @@ function cwFormSave() {
   saveCustomWks();
   closeCustomWkForm();
   renderHome();
+  if (cur === 'settings') renderSettings();
   toast(_cwFormId ? 'Workout updated' : 'Custom workout created', false);
 }
 
@@ -5020,6 +5021,7 @@ function cwFormDelete() {
     saveWkMods();
     closeCustomWkForm();
     renderHome();
+    if (cur === 'settings') renderSettings();
     toast('Reset to default', false);
     return;
   }
@@ -5027,6 +5029,7 @@ function cwFormDelete() {
   saveCustomWks();
   closeCustomWkForm();
   renderHome();
+  if (cur === 'settings') renderSettings();
   toast('Workout deleted', false);
 }
 
