@@ -2106,7 +2106,7 @@ function renderSettings() {
           <input type="password" id="claude-key-input"
                  value="${localStorage.getItem('hd_claude_key')||''}"
                  placeholder="sk-ant-api03-…"
-                 autocomplete="off" spellcheck="false"
+                 autocomplete="new-password" spellcheck="false"
                  style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:10px;padding:10px 42px 10px 12px;color:var(--text);font-size:13px;font-family:ui-monospace,monospace;outline:none;-webkit-text-fill-color:var(--text)"
                  oninput="saveClaudeKey(this.value)">
           <button onclick="toggleClaudeKeyVisibility()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;line-height:0">
@@ -5150,7 +5150,12 @@ Analyse this modification under Mike Mentzer's Heavy Duty / HIT principles. Be d
           const d = JSON.parse(line.slice(6));
           if (d.type === 'content_block_delta' && d.delta?.type === 'text_delta') {
             fullText += d.delta.text;
-            if (textEl) textEl.innerHTML = _renderAnalysisMarkdown(fullText);
+            if (textEl) {
+              if (textEl.className !== 'wkmod-analysis-text') {
+                textEl.className = 'wkmod-analysis-text';
+              }
+              textEl.innerHTML = _renderAnalysisMarkdown(fullText);
+            }
           }
         } catch {}
       }
