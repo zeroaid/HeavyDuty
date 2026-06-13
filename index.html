@@ -556,6 +556,7 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .cw-row-body { flex:1; min-width:0; }
 .cw-row-name { font-size:14px; font-weight:700; color:var(--text); }
 .cw-row-sub { font-size:11px; color:var(--text-2); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cw-row-tags { display:flex; align-items:center; gap:6px; margin-top:5px; flex-wrap:wrap; }
 .cw-row-arrow { flex-shrink:0; line-height:0; }
 .cw-row-arrow svg { width:15px; height:15px; fill:none; stroke:var(--text-3); stroke-width:2.5; stroke-linecap:round; }
 .cw-row-edit,.cw-row-edit-btn { flex-shrink:0; background:none; border:none; padding:8px 10px; color:var(--text-3); cursor:pointer; line-height:0; -webkit-tap-highlight-color:transparent; }
@@ -603,8 +604,10 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .ex-picker-footer { padding:14px 20px max(env(safe-area-inset-bottom,0px),20px); border-top:1px solid var(--border); flex-shrink:0; display:flex; gap:10px; }
 /* Custom workout form sheet */
 .custom-form-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:300; display:flex; align-items:flex-end; }
-.custom-form-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; max-height:88vh; overflow-y:auto; }
-.custom-form-head { padding:16px 20px 14px; border-bottom:1px solid var(--border); }
+.custom-form-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; max-height:88vh; display:flex; flex-direction:column; }
+.custom-form-head { padding:16px 20px 14px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.custom-form-scroll { overflow-y:auto; flex:1; }
+.custom-form-footer { padding:14px 20px max(env(safe-area-inset-bottom,0px),24px); border-top:1px solid var(--border); display:flex; flex-direction:column; gap:10px; flex-shrink:0; background:var(--surface-1); }
 /* Workout mod AI analysis sheet */
 .wkmod-analysis-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:400; display:flex; align-items:flex-end; }
 .wkmod-analysis-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; max-height:82vh; display:flex; flex-direction:column; }
@@ -1373,16 +1376,13 @@ function renderHome() {
     const bg  = isLegacy ? 'rgba(148,163,184,0.1)' : 'var(--accent-2)';
     const fg  = isLegacy ? '#94a3b8'               : 'var(--accent)';
     const badge = isNext ? ' <span class="next-pill">NEXT</span>' : '';
-    const editedBadge = isEdited ? ' <span class="next-pill" style="background:rgba(255,255,255,0.15);color:var(--text-2)">EDITED</span>' : '';
     const hasAnalysis = isEdited && wkModAnalysis[t];
-    const analysisChip = isEdited
-      ? ` <span class="wk-analysis-chip" onclick="event.stopPropagation();showWkModAnalysis('${t}')">${hasAnalysis ? '✦ AI REVIEW' : '✦ ANALYSE'}</span>`
-      : '';
+    const tagsRow = isEdited ? `<div class="cw-row-tags"><span class="next-pill" style="background:rgba(255,255,255,0.15);color:var(--text-2)">EDITED</span><span class="wk-analysis-chip" onclick="event.stopPropagation();showWkModAnalysis('${t}')">${hasAnalysis ? '✦ AI REVIEW' : '✦ ANALYSE'}</span></div>` : '';
     return `<div class="cw-row" onclick="go('log',{type:'${t}'})">
       <div class="cw-row-icon" style="background:${bg};color:${fg}">${WK_ICON[t]}</div>
       <div class="cw-row-body">
-        <div class="cw-row-name">${wk.label}${badge}${editedBadge}</div>
-        <div class="cw-row-sub">${resolveWk(t).desc}${analysisChip}</div>
+        <div class="cw-row-name">${wk.label}${badge}</div>
+        <div class="cw-row-sub">${resolveWk(t).desc}</div>${tagsRow}
       </div>
       <button class="cw-row-edit-btn" onclick="event.stopPropagation();openWkEditForm('${t}')">${SVG.pencil}</button>
     </div>`;
@@ -4934,14 +4934,16 @@ function _renderCustomWkForm(name, exs) {
           <input type="text" id="cw-name" value="${name}" placeholder="e.g. Push Day, Arms &amp; Shoulders…" autocomplete="off" ${_cwFormIsBuiltIn ? 'readonly style="opacity:0.5"' : ''}>
         </div>
       </div>
-      <div style="padding:12px 0">
-        <div class="sec" style="margin-bottom:0"><div class="sec-label">Exercises (${exs.length})</div></div>
-        ${exList}
-        <div style="padding:10px 20px">
-          <button class="cw-form-add-btn" onclick="cwFormPickExercises()">${SVG.plus} Add Exercises</button>
+      <div class="custom-form-scroll">
+        <div style="padding:12px 0">
+          <div class="sec" style="margin-bottom:0"><div class="sec-label">Exercises (${exs.length})</div></div>
+          ${exList}
+          <div style="padding:10px 20px">
+            <button class="cw-form-add-btn" onclick="cwFormPickExercises()">${SVG.plus} Add Exercises</button>
+          </div>
         </div>
       </div>
-      <div style="padding:0 20px max(env(safe-area-inset-bottom,0px),24px);display:flex;flex-direction:column;gap:10px">
+      <div class="custom-form-footer">
         <button class="btn-save" style="margin:0" onclick="cwFormSave()">${_cwFormId || _cwFormIsBuiltIn ? 'Save Changes' : 'Create Workout'}</button>
         ${_cwFormIsBuiltIn ? `<button class="sheet-btn sheet-btn-danger" style="width:100%;margin:0;padding:15px;border-radius:var(--r-md)" onclick="cwFormDelete()">Reset to Default</button>` : (_cwFormId ? `<button class="sheet-btn sheet-btn-danger" style="width:100%;margin:0;padding:15px;border-radius:var(--r-md)" onclick="cwFormDelete()">Delete Workout</button>` : '')}
       </div>
