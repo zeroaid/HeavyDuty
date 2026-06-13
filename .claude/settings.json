@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "$r='e:\\Claude\\HeavyDuty'; $s=git -C $r status --porcelain 2>$null; if ($s) { git -C $r add .; $f=(git -C $r diff --cached --name-only 2>$null) -join ', '; if (-not $f){$f='updated files'}; git -C $r commit -m \"Auto-save: $f\"; git -C $r push origin main }",
+            "timeout": 60,
+            "statusMessage": "Saving to GitHub..."
+          }
+        ]
+      }
+    ]
+  }
+}
