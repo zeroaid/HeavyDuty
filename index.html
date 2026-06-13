@@ -537,19 +537,20 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 /* Guide filter chips */
 .guide-filters { display:flex; gap:7px; padding:0 20px 4px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
 .guide-filters::-webkit-scrollbar { display:none; }
-.guide-filter-chip { flex-shrink:0; padding:6px 14px; border-radius:20px; border:1px solid var(--border); background:var(--surface-1); font-size:12px; font-weight:700; color:var(--text-3); cursor:pointer; letter-spacing:0.3px; white-space:nowrap; }
+.guide-filter-chip { flex-shrink:0; padding:6px 14px; border-radius:16px; border:1px solid var(--border); background:var(--surface-2); font-size:13px; font-weight:600; color:var(--text-2); cursor:pointer; letter-spacing:0.3px; white-space:nowrap; }
 .guide-filter-chip.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 /* Guide tab toggle */
-.guide-tab-row { display:flex; gap:0; margin:0 20px 12px; border-radius:var(--r-md); overflow:hidden; border:1px solid var(--border); }
-.guide-tab-btn { flex:1; padding:9px 0; background:transparent; border:none; font-size:13px; font-weight:700; color:var(--text-3); cursor:pointer; }
+.guide-tab-row { display:flex; gap:0; margin:0 20px 0; border-radius:var(--r-md); overflow:hidden; border:1px solid var(--border); }
+.guide-tab-btn { flex:1; padding:9px 0; background:transparent; border:none; font-size:13px; font-weight:700; color:var(--text-2); cursor:pointer; }
 .guide-tab-btn.active { background:var(--accent); color:#fff; }
 /* Collapsible guide cards */
 .guide-card-body { display:none; }
 .guide-card.open .guide-card-body { display:block; }
 .guide-card-head { cursor:pointer; user-select:none; }
 .guide-card-head-row { display:flex; align-items:center; justify-content:space-between; }
-.guide-card-chevron { flex-shrink:0; width:20px; height:20px; color:var(--text-3); transition:transform 0.2s; }
+.guide-card-chevron { flex-shrink:0; width:20px; height:20px; color:var(--text-2); transition:transform 0.2s; }
 .guide-card.open .guide-card-chevron { transform:rotate(90deg); }
+.guide-card:not(.open) .guide-card-head { border-bottom:none; }
 /* Custom workout cards */
 .custom-wk-scroll { display:flex; gap:10px; padding:0 20px 4px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
 .custom-wk-scroll::-webkit-scrollbar { display:none; }
@@ -4554,9 +4555,8 @@ function renderGuide() {
       <img src="mike-mentzer-doing-barbell-curls-2000511149.jpg" alt="Mike Mentzer training" class="guide-hero-img">
       <div class="guide-hero-fade"></div>
     </div>
-    <div style="padding:14px 20px 10px">${tabRow}</div>
-    ${_guideTab === 'exercises' ? `<div class="guide-filters">${filterChips}</div>` : ''}
-    <div style="height:10px"></div>
+    <div style="padding:14px 20px 12px">${tabRow}</div>
+    ${_guideTab === 'exercises' ? `<div class="guide-filters" style="padding-bottom:12px">${filterChips}</div>` : ''}
     ${cards}
     <div class="gap"></div>
   `;
