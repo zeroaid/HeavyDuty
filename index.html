@@ -1315,6 +1315,8 @@ window.addEventListener('popstate', e => {
   if (exPicker) { exPickerCancel(); return; }
   const customForm = document.getElementById('custom-form-overlay');
   if (customForm) { closeCustomWkForm(); return; }
+  const wkAnalysis = document.getElementById('wkmod-analysis-overlay');
+  if (wkAnalysis) { wkAnalysis.remove(); return; }
   const detail = document.getElementById('rec-detail-ov');
   if (detail) { detail.remove(); return; }
   const sheet = document.getElementById('rec-overlay');
@@ -1323,7 +1325,12 @@ window.addEventListener('popstate', e => {
   if (bulk) { bulk.remove(); return; }
 
   const state = e.state;
-  if (state && state.screen) {
+  if (state?.root) {
+    // Back to root — show home but don't push; next back exits the app
+    go('home', {}, true);
+    return;
+  }
+  if (state?.screen) {
     go(state.screen, state.opts || {}, true);
   } else {
     go('home', {}, true);
@@ -5212,7 +5219,7 @@ loadWkModAnalysis();
 loadRecovery();
 recMigratePhotos();
 renderHome();
-history.replaceState({ screen: 'home', opts: {} }, '');
+history.replaceState({ screen: 'home', opts: {}, root: true }, '');
 
 
 if ('serviceWorker' in navigator) {
