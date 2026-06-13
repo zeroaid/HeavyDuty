@@ -1769,14 +1769,14 @@ function renderLog(type) {
         </div>
         <div class="form-field">
           <label>Body Weight kg</label>
-          <input type="number" id="lbw" inputmode="decimal" step="0.1" placeholder="kg">
+          <input type="number" id="log-bwt" inputmode="decimal" step="0.1" placeholder="kg" autocomplete="nope">
         </div>
       </div>
     </div>
     <div class="form-section" style="padding-bottom:0">
       <div class="form-field">
         <label>Body Fat % <span style="font-weight:400;text-transform:none;color:var(--text-3)">(optional)</span></label>
-        <input type="number" id="lbf" inputmode="decimal" step="0.1" placeholder="%">
+        <input type="number" id="log-bft" inputmode="decimal" step="0.1" placeholder="%" autocomplete="nope">
       </div>
     </div>
 
@@ -1814,8 +1814,8 @@ function saveWorkout() {
   const wk = resolveWk(logType);
   const date = document.getElementById('ldate').value;
   if (!date) { toast('Please enter a date', true); return; }
-  const bw = parseFloat(document.getElementById('lbw').value)||null;
-  const bf = parseFloat(document.getElementById('lbf').value)||null;
+  const bw = parseFloat(document.getElementById('log-bwt').value)||null;
+  const bf = parseFloat(document.getElementById('log-bft').value)||null;
   const note = document.getElementById('lnote').value.trim();
   const ex = wk.exs.map((en,i)=>{
     const resolvedName = _logVariations[i] ?? en;
@@ -1921,14 +1921,14 @@ function renderEdit(id) {
         </div>
         <div class="form-field">
           <label>Body Weight kg</label>
-          <input type="number" id="ebw" inputmode="decimal" step="0.1" placeholder="kg" value="${w.bw||''}">
+          <input type="number" id="edit-bwt" inputmode="decimal" step="0.1" placeholder="kg" autocomplete="nope" value="${w.bw||''}">
         </div>
       </div>
     </div>
     <div class="form-section" style="padding-bottom:0">
       <div class="form-field">
         <label>Body Fat % <span style="font-weight:400;text-transform:none;color:var(--text-3)">(optional)</span></label>
-        <input type="number" id="ebf" inputmode="decimal" step="0.1" placeholder="%" value="${w.bf||''}">
+        <input type="number" id="edit-bft" inputmode="decimal" step="0.1" placeholder="%" autocomplete="nope" value="${w.bf||''}">
       </div>
     </div>
 
@@ -1954,8 +1954,8 @@ function updateWorkout(id) {
   const wk = resolveWk(w.type) || {exs:w.ex.map(e=>e.n)};
   const date = document.getElementById('edate').value;
   if (!date) { toast('Please enter a date', true); return; }
-  const bw = parseFloat(document.getElementById('ebw').value)||null;
-  const bf = parseFloat(document.getElementById('ebf').value)||null;
+  const bw = parseFloat(document.getElementById('edit-bwt').value)||null;
+  const bf = parseFloat(document.getElementById('edit-bft').value)||null;
   const note = document.getElementById('enote').value.trim();
   const ex = wk.exs.map((en,i)=>{
     const isBW = BW_EX.has(en);
