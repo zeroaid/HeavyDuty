@@ -1348,7 +1348,7 @@ function renderHome() {
     const lastStr = p ? `<strong>${p.w>0?p.w+'kg':'BW'}</strong> × ${p.r}` : '—';
     const muscles = MUSCLE_MAP[en] || '';
     return `<div class="hero-ex">
-      <div class="hero-ex-left"><span class="hero-ex-name">${en}</span>${muscles?`<span class="hero-ex-muscles">${muscles}</span>`:''}</div>
+      <div class="hero-ex-left"><span class="hero-ex-name" onclick="goToGuideExercise('${en.replace(/'/g,"\\'")}')" style="cursor:pointer">${en}</span>${muscles?`<span class="hero-ex-muscles">${muscles}</span>`:''}</div>
       <span class="hero-ex-last">${lastStr}</span>
     </div>`;
   }).join('');
@@ -1703,7 +1703,7 @@ function renderLog(type) {
     return `
       <div class="ex-form-card">
         <div class="ex-form-head">
-          <div class="ex-form-name">${en}${muscles?`<div class="ex-form-muscles">${muscles}</div>`:''}</div>
+          <div class="ex-form-name"><span onclick="goToGuideExercise('${en.replace(/'/g,"\\'")}')" style="cursor:pointer">${en}</span>${muscles?`<div class="ex-form-muscles">${muscles}</div>`:''}</div>
           <div class="ex-form-hint" id="ehint${i}">${hintHtml}</div>
         </div>
         ${varChips}
@@ -4601,6 +4601,24 @@ let _guideTab = 'exercises';
 function guideSetFilter(f) { _guideFilter = f; renderGuide(); }
 function guideSetTab(t) { _guideTab = t; _guideFilter = 'All'; renderGuide(); }
 function guideToggleCard(el) { el.closest('.guide-card').classList.toggle('open'); }
+
+function goToGuideExercise(name) {
+  const target = name.split('/')[0].trim();
+  _guideTab = 'exercises';
+  _guideFilter = 'All';
+  go('guide');
+  requestAnimationFrame(() => {
+    const cards = document.querySelectorAll('#s-guide .guide-card:not(.guide-card-tech)');
+    for (const card of cards) {
+      const nameEl = card.querySelector('.guide-ex-name');
+      if (nameEl && nameEl.textContent.trim() === target) {
+        card.classList.add('open');
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        break;
+      }
+    }
+  });
+}
 
 function renderGuide() {
   const chevSvg = `<svg class="guide-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
