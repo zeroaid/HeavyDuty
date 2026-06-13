@@ -1308,7 +1308,7 @@ window.addEventListener('popstate', e => {
 // ══════════════════════════════════════════════════════
 
 function renderHome() {
-  const nt = nextType(), wk = WK[nt], s = asc(), last = s[s.length-1];
+  const nt = nextType(), wk = resolveWk(nt), s = asc(), last = s[s.length-1];
   const exRows = wk.exs.map(en => {
     const p = lastFor(en, null);
     const lastStr = p ? `<strong>${p.w>0?p.w+'kg':'BW'}</strong> × ${p.r}` : '—';
@@ -4577,7 +4577,7 @@ function renderGuide() {
               <div class="guide-ex-name">${ex.name}</div>
               <div class="guide-muscles">${ex.muscles}</div>
             </div>
-            ${SVG.chev}
+            ${chevSvg}
           </div>
           <div class="guide-pills" style="margin-top:8px">${programPills}</div>
         </div>
@@ -4599,7 +4599,7 @@ function renderGuide() {
               <div class="guide-ex-name">${t.name}</div>
               <div class="guide-tech-tag">${t.tag}</div>
             </div>
-            ${SVG.chev}
+            ${chevSvg}
           </div>
         </div>
         <div class="guide-card-body">
@@ -4769,7 +4769,6 @@ function cwRowHtml(cw, clickFn, editFn) {
       <div class="cw-row-sub">${sub}</div>
     </div>
     <button class="cw-row-edit" onclick="event.stopPropagation();${editFn}">${SVG.pencil}</button>
-    <div class="cw-row-arrow">${SVG.chev}</div>
   </div>`;
 }
 
@@ -4909,7 +4908,7 @@ function _renderCustomWkForm(name, exs) {
         </div>
       </div>
       <div style="padding:0 20px max(env(safe-area-inset-bottom,0px),24px);display:flex;flex-direction:column;gap:10px">
-        <button class="btn-save" style="margin:0" onclick="cwFormSave()">Save Changes</button>
+        <button class="btn-save" style="margin:0" onclick="cwFormSave()">${_cwFormId || _cwFormIsBuiltIn ? 'Save Changes' : 'Create Workout'}</button>
         ${_cwFormIsBuiltIn ? `<button class="sheet-btn sheet-btn-danger" style="width:100%;margin:0;padding:15px;border-radius:var(--r-md)" onclick="cwFormDelete()">Reset to Default</button>` : (_cwFormId ? `<button class="sheet-btn sheet-btn-danger" style="width:100%;margin:0;padding:15px;border-radius:var(--r-md)" onclick="cwFormDelete()">Delete Workout</button>` : '')}
       </div>
     </div>`;
