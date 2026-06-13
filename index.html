@@ -101,12 +101,6 @@ body {
   border-radius: var(--r-xl); padding: 22px;
   position: relative; overflow: hidden;
 }
-.hero::before {
-  content: ''; position: absolute; top: -40px; right: -40px;
-  width: 160px; height: 160px;
-  background: radial-gradient(circle, rgba(204,17,17,0.14) 0%, transparent 70%);
-  pointer-events: none;
-}
 .hero-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
 .hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
@@ -336,7 +330,8 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .settings-stat-label { font-size: 14px; color: var(--text-2); display: flex; align-items: center; gap: 6px; min-width: 0; }
 .settings-stat-val { font-size: 15px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 4px; justify-content: flex-end; white-space: nowrap; }
 .settings-stat-link:active { background: rgba(255,255,255,0.04); }
-.settings-stat-chevron { width:20px; display:flex; align-items:center; justify-content:center; }
+.settings-stat-chevron { width:20px; display:flex; align-items:center; justify-content:center; color:var(--text-3); }
+.settings-stat-chevron svg { width:13px; height:13px; }
 
 .btn-danger-row {
   display: flex; align-items: center; justify-content: space-between;
@@ -561,10 +556,9 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .cw-row-body { flex:1; min-width:0; }
 .cw-row-name { font-size:14px; font-weight:700; color:var(--text); }
 .cw-row-sub { font-size:11px; color:var(--text-2); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.cw-row-edit { flex-shrink:0; background:none; border:none; padding:6px; color:var(--text-3); cursor:pointer; line-height:0; -webkit-tap-highlight-color:transparent; }
 .cw-row-arrow { flex-shrink:0; line-height:0; }
 .cw-row-arrow svg { width:15px; height:15px; fill:none; stroke:var(--text-3); stroke-width:2.5; stroke-linecap:round; }
-.cw-row-edit-btn { flex-shrink:0; background:none; border:none; padding:8px 10px; color:var(--text-3); cursor:pointer; line-height:0; -webkit-tap-highlight-color:transparent; }
+.cw-row-edit,.cw-row-edit-btn { flex-shrink:0; background:none; border:none; padding:8px 10px; color:var(--text-3); cursor:pointer; line-height:0; -webkit-tap-highlight-color:transparent; }
 .cw-row-edit-btn:active { color:var(--text); }
 .cw-row-add { display:flex; align-items:center; gap:12px; padding:13px 16px; cursor:pointer; color:var(--accent); font-size:13px; font-weight:700; }
 .cw-row-add:active { background:var(--surface-2); }
@@ -821,7 +815,6 @@ html, body { background: var(--bg); }
   border-radius: 4px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.5), inset 0 0 40px rgba(212,20,20,0.04);
 }
-.hero::before { display: none; }
 .settings-card {
   background: var(--surface-1);
   border: 1px solid var(--border);
@@ -1015,6 +1008,14 @@ const MENTZER_QUOTES = [
   "To know where you're going, you must first know where you've been.",
 ];
 
+const SVG = {
+  chev:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`,
+  chevD:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`,
+  x:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  plus:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  grip:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg>`,
+  pencil: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+};
 const ROT = ['A1','B1','A2','B2'];
 const WK_ICON = {
   A1: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 9h10"/><path d="M5 8v3"/><path d="M6.5 7v5"/><path d="M17.5 7v5"/><path d="M19 8v3"/><path d="M5 15h14"/><path d="M8 15v3"/><path d="M16 15v3"/></svg>`,
@@ -1344,14 +1345,10 @@ function renderHome() {
         <div class="hist-date"><span class="hist-date-link" onclick="event.stopPropagation();showCalendar('${w.date}')">${fmtDate(w.date)}</span>${w.bw?` · ${w.bw}kg`:''}</div>
         <div class="hist-pills">${pills}</div>
       </div>
-      <div class="hist-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      <div class="hist-arrow">${SVG.chev}</div>
     </div>`;
   }).join('');
 
-  const plusSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
-  const chevSvg = `<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
-
-  const pencilSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
   const builtInRow = (t, isLegacy) => {
     const wk = WK[t];
     const isNext = t === nt;
@@ -1366,7 +1363,7 @@ function renderHome() {
         <div class="cw-row-name">${wk.label}${badge}${editedBadge}</div>
         <div class="cw-row-sub">${resolveWk(t).desc}</div>
       </div>
-      <button class="cw-row-edit-btn" onclick="event.stopPropagation();openWkEditForm('${t}')">${pencilSvg}</button>
+      <button class="cw-row-edit-btn" onclick="event.stopPropagation();openWkEditForm('${t}')">${SVG.pencil}</button>
     </div>`;
   };
 
@@ -1377,7 +1374,7 @@ function renderHome() {
       <div class="cw-section-label">Legacy Method</div>
       ${['LA','LB'].map(t => builtInRow(t, true)).join('')}
       ${customWks.length ? `<div class="cw-section-label">My Workouts</div>${customWks.map(cw => cwRowHtml(cw, `go('log',{type:'${cw.id}'})`, `openCustomWkForm('${cw.id}')`)).join('')}` : ''}
-      <div class="cw-row-add" onclick="openCustomWkForm(null)">${plusSvg} New Custom Workout</div>
+      <div class="cw-row-add" onclick="openCustomWkForm(null)">${SVG.plus} New Custom Workout</div>
     </div>`;
 
   document.getElementById('s-home').innerHTML = `
@@ -1435,7 +1432,7 @@ function histCard(w) {
       <div class="hist-date"><span class="hist-date-link" onclick="event.stopPropagation();showCalendar('${w.date}')">${fmtDate(w.date)}</span>${w.bw?` · ${w.bw} kg`:''}</div>
       <div class="hist-pills">${pills}</div>
     </div>
-    <div class="hist-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+    <div class="hist-arrow">${SVG.chev}</div>
   </div>`;
 }
 
@@ -1494,8 +1491,6 @@ function renderHistory() {
   const legacy       = histFilter==='all' ? allLegacy       : allLegacy.filter(w=>w.type===histFilter);
   const custom       = histFilter==='all'||histFilter==='CX' ? allCustom : [];
 
-  const chevSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
-
   const filterBtns = ['all','A1','B1','A2','B2','LA','LB',...(allCustom.length?['CX']:[])].map(f => {
     const label = f === 'all' ? 'All' : f === 'LA' ? 'A' : f === 'LB' ? 'B (L)' : f;
     return `<button class="hist-filter-btn ${histFilter===f?'active':''}" onclick="setHistFilter('${f}')">${label}</button>`;
@@ -1509,7 +1504,7 @@ function renderHistory() {
           <div class="method-title">Custom Workouts</div>
           <div class="method-sub">${custom.length} session${custom.length!==1?'s':''}</div>
         </div>
-        <div class="method-chevron ${histCollapsed.custom?'':'open'}" id="hist-chev-custom">${chevSvg}</div>
+        <div class="method-chevron ${histCollapsed.custom?'':'open'}" id="hist-chev-custom">${SVG.chev}</div>
       </div>
     </div>
     <div class="method-body ${histCollapsed.custom?'collapsed':''}" id="hist-body-custom"
@@ -1532,7 +1527,7 @@ function renderHistory() {
           <div class="method-title">Consolidated Method</div>
           <div class="method-sub">${consolidated.length} session${consolidated.length!==1?'s':''} · A1/B1/A2/B2</div>
         </div>
-        <div class="method-chevron ${histCollapsed.consolidated?'':'open'}" id="hist-chev-consolidated">${chevSvg}</div>
+        <div class="method-chevron ${histCollapsed.consolidated?'':'open'}" id="hist-chev-consolidated">${SVG.chev}</div>
       </div>
     </div>
     <div class="method-body ${histCollapsed.consolidated?'collapsed':''}" id="hist-body-consolidated"
@@ -1547,7 +1542,7 @@ function renderHistory() {
           <div class="method-title">Legacy Training Method</div>
           <div class="method-sub">${legacy.length} session${legacy.length!==1?'s':''} · A / B format</div>
         </div>
-        <div class="method-chevron ${histCollapsed.legacy?'':'open'}" id="hist-chev-legacy">${chevSvg}</div>
+        <div class="method-chevron ${histCollapsed.legacy?'':'open'}" id="hist-chev-legacy">${SVG.chev}</div>
       </div>
     </div>
     <div class="method-body ${histCollapsed.legacy?'collapsed':''}" id="hist-body-legacy"
@@ -1964,19 +1959,19 @@ function renderSettings() {
         <div class="settings-stat"><div class="settings-stat-label">Total sessions</div><div class="settings-stat-val">${workouts.length}</div><div></div></div>
         <div class="settings-stat settings-stat-link" onclick="goToHistorySection('consolidated')" style="cursor:pointer">
           <div class="settings-stat-label"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;box-shadow:0 0 5px rgba(204,17,17,0.6)"></span>Consolidated Method</div>
-          <div class="settings-stat-val">${cCount}</div><div class="settings-stat-chevron"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-stat-val">${cCount}</div><div class="settings-stat-chevron">${SVG.chev}</div>
         </div>
         <div class="settings-stat settings-stat-link" onclick="goToHistorySection('legacy')" style="cursor:pointer">
           <div class="settings-stat-label"><span style="width:7px;height:7px;border-radius:50%;background:#94a3b8;flex-shrink:0"></span>Legacy Method</div>
-          <div class="settings-stat-val">${lCount}</div><div class="settings-stat-chevron"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-stat-val">${lCount}</div><div class="settings-stat-chevron">${SVG.chev}</div>
         </div>
         ${first?`<div class="settings-stat settings-stat-link" onclick="go('detail',{id:'${first.id}'})" style="cursor:pointer">
           <div class="settings-stat-label">First session</div>
-          <div class="settings-stat-val">${fmtShort(first.date)}</div><div class="settings-stat-chevron"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-stat-val">${fmtShort(first.date)}</div><div class="settings-stat-chevron">${SVG.chev}</div>
         </div>`:''}
         ${last?`<div class="settings-stat settings-stat-link" onclick="go('detail',{id:'${last.id}'})" style="cursor:pointer">
           <div class="settings-stat-label">Latest session</div>
-          <div class="settings-stat-val">${fmtShort(last.date)}</div><div class="settings-stat-chevron"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-stat-val">${fmtShort(last.date)}</div><div class="settings-stat-chevron">${SVG.chev}</div>
         </div>`:''}
         ${last?.bw?`<div class="settings-stat"><div class="settings-stat-label">Last body weight</div><div class="settings-stat-val">${last.bw} kg</div><div></div></div>`:''}
       </div>
@@ -2008,7 +2003,7 @@ function renderSettings() {
             <div class="settings-icon" style="background:var(--accent-2);color:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
             <div><div class="settings-row-title">Install App</div><div class="settings-row-sub">Add Heavy Duty to your home screen</div></div>
           </div>
-          <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-row-arrow">${SVG.chev}</div>
         </div>
         <div class="settings-row" style="display:${_installPrompt?'none':'flex'};pointer-events:none;opacity:0.5">
           <div class="settings-row-left">
@@ -2027,14 +2022,14 @@ function renderSettings() {
             <div class="settings-icon" style="background:var(--green-bg);color:var(--green)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
             <div><div class="settings-row-title">Export JSON Backup</div><div class="settings-row-sub">Save all your workout data</div></div>
           </div>
-          <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-row-arrow">${SVG.chev}</div>
         </div>
         <div class="settings-row" onclick="document.getElementById('import-file').click()">
           <div class="settings-row-left">
             <div class="settings-icon" style="background:rgba(99,102,241,0.1);color:#818cf8"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
             <div><div class="settings-row-title">Import JSON</div><div class="settings-row-sub">Restore from a backup</div></div>
           </div>
-          <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-row-arrow">${SVG.chev}</div>
         </div>
       </div>
     </div>
@@ -2059,14 +2054,14 @@ function renderSettings() {
             <div class="settings-icon" style="background:var(--green-bg);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.46"/></svg></div>
             <div><div class="settings-row-title">Backup Now${localStorage.getItem('hd_gd_pending') ? ' <span style="color:var(--accent);font-size:11px;font-weight:700">● Pending</span>' : ''}</div><div class="settings-row-sub">Upload latest data to Drive</div></div>
           </div>
-          <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-row-arrow">${SVG.chev}</div>
         </div>
         <div class="settings-row" onclick="gdDisconnect()">
           <div class="settings-row-left">
             <div class="settings-icon" style="background:var(--red-bg);color:var(--red)"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
             <div><div class="settings-row-title">Disconnect</div><div class="settings-row-sub">Remove Drive access</div></div>
           </div>
-          <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-row-arrow">${SVG.chev}</div>
         </div>
         ` : `
         <div class="settings-row" onclick="gdConnect()">
@@ -2076,7 +2071,7 @@ function renderSettings() {
             </div>
             <div><div class="settings-row-title">Connect Google Drive</div><div class="settings-row-sub">Auto-backup after every workout</div></div>
           </div>
-          <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="settings-row-arrow">${SVG.chev}</div>
         </div>
         `}
       </div>
@@ -4061,7 +4056,7 @@ function renderCalendar() {
     <div class="cal-header">
       <button class="cal-nav" onclick="calNav(-1)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="cal-month-label">${CAL_MONTHS[calMonth]} ${calYear}</div>
-      <button class="cal-nav" onclick="calNav(1)"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+      <button class="cal-nav" onclick="calNav(1)">${SVG.chev}</button>
     </div>
     <div class="cal-dow"><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div><div>S</div></div>
     <div class="cal-grid">${cells}</div>
@@ -4582,7 +4577,7 @@ function renderGuide() {
               <div class="guide-ex-name">${ex.name}</div>
               <div class="guide-muscles">${ex.muscles}</div>
             </div>
-            ${chevSvg}
+            ${SVG.chev}
           </div>
           <div class="guide-pills" style="margin-top:8px">${programPills}</div>
         </div>
@@ -4604,7 +4599,7 @@ function renderGuide() {
               <div class="guide-ex-name">${t.name}</div>
               <div class="guide-tech-tag">${t.tag}</div>
             </div>
-            ${chevSvg}
+            ${SVG.chev}
           </div>
         </div>
         <div class="guide-card-body">
@@ -4767,16 +4762,14 @@ function cwRowHtml(cw, clickFn, editFn) {
   const icon = CW_ICON_SVGS[cwIconKey(cw)];
   const preview = cw.exs.slice(0,3).map(e=>e.split(' ').slice(-1)[0]).join(' · ');
   const sub = `${cw.exs.length} exercise${cw.exs.length!==1?'s':''} · ${preview}`;
-  const chevron = `<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
-  const editSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
   return `<div class="cw-row" onclick="${clickFn}">
     <div class="cw-row-icon" style="background:${pal.bg};color:${pal.fg}">${icon}</div>
     <div class="cw-row-body">
       <div class="cw-row-name">${cw.name}</div>
       <div class="cw-row-sub">${sub}</div>
     </div>
-    <button class="cw-row-edit" onclick="event.stopPropagation();${editFn}">${editSvg}</button>
-    <div class="cw-row-arrow">${chevron}</div>
+    <button class="cw-row-edit" onclick="event.stopPropagation();${editFn}">${SVG.pencil}</button>
+    <div class="cw-row-arrow">${SVG.chev}</div>
   </div>`;
 }
 
@@ -4851,8 +4844,7 @@ function cwDragEnd() {
     const [moved] = exs.splice(idx, 1);
     const dest = Math.max(0, Math.min(curIdx > idx ? curIdx - 1 : curIdx, exs.length));
     exs.splice(dest, 0, moved);
-    const nameEl = document.getElementById('cw-name');
-    window._cwFormName = nameEl ? nameEl.value : window._cwFormName;
+    _cwSaveName();
     _renderCustomWkForm(window._cwFormName, window._cwFormExs);
   }
 }
@@ -4884,20 +4876,17 @@ function _renderCustomWkForm(name, exs) {
     el.className = 'custom-form-overlay';
     document.body.appendChild(el);
   }
-  const xSvg    = `<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
-  const gripSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg>`;
   const exList = exs.map((n,i) => `
     <div class="cw-ex-row" ontouchstart="cwDragStart(event,${i})">
-      <div class="cw-drag-hint">${gripSvg}</div>
+      <div class="cw-drag-hint">${SVG.grip}</div>
       <div class="cw-ex-info">
         <div class="cw-ex-name">${n}</div>
         ${MUSCLE_MAP[n] ? `<div class="cw-ex-muscles">${MUSCLE_MAP[n]}</div>` : ''}
       </div>
       <div class="cw-ex-actions">
-        <button class="cw-ex-btn cw-ex-btn-remove" onclick="cwFormRemoveEx(${i})">${xSvg}</button>
+        <button class="cw-ex-btn cw-ex-btn-remove" onclick="cwFormRemoveEx(${i})">${SVG.x}</button>
       </div>
     </div>`).join('');
-  const addSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
   el.innerHTML = `
     <div class="custom-form-sheet">
       <div class="custom-form-head">
@@ -4916,7 +4905,7 @@ function _renderCustomWkForm(name, exs) {
         <div class="sec" style="margin-bottom:0"><div class="sec-label">Exercises (${exs.length})</div></div>
         ${exList}
         <div style="padding:10px 20px">
-          <button class="cw-form-add-btn" onclick="cwFormPickExercises()">${addSvg} Add Exercises</button>
+          <button class="cw-form-add-btn" onclick="cwFormPickExercises()">${SVG.plus} Add Exercises</button>
         </div>
       </div>
       <div style="padding:0 20px max(env(safe-area-inset-bottom,0px),24px);display:flex;flex-direction:column;gap:10px">
@@ -4928,28 +4917,22 @@ function _renderCustomWkForm(name, exs) {
   window._cwFormName = name;
 }
 
-function cwFormMoveEx(i, dir) {
-  const nameEl = document.getElementById('cw-name');
-  window._cwFormName = nameEl ? nameEl.value : window._cwFormName;
-  const exs = window._cwFormExs;
-  const j = i + dir;
-  if (j < 0 || j >= exs.length) return;
-  [exs[i], exs[j]] = [exs[j], exs[i]];
-  _renderCustomWkForm(window._cwFormName, window._cwFormExs);
-}
 
+
+function _cwSaveName() {
+  const el = document.getElementById('cw-name');
+  if (el) window._cwFormName = el.value;
+}
 function cwFormPickExercises() {
   openExPicker(window._cwFormExs, (selected) => {
     window._cwFormExs = selected;
-    const nameEl = document.getElementById('cw-name');
-    window._cwFormName = nameEl ? nameEl.value : window._cwFormName;
+    _cwSaveName();
     _renderCustomWkForm(window._cwFormName, window._cwFormExs);
   });
 }
 
 function cwFormRemoveEx(i) {
-  const nameEl = document.getElementById('cw-name');
-  window._cwFormName = nameEl ? nameEl.value : window._cwFormName;
+  _cwSaveName();
   window._cwFormExs.splice(i, 1);
   _renderCustomWkForm(window._cwFormName, window._cwFormExs);
 }
