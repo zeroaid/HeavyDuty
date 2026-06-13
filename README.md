@@ -17,7 +17,7 @@ This app tracks your Consolidated and Legacy split workouts, logs every set with
 ## Features
 
 ### Workout Tracking
-- **Workout logging** — full Heavy Duty exercise library covering HD I, HD II, HIT Mentzer Way, Consolidated, and Legacy splits; build and log custom workouts too
+- **Workout logging** — full Heavy Duty exercise library covering HD I, HD II, HIT Mentzer Way, and Consolidated routines; build and log custom workouts too
 - **Exercise variation selection** — for exercises like Pec Deck / Dumbbell Flyes, choose which variation you performed at log time
 - **Progressive overload tracking** — see your last performance on every exercise before you lift
 - **Rest-pause set support** — log RP clusters with the exact cadence Mentzer prescribed
