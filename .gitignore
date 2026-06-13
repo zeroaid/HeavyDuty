@@ -1,0 +1,4 @@
+secrets/
+*.backup.html
+minify*.py
+analyze.py
