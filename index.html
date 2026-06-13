@@ -4735,6 +4735,7 @@ function cwRowHtml(cw, clickFn, editFn) {
 let _cwDrag = null;
 
 function cwDragStart(e, idx) {
+  if (_cwDrag) return; // already dragging
   e.preventDefault();
   const row = e.currentTarget.closest('.cw-ex-row');
   const rect = row.getBoundingClientRect();
@@ -4742,6 +4743,8 @@ function cwDragStart(e, idx) {
 
   const ghost = row.cloneNode(true);
   ghost.id = 'cw-drag-ghost';
+  // Strip the cw-ex-row class so it is NEVER picked up by exercise-row selectors
+  ghost.className = 'cw-drag-ghost-el';
   ghost.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;z-index:9999;pointer-events:none;background:var(--surface-2);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.6);opacity:0.96;`;
   document.body.appendChild(ghost);
   row.classList.add('drag-source');
@@ -4758,50 +4761,42 @@ function cwDragMove(e) {
   const ghost = document.getElementById('cw-drag-ghost');
   if (ghost) ghost.style.top = (_cwDrag.ghostTop + y - _cwDrag.startY) + 'px';
 
+  // Only real exercise rows — ghost has class 'cw-drag-ghost-el', not 'cw-ex-row'
   const rows = Array.from(document.querySelectorAll('.cw-ex-row:not(.drag-source)'));
-  let newIdx = _cwDrag.idx;
+  rows.forEach(r => r.classList.remove('drag-over'));
+
+  let ti = window._cwFormExs.length; // default: drop at end
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i].getBoundingClientRect();
-    if (y < r.top + r.height / 2) { newIdx = i < _cwDrag.idx ? i : i; break; }
-    if (i === rows.length - 1) newIdx = i + (i >= _cwDrag.idx ? 1 : 0);
-  }
-  // Clamp to valid index accounting for the removed source row
-  const allRows = Array.from(document.querySelectorAll('.cw-ex-row'));
-  allRows.forEach(r => r.classList.remove('drag-over'));
-  // Highlight insertion point
-  let insertBefore = null;
-  for (let i = 0; i < allRows.length; i++) {
-    if (allRows[i].classList.contains('drag-source')) continue;
-    const r = allRows[i].getBoundingClientRect();
-    if (y < r.top + r.height / 2) { insertBefore = allRows[i]; break; }
-  }
-  if (insertBefore) insertBefore.classList.add('drag-over');
-
-  // Track target index in full list
-  const allEx = window._cwFormExs;
-  let ti = allEx.length; // default: end
-  if (insertBefore) {
-    const name = insertBefore.querySelector('.cw-ex-name')?.textContent || '';
-    const fi = allEx.indexOf(name);
-    if (fi !== -1) ti = fi;
+    if (y < r.top + r.height / 2) {
+      rows[i].classList.add('drag-over');
+      const name = rows[i].querySelector('.cw-ex-name')?.textContent?.trim() || '';
+      const fi = window._cwFormExs.indexOf(name);
+      ti = fi !== -1 ? fi : window._cwFormExs.length;
+      break;
+    }
   }
   _cwDrag.curIdx = ti;
 }
 
+function _cwDragCleanup() {
+  document.removeEventListener('touchmove', cwDragMove);
+  document.removeEventListener('touchend',  cwDragEnd);
+  document.getElementById('cw-drag-ghost')?.remove();
+  document.querySelectorAll('.cw-ex-row').forEach(r => r.classList.remove('drag-source','drag-over'));
+  _cwDrag = null;
+}
+
 function cwDragEnd() {
   if (!_cwDrag) return;
-  document.removeEventListener('touchmove', cwDragMove);
-  document.getElementById('cw-drag-ghost')?.remove();
-  document.querySelectorAll('.cw-ex-row').forEach(r => { r.classList.remove('drag-source','drag-over'); });
-
   const { idx, curIdx } = _cwDrag;
-  _cwDrag = null;
+  _cwDragCleanup();
 
   if (idx !== curIdx) {
     const exs = window._cwFormExs;
     const [moved] = exs.splice(idx, 1);
-    const dest = curIdx > idx ? curIdx - 1 : curIdx;
-    exs.splice(Math.max(0, Math.min(dest, exs.length)), 0, moved);
+    const dest = Math.max(0, Math.min(curIdx > idx ? curIdx - 1 : curIdx, exs.length));
+    exs.splice(dest, 0, moved);
   }
   const nameEl = document.getElementById('cw-name');
   window._cwFormName = nameEl ? nameEl.value : window._cwFormName;
@@ -4925,6 +4920,7 @@ function cwFormDelete() {
 }
 
 function closeCustomWkForm() {
+  _cwDragCleanup();
   document.getElementById('custom-form-overlay')?.remove();
 }
 
