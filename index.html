@@ -576,6 +576,13 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .cw-ex-btn:active { background:rgba(255,255,255,0.08); }
 .cw-ex-btn svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2.5; stroke-linecap:round; }
 .cw-ex-btn-remove:active { color:var(--accent); }
+.cw-drag-handle { padding:8px 10px 8px 0; color:var(--text-3); cursor:grab; touch-action:none; display:flex; align-items:center; flex-shrink:0; }
+.cw-drag-handle svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
+.cw-ex-row.drag-over { border-top:2px solid var(--accent); }
+.cw-ex-row.drag-source { opacity:0.3; }
+/* Workout list on home */
+.next-pill { display:inline-block; font-size:9px; font-weight:800; letter-spacing:0.8px; background:var(--accent); color:#fff; padding:1px 5px; border-radius:3px; vertical-align:middle; margin-left:6px; line-height:1.6; }
+.cw-section-label { padding:7px 16px 5px; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text-3); border-top:1px solid var(--border); }
 /* Exercise picker sheet */
 .ex-picker-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:300; display:flex; align-items:flex-end; }
 .ex-picker-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; max-height:88vh; display:flex; flex-direction:column; }
@@ -1003,6 +1010,14 @@ const MENTZER_QUOTES = [
 ];
 
 const ROT = ['A1','B1','A2','B2'];
+const WK_ICON = {
+  A1: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 9h10"/><path d="M5 8v3"/><path d="M6.5 7v5"/><path d="M17.5 7v5"/><path d="M19 8v3"/><path d="M5 15h14"/><path d="M8 15v3"/><path d="M16 15v3"/></svg>`,
+  A2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v14"/><path d="M16 3v14"/><path d="M8 3h8"/><path d="M4 10h4"/><path d="M16 10h4"/><path d="M6 17h4"/><path d="M14 17h4"/></svg>`,
+  B1: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 12h12"/><path d="M2 9.5v5"/><path d="M5 7v10"/><path d="M19 7v10"/><path d="M22 9.5v5"/></svg>`,
+  B2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="7" r="2"/><path d="M5 9v4h5"/><path d="M10 13l5-5"/><path d="M15 8v6"/><path d="M13 14h6"/></svg>`,
+  LA: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 9h10"/><path d="M5 8v3"/><path d="M6.5 7v5"/><path d="M17.5 7v5"/><path d="M19 8v3"/><path d="M5 15h14"/><path d="M8 15v3"/><path d="M16 15v3"/></svg>`,
+  LB: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 12h12"/><path d="M2 9.5v5"/><path d="M5 7v10"/><path d="M19 7v10"/><path d="M22 9.5v5"/></svg>`,
+};
 const WK = {
   // ── Consolidated Method ──
   A1:{ label:'A1: Upper Body (Primary)',   short:'A1', desc:'Bench Press & Pull Downs', method:'consolidated', exs:['Smith Close Grip Bench Press','Close Palm Grip Pull Downs'] },
@@ -1307,13 +1322,33 @@ function renderHome() {
     </div>`;
   }).join('');
 
-  const addPlusSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
-  const cwRows = customWks.map(cw => cwRowHtml(cw, `go('log',{type:'${cw.id}'})`, `openCustomWkForm('${cw.id}')`)).join('');
-  const customSection = `
-    <div class="sec" style="margin-top:4px"><div class="sec-label">Custom Workouts</div></div>
+  const plusSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+  const chevSvg = `<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
+
+  const builtInRow = (t, isLegacy) => {
+    const wk = WK[t];
+    const isNext = t === nt;
+    const bg  = isLegacy ? 'rgba(148,163,184,0.1)' : 'var(--accent-2)';
+    const fg  = isLegacy ? '#94a3b8'               : 'var(--accent)';
+    const badge = isNext ? ' <span class="next-pill">NEXT</span>' : '';
+    return `<div class="cw-row" onclick="go('log',{type:'${t}'})">
+      <div class="cw-row-icon" style="background:${bg};color:${fg}">${WK_ICON[t]}</div>
+      <div class="cw-row-body">
+        <div class="cw-row-name">${wk.label}${badge}</div>
+        <div class="cw-row-sub">${wk.desc}</div>
+      </div>
+      <div class="cw-row-arrow">${chevSvg}</div>
+    </div>`;
+  };
+
+  const workoutsSection = `
+    <div class="sec" style="margin-top:4px"><div class="sec-label">Workouts</div></div>
     <div class="cw-card">
-      ${cwRows}
-      <div class="cw-row-add" onclick="openCustomWkForm(null)">${addPlusSvg} New Custom Workout</div>
+      ${ROT.map(t => builtInRow(t, false)).join('')}
+      <div class="cw-section-label">Legacy Method</div>
+      ${['LA','LB'].map(t => builtInRow(t, true)).join('')}
+      ${customWks.length ? `<div class="cw-section-label">My Workouts</div>${customWks.map(cw => cwRowHtml(cw, `go('log',{type:'${cw.id}'})`, `openCustomWkForm('${cw.id}')`)).join('')}` : ''}
+      <div class="cw-row-add" onclick="openCustomWkForm(null)">${plusSvg} New Custom Workout</div>
     </div>`;
 
   document.getElementById('s-home').innerHTML = `
@@ -1345,7 +1380,7 @@ function renderHome() {
 
     <div class="stat-row">${statChips}</div>
 
-    ${customSection}
+    ${workoutsSection}
 
     <div class="sec"><div class="sec-label">Recent Sessions</div></div>
     ${recent}
@@ -1881,33 +1916,6 @@ function renderSettings() {
   const s = asc(), first = s[0], last = s[s.length-1];
   const cCount = workouts.filter(w=>w.method==='consolidated').length;
   const lCount = workouts.filter(w=>w.method==='legacy').length;
-  const WK_ICON = {
-    // A1: Bench Press — flat bench + barbell above
-    A1: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 9h10"/><path d="M5 8v3"/><path d="M6.5 7v5"/><path d="M17.5 7v5"/><path d="M19 8v3"/><path d="M5 15h14"/><path d="M8 15v3"/><path d="M16 15v3"/></svg>`,
-    // A2: Dip station — front view, uprights + outward handles + base feet
-    A2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v14"/><path d="M16 3v14"/><path d="M8 3h8"/><path d="M4 10h4"/><path d="M16 10h4"/><path d="M6 17h4"/><path d="M14 17h4"/></svg>`,
-    // B1: Heavy barbell — squat/deadlift, tall plates
-    B1: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 12h12"/><path d="M2 9.5v5"/><path d="M5 7v10"/><path d="M19 7v10"/><path d="M22 9.5v5"/></svg>`,
-    // B2: Leg press — reclined figure, legs pushing platform
-    B2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="7" r="2"/><path d="M5 9v4h5"/><path d="M10 13l5-5"/><path d="M15 8v6"/><path d="M13 14h6"/></svg>`,
-    // Legacy upper: bench press (same as A1)
-    LA: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 9h10"/><path d="M5 8v3"/><path d="M6.5 7v5"/><path d="M17.5 7v5"/><path d="M19 8v3"/><path d="M5 15h14"/><path d="M8 15v3"/><path d="M16 15v3"/></svg>`,
-    // Legacy lower: heavy barbell (same as B1)
-    LB: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 12h12"/><path d="M2 9.5v5"/><path d="M5 7v10"/><path d="M19 7v10"/><path d="M22 9.5v5"/></svg>`,
-  };
-  const typeButtons = ROT.map(t=>`
-    <div class="settings-row" onclick="go('log',{type:'${t}'})">
-      <div class="settings-row-left">
-        <div class="settings-icon" style="background:var(--accent-2);color:var(--accent)">
-          ${WK_ICON[t]}
-        </div>
-        <div>
-          <div class="settings-row-title">${WK[t].label}</div>
-          <div class="settings-row-sub">${WK[t].desc}</div>
-        </div>
-      </div>
-      <div class="settings-row-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-    </div>`).join('');
 
   document.getElementById('s-settings').innerHTML = `
     <div class="page-top"><div class="page-title">Settings</div><div class="page-subtitle">Brief · Brutal · Basic. Train to failure. Then rest. That's it.</div></div>
@@ -1936,20 +1944,22 @@ function renderSettings() {
       </div>
     </div>
 
-    <div class="sec"><div class="sec-label">Log Workout</div></div>
-    <div style="margin:0 20px"><div class="settings-card">${typeButtons}</div></div>
-
     ${customWks.length ? `
-    <div class="sec"><div class="sec-label">Custom Workouts</div></div>
+    <div class="sec"><div class="sec-label">My Workouts</div></div>
     <div class="cw-card" style="margin:0 20px">
       ${customWks.map(cw => cwRowHtml(cw, `go('log',{type:'${cw.id}'})`, `openCustomWkForm('${cw.id}')`)).join('')}
-    </div>` : ''}
-    <div style="margin:10px 20px 0">
-      <button onclick="openCustomWkForm(null)" style="width:100%;background:transparent;border:1px solid var(--border);border-radius:var(--r-md);padding:12px;font-size:13px;font-weight:700;color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <div class="cw-row-add" onclick="openCustomWkForm(null)" style="padding:13px 16px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         New Custom Workout
-      </button>
-    </div>
+      </div>
+    </div>` : `
+    <div class="sec"><div class="sec-label">My Workouts</div></div>
+    <div style="margin:0 20px">
+      <div class="cw-row-add" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-lg);padding:13px 16px" onclick="openCustomWkForm(null)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Custom Workout
+      </div>
+    </div>`}
 
     ${!window.matchMedia('(display-mode: standalone)').matches ? `
     <div class="sec"><div class="sec-label">App</div></div>
@@ -4721,6 +4731,83 @@ function cwRowHtml(cw, clickFn, editFn) {
   </div>`;
 }
 
+// ── Touch drag-to-reorder for exercise list ──────────────
+let _cwDrag = null;
+
+function cwDragStart(e, idx) {
+  e.preventDefault();
+  const row = e.currentTarget.closest('.cw-ex-row');
+  const rect = row.getBoundingClientRect();
+  const touch = e.touches[0];
+
+  const ghost = row.cloneNode(true);
+  ghost.id = 'cw-drag-ghost';
+  ghost.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;z-index:9999;pointer-events:none;background:var(--surface-2);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.6);opacity:0.96;`;
+  document.body.appendChild(ghost);
+  row.classList.add('drag-source');
+
+  _cwDrag = { idx, curIdx: idx, startY: touch.clientY, ghostTop: rect.top, row };
+  document.addEventListener('touchmove', cwDragMove, { passive: false });
+  document.addEventListener('touchend',  cwDragEnd,  { once: true });
+}
+
+function cwDragMove(e) {
+  if (!_cwDrag) return;
+  e.preventDefault();
+  const y = e.touches[0].clientY;
+  const ghost = document.getElementById('cw-drag-ghost');
+  if (ghost) ghost.style.top = (_cwDrag.ghostTop + y - _cwDrag.startY) + 'px';
+
+  const rows = Array.from(document.querySelectorAll('.cw-ex-row:not(.drag-source)'));
+  let newIdx = _cwDrag.idx;
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i].getBoundingClientRect();
+    if (y < r.top + r.height / 2) { newIdx = i < _cwDrag.idx ? i : i; break; }
+    if (i === rows.length - 1) newIdx = i + (i >= _cwDrag.idx ? 1 : 0);
+  }
+  // Clamp to valid index accounting for the removed source row
+  const allRows = Array.from(document.querySelectorAll('.cw-ex-row'));
+  allRows.forEach(r => r.classList.remove('drag-over'));
+  // Highlight insertion point
+  let insertBefore = null;
+  for (let i = 0; i < allRows.length; i++) {
+    if (allRows[i].classList.contains('drag-source')) continue;
+    const r = allRows[i].getBoundingClientRect();
+    if (y < r.top + r.height / 2) { insertBefore = allRows[i]; break; }
+  }
+  if (insertBefore) insertBefore.classList.add('drag-over');
+
+  // Track target index in full list
+  const allEx = window._cwFormExs;
+  let ti = allEx.length; // default: end
+  if (insertBefore) {
+    const name = insertBefore.querySelector('.cw-ex-name')?.textContent || '';
+    const fi = allEx.indexOf(name);
+    if (fi !== -1) ti = fi;
+  }
+  _cwDrag.curIdx = ti;
+}
+
+function cwDragEnd() {
+  if (!_cwDrag) return;
+  document.removeEventListener('touchmove', cwDragMove);
+  document.getElementById('cw-drag-ghost')?.remove();
+  document.querySelectorAll('.cw-ex-row').forEach(r => { r.classList.remove('drag-source','drag-over'); });
+
+  const { idx, curIdx } = _cwDrag;
+  _cwDrag = null;
+
+  if (idx !== curIdx) {
+    const exs = window._cwFormExs;
+    const [moved] = exs.splice(idx, 1);
+    const dest = curIdx > idx ? curIdx - 1 : curIdx;
+    exs.splice(Math.max(0, Math.min(dest, exs.length)), 0, moved);
+  }
+  const nameEl = document.getElementById('cw-name');
+  window._cwFormName = nameEl ? nameEl.value : window._cwFormName;
+  _renderCustomWkForm(window._cwFormName, window._cwFormExs);
+}
+
 let _cwFormId = null; // null = create, else edit id
 
 function openCustomWkForm(id) {
@@ -4738,11 +4825,13 @@ function _renderCustomWkForm(name, exs) {
     el.className = 'custom-form-overlay';
     document.body.appendChild(el);
   }
-  const upSvg   = `<svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>`;
-  const downSvg = `<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>`;
-  const xSvg    = `<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+  const upSvg     = `<svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>`;
+  const downSvg   = `<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>`;
+  const xSvg      = `<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+  const gripSvg   = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg>`;
   const exList = exs.map((n,i) => `
     <div class="cw-ex-row">
+      <div class="cw-drag-handle" ontouchstart="cwDragStart(event,${i})">${gripSvg}</div>
       <div class="cw-ex-info">
         <div class="cw-ex-name">${n}</div>
         ${MUSCLE_MAP[n] ? `<div class="cw-ex-muscles">${MUSCLE_MAP[n]}</div>` : ''}
