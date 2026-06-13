@@ -4755,7 +4755,8 @@ function _updateExPickerResults() {
   ).join('');
   const q = _pickerSearch.toLowerCase();
   const items = EXERCISES
-    .filter(e => (_pickerFilter === 'All' || e.muscleGroup === _pickerFilter) && (!q || e.name.toLowerCase().includes(q)))
+    .filter(e => (_pickerFilter === 'All' || e.muscleGroup === _pickerFilter) &&
+      (!q || e.name.toLowerCase().includes(q) || e.muscleGroup.toLowerCase().includes(q) || e.muscles.toLowerCase().includes(q)))
     .map(e => {
       const checked = _pickerSelected.includes(e.name);
       return `<div class="ex-picker-item" onclick="exPickerToggle('${e.name.replace(/'/g,"\\'")}')">
