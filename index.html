@@ -257,6 +257,11 @@ input, textarea, select {
 }
 input:focus, textarea:focus, select:focus { border-color: var(--accent); background: var(--surface-3); }
 input::placeholder, textarea::placeholder { color: var(--text-3); }
+/* contenteditable fields — bypasses Chrome autofill entirely */
+.fake-input { width:100%; background:var(--surface-2); border:1.5px solid var(--border); border-radius:var(--r-sm); color:var(--text); font-size:16px; padding:13px 14px; outline:none; transition:border-color 0.15s,background 0.15s; min-height:50px; line-height:1.3; cursor:text; box-sizing:border-box; white-space:nowrap; overflow:hidden; }
+.fake-input:focus { border-color:var(--accent); background:var(--surface-3); }
+.fake-input:empty::before { content:attr(data-ph); color:var(--text-3); pointer-events:none; }
+.fake-input[contenteditable="false"] { opacity:0.5; cursor:default; }
 .rec-date-row { display:flex; gap:8px; margin-bottom:14px; }
 .rec-date-btn { flex:1; background:var(--surface-2); border:1.5px solid var(--border); border-radius:var(--r-sm); padding:10px 8px; display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; transition:border-color 0.15s; }
 .rec-date-btn:focus, .rec-date-btn.active { border-color:var(--accent); background:var(--surface-3); }
@@ -4744,7 +4749,7 @@ function _renderExPicker() {
     <div class="ex-picker-sheet">
       <div class="ex-picker-head">
         <div class="ex-picker-title">Add Exercises</div>
-        <input class="ex-picker-search" type="text" placeholder="Search exercises…" value="${_pickerSearch}" oninput="exPickerSearch(this.value)" autocomplete="nope" readonly onfocus="this.removeAttribute('readonly')">
+        <div class="ex-picker-search fake-input" contenteditable="true" data-ph="Search exercises…" spellcheck="false" onkeydown="if(event.key==='Enter')event.preventDefault()" oninput="exPickerSearch(this.innerText.trim())">${_pickerSearch}</div>
         <div class="ex-picker-chips">${chips}</div>
       </div>
       <div class="ex-picker-list">${items || '<div class="empty">No exercises found.</div>'}</div>
@@ -4942,7 +4947,7 @@ function _renderCustomWkForm(name, exs) {
         </div>
         <div class="form-field">
           <label>Workout Name</label>
-          <input type="text" id="cw-wktitle" value="${name}" placeholder="e.g. Push Day, Arms &amp; Shoulders…" autocomplete="nope" ${_cwFormIsBuiltIn ? 'readonly style="opacity:0.5"' : 'readonly onfocus="this.removeAttribute(\'readonly\')"'}>
+          <div id="cw-wktitle" class="fake-input" contenteditable="${_cwFormIsBuiltIn ? 'false' : 'true'}" data-ph="e.g. Push Day, Arms &amp; Shoulders…" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}" oninput="_cwSaveName()">${name ? name.replace(/&/g,'&amp;').replace(/</g,'&lt;') : ''}</div>
         </div>
       </div>
       <div class="custom-form-scroll">
@@ -4967,7 +4972,7 @@ function _renderCustomWkForm(name, exs) {
 
 function _cwSaveName() {
   const el = document.getElementById('cw-wktitle');
-  if (el) window._cwFormName = el.value;
+  if (el) window._cwFormName = el.textContent.trim();
 }
 function cwFormPickExercises() {
   openExPicker(window._cwFormExs, (selected) => {
@@ -5000,7 +5005,7 @@ function cwFormSave() {
     }
     return;
   }
-  const name = (document.getElementById('cw-wktitle')?.value || '').trim();
+  const name = (document.getElementById('cw-wktitle')?.textContent || '').trim();
   if (!name) { toast('Please name your workout', true); return; }
   if (_cwFormId) {
     const w = getCustomWk(_cwFormId);
