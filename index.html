@@ -1163,9 +1163,19 @@ function daysAgo(s) {
   return Math.round((tod - localMidnight(s)) / 864e5);
 }
 function nextType() {
-  const s = asc().filter(w=>w.method==='consolidated');
+  const s = asc();
   if (!s.length) return 'A1';
-  return ROT[(ROT.indexOf(s[s.length-1].type)+1)%4];
+  const last = s[s.length - 1];
+  if (last.method === 'legacy') {
+    return last.type === 'LA' ? 'LB' : 'LA';
+  }
+  if (last.method === 'consolidated') {
+    const lastC = [...s].reverse().find(w => w.method === 'consolidated');
+    return ROT[(ROT.indexOf(lastC.type) + 1) % 4];
+  }
+  // custom or unknown — continue from last consolidated, or default
+  const lastC = [...s].reverse().find(w => w.method === 'consolidated');
+  return lastC ? ROT[(ROT.indexOf(lastC.type) + 1) % 4] : 'A1';
 }
 function lastFor(name, skipId) {
   for (const w of desc()) {
@@ -1254,7 +1264,8 @@ function renderHome() {
   let sub = 'No previous workouts';
   if (last) {
     const d = daysAgo(last.date);
-    sub = `<span class="hero-sub-link" onclick="scrollToRecent('${last.id}')">Last: ${WK[last.type].short} · ${fmtShort(last.date)} · <strong style="color:var(--text)">${d} day${d!==1?'s':''} ago</strong></span>`;
+    const lastWk = resolveWk(last.type);
+    sub = `<span class="hero-sub-link" onclick="scrollToRecent('${last.id}')">Last: ${lastWk?.short||last.type} · ${fmtShort(last.date)} · <strong style="color:var(--text)">${d} day${d!==1?'s':''} ago</strong></span>`;
   }
 
   const lbw = desc().find(w=>w.bw);
@@ -1332,9 +1343,9 @@ function renderHome() {
       </button>
     </div>
 
-    ${customSection}
-
     <div class="stat-row">${statChips}</div>
+
+    ${customSection}
 
     <div class="sec"><div class="sec-label">Recent Sessions</div></div>
     ${recent}
