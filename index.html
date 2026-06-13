@@ -564,6 +564,8 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .cw-row-edit { flex-shrink:0; background:none; border:none; padding:6px; color:var(--text-3); cursor:pointer; line-height:0; -webkit-tap-highlight-color:transparent; }
 .cw-row-arrow { flex-shrink:0; line-height:0; }
 .cw-row-arrow svg { width:15px; height:15px; fill:none; stroke:var(--text-3); stroke-width:2.5; stroke-linecap:round; }
+.cw-row-edit-btn { flex-shrink:0; background:none; border:none; padding:8px 10px; color:var(--text-3); cursor:pointer; line-height:0; -webkit-tap-highlight-color:transparent; }
+.cw-row-edit-btn:active { color:var(--text); }
 .cw-row-add { display:flex; align-items:center; gap:12px; padding:13px 16px; cursor:pointer; color:var(--accent); font-size:13px; font-weight:700; }
 .cw-row-add:active { background:var(--surface-2); }
 /* Custom form exercise rows */
@@ -576,8 +578,12 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .cw-ex-btn:active { background:rgba(255,255,255,0.08); }
 .cw-ex-btn svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2.5; stroke-linecap:round; }
 .cw-ex-btn-remove:active { color:var(--accent); }
-.cw-drag-handle { padding:8px 10px 8px 0; color:var(--text-3); cursor:grab; touch-action:none; display:flex; align-items:center; flex-shrink:0; }
-.cw-drag-handle svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
+.cw-drag-hint { padding:4px 0 4px 6px; color:rgba(255,255,255,0.2); display:flex; align-items:center; flex-shrink:0; pointer-events:none; }
+.cw-drag-hint svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
+/* Exercise variation chips (log screen) */
+.ex-variation-chips { display:flex; gap:6px; padding:0 16px 12px; flex-wrap:wrap; }
+.ex-var-chip { padding:5px 13px; border-radius:14px; border:1px solid var(--border); background:var(--surface-2); font-size:12px; font-weight:600; color:var(--text-2); cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.ex-var-chip.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 .cw-ex-row.drag-over { border-top:2px solid var(--accent); }
 .cw-ex-row.drag-source { opacity:0.3; }
 /* Workout list on home */
@@ -1092,6 +1098,22 @@ const QUOTES = [
 let workouts = [];
 let recoveryLogs = [];
 let cur = 'home', prev = 'home', logType = 'A1', detailId = null, editId = null;
+let _logVariations = {}; // {exerciseIndex: chosenVariantName}
+
+function setLogVariation(i, name, el) {
+  _logVariations[i] = name;
+  el.closest('.ex-variation-chips').querySelectorAll('.ex-var-chip').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const hintEl = document.getElementById('ehint' + i);
+  if (hintEl) {
+    const p = lastFor(name, null);
+    hintEl.innerHTML = p
+      ? `Last: <strong>${p.w>0?p.w+'kg':'BW'} × ${p.r} reps</strong> · ${fmtShort(p.date)}`
+      : 'No previous data';
+    const wEl = document.getElementById('ew' + i);
+    if (wEl && p && p.w > 0) wEl.value = p.w;
+  }
+}
 
 function load() {
   const allSeed = [
@@ -1209,9 +1231,13 @@ function nextType() {
   return lastC ? ROT[(ROT.indexOf(lastC.type) + 1) % 4] : 'A1';
 }
 function lastFor(name, skipId) {
+  // Match exact name OR any variant (for "A / B" exercises)
+  const alts = name.includes(' / ') ? name.split(' / ').map(s=>s.trim()) : [];
   for (const w of desc()) {
     if (w.id===skipId) continue;
-    for (const e of w.ex) if (e.n===name && e.r!=null) return {date:w.date,w:e.w,r:e.r};
+    for (const e of w.ex) {
+      if ((e.n===name || alts.includes(e.n)) && e.r!=null) return {date:w.date,w:e.w,r:e.r};
+    }
   }
   return null;
 }
@@ -1325,19 +1351,22 @@ function renderHome() {
   const plusSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
   const chevSvg = `<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
 
+  const pencilSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
   const builtInRow = (t, isLegacy) => {
     const wk = WK[t];
     const isNext = t === nt;
+    const isEdited = !!wkMods[t];
     const bg  = isLegacy ? 'rgba(148,163,184,0.1)' : 'var(--accent-2)';
     const fg  = isLegacy ? '#94a3b8'               : 'var(--accent)';
     const badge = isNext ? ' <span class="next-pill">NEXT</span>' : '';
+    const editedBadge = isEdited ? ' <span class="next-pill" style="background:rgba(255,255,255,0.15);color:var(--text-2)">EDITED</span>' : '';
     return `<div class="cw-row" onclick="go('log',{type:'${t}'})">
       <div class="cw-row-icon" style="background:${bg};color:${fg}">${WK_ICON[t]}</div>
       <div class="cw-row-body">
-        <div class="cw-row-name">${wk.label}${badge}</div>
-        <div class="cw-row-sub">${wk.desc}</div>
+        <div class="cw-row-name">${wk.label}${badge}${editedBadge}</div>
+        <div class="cw-row-sub">${resolveWk(t).desc}</div>
       </div>
-      <div class="cw-row-arrow">${chevSvg}</div>
+      <button class="cw-row-edit-btn" onclick="event.stopPropagation();openWkEditForm('${t}')">${pencilSvg}</button>
     </div>`;
   };
 
@@ -1620,10 +1649,14 @@ function renderDetail(id) {
 
 function renderLog(type) {
   logType = type;
+  _logVariations = {};
   const wk = resolveWk(type);
 
   const blocks = wk.exs.map((en,i) => {
-    const p = lastFor(en, null);
+    const variants = en.includes(' / ') ? en.split(' / ').map(s=>s.trim()) : null;
+    const defaultName = variants ? variants[0] : en;
+    if (variants) _logVariations[i] = defaultName;
+    const p = lastFor(defaultName, null);
     const isBW = BW_EX.has(en);
     const isDL = en === 'Deadlifts';
     const dw = p && p.w > 0 ? p.w : '';
@@ -1634,12 +1667,16 @@ function renderLog(type) {
       ? `Last: <strong>${isBW ? (p.belt && p.w > 0 ? 'BW +'+p.w+'kg belt' : 'BW') : (p.w>0?p.w+'kg':'BW')} × ${p.r} reps</strong>${barHint} · ${fmtShort(p.date)}`
       : 'No previous data';
     const muscles = MUSCLE_MAP[en] || '';
+    const varChips = variants
+      ? `<div class="ex-variation-chips">${variants.map((v,vi)=>`<button class="ex-var-chip${vi===0?' active':''}" onclick="setLogVariation(${i},'${v.replace(/'/g,"\\'")}',this)">${v}</button>`).join('')}</div>`
+      : '';
     return `
       <div class="ex-form-card">
         <div class="ex-form-head">
           <div class="ex-form-name">${en}${muscles?`<div class="ex-form-muscles">${muscles}</div>`:''}</div>
-          <div class="ex-form-hint">${hintHtml}</div>
+          <div class="ex-form-hint" id="ehint${i}">${hintHtml}</div>
         </div>
+        ${varChips}
         <div class="ex-form-body">
           ${isDL ? `
           <div class="belt-row" style="margin-bottom:10px">
@@ -1751,13 +1788,14 @@ function saveWorkout() {
   const bf = parseFloat(document.getElementById('lbf').value)||null;
   const note = document.getElementById('lnote').value.trim();
   const ex = wk.exs.map((en,i)=>{
-    const isBW = BW_EX.has(en);
-    const isDL = en === 'Deadlifts';
+    const resolvedName = _logVariations[i] ?? en;
+    const isBW = BW_EX.has(en) || BW_EX.has(resolvedName);
+    const isDL = resolvedName === 'Deadlifts';
     const beltOn = isBW && document.getElementById('bts'+i)?.classList.contains('on');
     const barEl = isDL ? document.getElementById('bars'+i)?.querySelector('.active') : null;
     const bar = barEl ? barEl.dataset.bar : null;
     return {
-      n: en,
+      n: resolvedName,
       w: parseFloat(document.getElementById('ew'+i)?.value)||0,
       r: parseInt(document.getElementById('er'+i).value)||null,
       note: document.getElementById('en'+i).value.trim(),
@@ -4600,10 +4638,15 @@ function renderGuide() {
 // ══════════════════════════════════════════════════════
 
 let customWks = [];
+let wkMods = {}; // overrides for built-in workouts {A1:[...exs], ...}
 
 function loadCustomWks() {
   try { customWks = JSON.parse(localStorage.getItem('hd_custom_wks') || '[]'); } catch(e) { customWks = []; }
 }
+function loadWkMods() {
+  try { wkMods = JSON.parse(localStorage.getItem('hd_wk_mods') || '{}'); } catch(e) { wkMods = {}; }
+}
+function saveWkMods() { localStorage.setItem('hd_wk_mods', JSON.stringify(wkMods)); }
 function saveCustomWks() {
   localStorage.setItem('hd_custom_wks', JSON.stringify(customWks));
 }
@@ -4611,7 +4654,13 @@ function getCustomWk(id) {
   return customWks.find(w => w.id === id) || null;
 }
 function resolveWk(type) {
-  return WK[type] || (getCustomWk(type) ? { label: getCustomWk(type).name, short: 'CX', desc: getCustomWk(type).exs.slice(0,2).join(' & '), method: 'custom', exs: getCustomWk(type).exs } : null);
+  const base = WK[type];
+  if (base) {
+    if (wkMods[type]) return { ...base, exs: wkMods[type], desc: wkMods[type].slice(0,2).join(' & ') };
+    return base;
+  }
+  const cw = getCustomWk(type);
+  return cw ? { label: cw.name, short: 'CX', desc: cw.exs.slice(0,2).join(' & '), method: 'custom', exs: cw.exs } : null;
 }
 
 // ── Exercise picker ────────────────────────────────────
@@ -4735,37 +4784,42 @@ function cwRowHtml(cw, clickFn, editFn) {
 let _cwDrag = null;
 
 function cwDragStart(e, idx) {
-  if (_cwDrag) return; // already dragging
-  e.preventDefault();
-  const row = e.currentTarget.closest('.cw-ex-row');
-  const rect = row.getBoundingClientRect();
+  if (_cwDrag) return;
   const touch = e.touches[0];
-
-  const ghost = row.cloneNode(true);
-  ghost.id = 'cw-drag-ghost';
-  // Strip the cw-ex-row class so it is NEVER picked up by exercise-row selectors
-  ghost.className = 'cw-drag-ghost-el';
-  ghost.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;z-index:9999;pointer-events:none;background:var(--surface-2);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.6);opacity:0.96;`;
-  document.body.appendChild(ghost);
-  row.classList.add('drag-source');
-
-  _cwDrag = { idx, curIdx: idx, startY: touch.clientY, ghostTop: rect.top, row };
+  // Don't preventDefault here — lets button taps fall through until threshold crossed
+  _cwDrag = { idx, curIdx: idx, startY: touch.clientY, ghostTop: null, row: e.currentTarget, started: false };
   document.addEventListener('touchmove', cwDragMove, { passive: false });
   document.addEventListener('touchend',  cwDragEnd,  { once: true });
 }
 
 function cwDragMove(e) {
   if (!_cwDrag) return;
+  const touch = e.touches[0];
+  const dy = touch.clientY - _cwDrag.startY;
+
+  if (!_cwDrag.started) {
+    if (Math.abs(dy) < 8) return; // under threshold — don't swallow the event
+    // Threshold crossed — begin visual drag
+    _cwDrag.started = true;
+    const row = _cwDrag.row;
+    const rect = row.getBoundingClientRect();
+    const ghost = row.cloneNode(true);
+    ghost.id = 'cw-drag-ghost';
+    ghost.className = 'cw-drag-ghost-el'; // NOT cw-ex-row — avoids selector pollution
+    ghost.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;z-index:9999;pointer-events:none;background:var(--surface-2);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.6);opacity:0.96;`;
+    document.body.appendChild(ghost);
+    row.classList.add('drag-source');
+    _cwDrag.ghostTop = rect.top;
+  }
+
   e.preventDefault();
-  const y = e.touches[0].clientY;
+  const y = touch.clientY;
   const ghost = document.getElementById('cw-drag-ghost');
   if (ghost) ghost.style.top = (_cwDrag.ghostTop + y - _cwDrag.startY) + 'px';
 
-  // Only real exercise rows — ghost has class 'cw-drag-ghost-el', not 'cw-ex-row'
   const rows = Array.from(document.querySelectorAll('.cw-ex-row:not(.drag-source)'));
   rows.forEach(r => r.classList.remove('drag-over'));
-
-  let ti = window._cwFormExs.length; // default: drop at end
+  let ti = window._cwFormExs.length;
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i].getBoundingClientRect();
     if (y < r.top + r.height / 2) {
@@ -4789,27 +4843,37 @@ function _cwDragCleanup() {
 
 function cwDragEnd() {
   if (!_cwDrag) return;
-  const { idx, curIdx } = _cwDrag;
+  const { idx, curIdx, started } = _cwDrag;
   _cwDragCleanup();
 
-  if (idx !== curIdx) {
+  if (started && idx !== curIdx) {
     const exs = window._cwFormExs;
     const [moved] = exs.splice(idx, 1);
     const dest = Math.max(0, Math.min(curIdx > idx ? curIdx - 1 : curIdx, exs.length));
     exs.splice(dest, 0, moved);
+    const nameEl = document.getElementById('cw-name');
+    window._cwFormName = nameEl ? nameEl.value : window._cwFormName;
+    _renderCustomWkForm(window._cwFormName, window._cwFormExs);
   }
-  const nameEl = document.getElementById('cw-name');
-  window._cwFormName = nameEl ? nameEl.value : window._cwFormName;
-  _renderCustomWkForm(window._cwFormName, window._cwFormExs);
 }
 
-let _cwFormId = null; // null = create, else edit id
+let _cwFormId = null;   // null = create, 'CX_...' = edit custom, 'A1'/'B1'/etc = edit built-in
+let _cwFormIsBuiltIn = false;
 
 function openCustomWkForm(id) {
   const existing = id ? getCustomWk(id) : null;
   _cwFormId = id || null;
+  _cwFormIsBuiltIn = false;
   history.pushState({ overlay: 'custom-form' }, '');
   _renderCustomWkForm(existing?.name || '', existing?.exs || []);
+}
+
+function openWkEditForm(type) {
+  _cwFormId = type;
+  _cwFormIsBuiltIn = true;
+  history.pushState({ overlay: 'custom-form' }, '');
+  const exs = wkMods[type] || WK[type].exs;
+  _renderCustomWkForm(WK[type].label, [...exs]);
 }
 
 function _renderCustomWkForm(name, exs) {
@@ -4820,20 +4884,16 @@ function _renderCustomWkForm(name, exs) {
     el.className = 'custom-form-overlay';
     document.body.appendChild(el);
   }
-  const upSvg     = `<svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>`;
-  const downSvg   = `<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>`;
-  const xSvg      = `<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
-  const gripSvg   = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg>`;
+  const xSvg    = `<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+  const gripSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg>`;
   const exList = exs.map((n,i) => `
-    <div class="cw-ex-row">
-      <div class="cw-drag-handle" ontouchstart="cwDragStart(event,${i})">${gripSvg}</div>
+    <div class="cw-ex-row" ontouchstart="cwDragStart(event,${i})">
+      <div class="cw-drag-hint">${gripSvg}</div>
       <div class="cw-ex-info">
         <div class="cw-ex-name">${n}</div>
         ${MUSCLE_MAP[n] ? `<div class="cw-ex-muscles">${MUSCLE_MAP[n]}</div>` : ''}
       </div>
       <div class="cw-ex-actions">
-        <button class="cw-ex-btn cw-ex-btn-move" onclick="cwFormMoveEx(${i},-1)" ${i===0?'style="opacity:0.2;pointer-events:none"':''}>${upSvg}</button>
-        <button class="cw-ex-btn cw-ex-btn-move" onclick="cwFormMoveEx(${i},1)" ${i===exs.length-1?'style="opacity:0.2;pointer-events:none"':''}>${downSvg}</button>
         <button class="cw-ex-btn cw-ex-btn-remove" onclick="cwFormRemoveEx(${i})">${xSvg}</button>
       </div>
     </div>`).join('');
@@ -4842,14 +4902,14 @@ function _renderCustomWkForm(name, exs) {
     <div class="custom-form-sheet">
       <div class="custom-form-head">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-          <div style="font-size:17px;font-weight:800;color:var(--text)">${_cwFormId ? 'Edit Workout' : 'New Custom Workout'}</div>
+          <div style="font-size:17px;font-weight:800;color:var(--text)">${_cwFormIsBuiltIn ? 'Edit Workout' : (_cwFormId ? 'Edit Workout' : 'New Custom Workout')}</div>
           <button onclick="closeCustomWkForm()" style="background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;line-height:0">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
         <div class="form-field">
           <label>Workout Name</label>
-          <input type="text" id="cw-name" value="${name}" placeholder="e.g. Push Day, Arms &amp; Shoulders…" autocomplete="off">
+          <input type="text" id="cw-name" value="${name}" placeholder="e.g. Push Day, Arms &amp; Shoulders…" autocomplete="off" ${_cwFormIsBuiltIn ? 'readonly style="opacity:0.5"' : ''}>
         </div>
       </div>
       <div style="padding:12px 0">
@@ -4860,8 +4920,8 @@ function _renderCustomWkForm(name, exs) {
         </div>
       </div>
       <div style="padding:0 20px max(env(safe-area-inset-bottom,0px),24px);display:flex;flex-direction:column;gap:10px">
-        <button class="btn-save" style="margin:0" onclick="cwFormSave()">Save Workout</button>
-        ${_cwFormId ? `<button class="sheet-btn sheet-btn-danger" style="width:100%;margin:0;padding:15px;border-radius:var(--r-md)" onclick="cwFormDelete()">Delete Workout</button>` : ''}
+        <button class="btn-save" style="margin:0" onclick="cwFormSave()">Save Changes</button>
+        ${_cwFormIsBuiltIn ? `<button class="sheet-btn sheet-btn-danger" style="width:100%;margin:0;padding:15px;border-radius:var(--r-md)" onclick="cwFormDelete()">Reset to Default</button>` : (_cwFormId ? `<button class="sheet-btn sheet-btn-danger" style="width:100%;margin:0;padding:15px;border-radius:var(--r-md)" onclick="cwFormDelete()">Delete Workout</button>` : '')}
       </div>
     </div>`;
   window._cwFormExs = [...exs];
@@ -4895,9 +4955,17 @@ function cwFormRemoveEx(i) {
 }
 
 function cwFormSave() {
+  if (!window._cwFormExs.length) { toast('Add at least one exercise', true); return; }
+  if (_cwFormIsBuiltIn) {
+    wkMods[_cwFormId] = [...window._cwFormExs];
+    saveWkMods();
+    closeCustomWkForm();
+    renderHome();
+    toast('Workout updated', false);
+    return;
+  }
   const name = (document.getElementById('cw-name')?.value || '').trim();
   if (!name) { toast('Please name your workout', true); return; }
-  if (!window._cwFormExs.length) { toast('Add at least one exercise', true); return; }
   if (_cwFormId) {
     const w = getCustomWk(_cwFormId);
     if (w) { w.name = name; w.exs = window._cwFormExs; }
@@ -4912,6 +4980,14 @@ function cwFormSave() {
 
 function cwFormDelete() {
   if (!_cwFormId) return;
+  if (_cwFormIsBuiltIn) {
+    delete wkMods[_cwFormId];
+    saveWkMods();
+    closeCustomWkForm();
+    renderHome();
+    toast('Reset to default', false);
+    return;
+  }
   customWks = customWks.filter(w => w.id !== _cwFormId);
   saveCustomWks();
   closeCustomWkForm();
@@ -4926,6 +5002,7 @@ function closeCustomWkForm() {
 
 load();
 loadCustomWks();
+loadWkMods();
 loadRecovery();
 recMigratePhotos();
 renderHome();
