@@ -594,7 +594,8 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .ex-picker-sheet { background:var(--surface-1); border-radius:16px 16px 0 0; width:100%; max-height:88vh; display:flex; flex-direction:column; }
 .ex-picker-head { padding:16px 20px 12px; border-bottom:1px solid var(--border); flex-shrink:0; }
 .ex-picker-title { font-size:16px; font-weight:800; color:var(--text); margin-bottom:10px; }
-.ex-picker-search { width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-md); padding:9px 12px; font-size:14px; color:var(--text); box-sizing:border-box; }
+.ex-picker-search { width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-md); padding:9px 12px; font-size:14px; color:var(--text); box-sizing:border-box; -webkit-appearance:none; appearance:none; }
+.ex-picker-search::-webkit-search-cancel-button,.ex-picker-search::-webkit-search-decoration { display:none; }
 .ex-picker-chips { display:flex; gap:6px; padding:10px 0 0; overflow-x:auto; scrollbar-width:none; }
 .ex-picker-chips::-webkit-scrollbar { display:none; }
 .ex-picker-chip { flex-shrink:0; padding:5px 12px; border-radius:16px; border:1px solid var(--border); background:var(--surface-2); font-size:11px; font-weight:700; color:var(--text-3); cursor:pointer; }
@@ -4734,8 +4735,8 @@ function _renderExPicker() {
       <div class="ex-picker-sheet">
         <div class="ex-picker-head">
           <div class="ex-picker-title">Add Exercises</div>
-          <input id="ex-picker-search-input" class="ex-picker-search" type="text"
-                 placeholder="Search exercises…" autocomplete="nope" spellcheck="false"
+          <input id="ex-picker-search-input" class="ex-picker-search" type="search"
+                 placeholder="Search exercises…" autocomplete="off" spellcheck="false"
                  oninput="_exPickerType(this.value)">
           <div id="ex-picker-chips-row" class="ex-picker-chips"></div>
         </div>
