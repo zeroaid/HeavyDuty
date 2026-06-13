@@ -4744,7 +4744,7 @@ function _renderExPicker() {
     <div class="ex-picker-sheet">
       <div class="ex-picker-head">
         <div class="ex-picker-title">Add Exercises</div>
-        <input class="ex-picker-search" type="text" placeholder="Search exercises…" value="${_pickerSearch}" oninput="exPickerSearch(this.value)" autocomplete="nope">
+        <input class="ex-picker-search" type="text" placeholder="Search exercises…" value="${_pickerSearch}" oninput="exPickerSearch(this.value)" autocomplete="nope" readonly onfocus="this.removeAttribute('readonly')">
         <div class="ex-picker-chips">${chips}</div>
       </div>
       <div class="ex-picker-list">${items || '<div class="empty">No exercises found.</div>'}</div>
@@ -4942,7 +4942,7 @@ function _renderCustomWkForm(name, exs) {
         </div>
         <div class="form-field">
           <label>Workout Name</label>
-          <input type="text" id="cw-name" value="${name}" placeholder="e.g. Push Day, Arms &amp; Shoulders…" autocomplete="nope" ${_cwFormIsBuiltIn ? 'readonly style="opacity:0.5"' : ''}>
+          <input type="text" id="cw-wktitle" value="${name}" placeholder="e.g. Push Day, Arms &amp; Shoulders…" autocomplete="nope" ${_cwFormIsBuiltIn ? 'readonly style="opacity:0.5"' : 'readonly onfocus="this.removeAttribute(\'readonly\')"'}>
         </div>
       </div>
       <div class="custom-form-scroll">
@@ -4966,7 +4966,7 @@ function _renderCustomWkForm(name, exs) {
 
 
 function _cwSaveName() {
-  const el = document.getElementById('cw-name');
+  const el = document.getElementById('cw-wktitle');
   if (el) window._cwFormName = el.value;
 }
 function cwFormPickExercises() {
@@ -5000,7 +5000,7 @@ function cwFormSave() {
     }
     return;
   }
-  const name = (document.getElementById('cw-name')?.value || '').trim();
+  const name = (document.getElementById('cw-wktitle')?.value || '').trim();
   if (!name) { toast('Please name your workout', true); return; }
   if (_cwFormId) {
     const w = getCustomWk(_cwFormId);
