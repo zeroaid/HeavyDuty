@@ -1732,7 +1732,7 @@ function renderLog(type) {
           </div>`}
           <div class="form-field">
             <label>Notes</label>
-            <input type="text" id="en${i}" placeholder="2 sec negatives, rest-pause…" autocomplete="off">
+            <input type="text" id="en${i}" placeholder="2 sec negatives, rest-pause…" autocomplete="nope">
           </div>
         </div>
       </div>`;
@@ -1884,7 +1884,7 @@ function renderEdit(id) {
           </div>`}
           <div class="form-field">
             <label>Notes</label>
-            <input type="text" id="en${i}" value="${(e.note||'').replace(/"/g,'&quot;')}" placeholder="2 sec negatives, rest-pause…" autocomplete="off">
+            <input type="text" id="en${i}" value="${(e.note||'').replace(/"/g,'&quot;')}" placeholder="2 sec negatives, rest-pause…" autocomplete="nope">
           </div>
         </div>
       </div>`;
@@ -2107,7 +2107,7 @@ function renderSettings() {
           <input type="text" id="claude-key-input"
                  value="${localStorage.getItem('hd_claude_key')||''}"
                  placeholder="sk-ant-api03-…"
-                 autocomplete="off" spellcheck="false"
+                 autocomplete="nope" spellcheck="false"
                  style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:10px;padding:10px 42px 10px 12px;color:var(--text);font-size:13px;font-family:ui-monospace,monospace;outline:none;-webkit-text-fill-color:var(--text);-webkit-text-security:disc"
                  oninput="saveClaudeKey(this.value)">
           <button onclick="toggleClaudeKeyVisibility()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;line-height:0">
@@ -4744,7 +4744,7 @@ function _renderExPicker() {
     <div class="ex-picker-sheet">
       <div class="ex-picker-head">
         <div class="ex-picker-title">Add Exercises</div>
-        <input class="ex-picker-search" type="text" placeholder="Search exercises…" value="${_pickerSearch}" oninput="exPickerSearch(this.value)" autocomplete="off">
+        <input class="ex-picker-search" type="text" placeholder="Search exercises…" value="${_pickerSearch}" oninput="exPickerSearch(this.value)" autocomplete="nope">
         <div class="ex-picker-chips">${chips}</div>
       </div>
       <div class="ex-picker-list">${items || '<div class="empty">No exercises found.</div>'}</div>
@@ -4942,7 +4942,7 @@ function _renderCustomWkForm(name, exs) {
         </div>
         <div class="form-field">
           <label>Workout Name</label>
-          <input type="text" id="cw-name" value="${name}" placeholder="e.g. Push Day, Arms &amp; Shoulders…" autocomplete="off" ${_cwFormIsBuiltIn ? 'readonly style="opacity:0.5"' : ''}>
+          <input type="text" id="cw-name" value="${name}" placeholder="e.g. Push Day, Arms &amp; Shoulders…" autocomplete="nope" ${_cwFormIsBuiltIn ? 'readonly style="opacity:0.5"' : ''}>
         </div>
       </div>
       <div class="custom-form-scroll">
