@@ -36,7 +36,7 @@ Design tokens live in `:root` near the top of `<style>`. Match the existing aest
 `WK` and `ROT` constants define the splits. `MUSCLE_MAP` maps exercise names to muscle groups. `EXERCISE_GUIDE_DATA` holds the guide content.
 
 ### Service worker
-If you change any file listed in `STATIC` inside `sw.js`, bump the cache version string (`heavy-duty-v8` → `heavy-duty-v9`) so existing installs pick up the update.
+If you change any file listed in `STATIC` inside `sw.js`, bump the cache version string (e.g. `heavy-duty-v13` → `heavy-duty-v14`) so existing installs pick up the update.
 
 ### TWA
 The Android app lives in `twa-app/`. Changes there trigger the GitHub Actions build automatically on push to `main`. To cut a release (creates a GitHub Release with the APK), trigger the workflow manually from the Actions tab.

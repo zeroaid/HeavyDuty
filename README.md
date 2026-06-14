@@ -103,6 +103,11 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.1.1
+- Fixed Chrome autofill prompts on all exercise form inputs — weight, reps, body weight, and exercise notes fields are rebuilt to use autofill-immune patterns (tap-to-numpad buttons with hidden inputs; `contenteditable` for notes); Chrome's autofill ML cannot target these elements
+- Fixed exercise history pills showing only the last word of exercise names (e.g. "Downs" → "Pull Downs")
+- Enabled prompt caching on all Claude API calls — reduces token cost and latency on AI Insights, Recovery analysis, and Workout Verdict
+
 ### v1.1.0
 - Added built-in workout editing — modify any Consolidated or Legacy workout; EDITED badge and AI REVIEW chip appear on the home screen
 - Added Mentzer's Verdict — Claude analyses workout modifications in real time through the lens of Heavy Duty principles
