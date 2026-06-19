@@ -1,6 +1,6 @@
 # Heavy Duty
 
-A Mike Mentzer Heavy Duty workout tracker — built as a progressive web app (PWA) and available as a native Android TWA.
+The Mike Mentzer HIT workout tracker — log, track and analyse your Heavy Duty training. Built as a single-file PWA with a native Android wrapper. No account, no server, no subscriptions.
 
 **[Open the app →](https://zeroaid.github.io/HeavyDuty/)**
 
@@ -10,7 +10,7 @@ A Mike Mentzer Heavy Duty workout tracker — built as a progressive web app (PW
 
 Heavy Duty is Mike Mentzer's High Intensity Training (HIT) methodology — brief, brutal, and basic. One working set per exercise, taken to absolute muscular failure, with full recovery between sessions. No junk volume, no guesswork.
 
-This app tracks your Consolidated and Legacy split workouts, logs every set with weight and reps, monitors rest periods and progressive overload, and gives you AI-powered analysis of your training via the Claude API.
+This app gives you everything you need to follow the system: Consolidated and Legacy splits with a full exercise library, progressive overload tracking, rest-pause logging, exercise variation selection, custom workout building, and an in-app guide with form cues and Mentzer quotes for every movement. Log active recovery sessions with photos and have Claude read your equipment stats (distance, speed, heart rate, calories) directly from the display. Get AI-powered training analysis, overload trends, and HIT-specific coaching — all running locally in your browser with your own API key.
 
 ---
 
@@ -28,6 +28,7 @@ This app tracks your Consolidated and Legacy split workouts, logs every set with
 - **Recovery session logging** — log light cardio and movement sessions between heavy training days
 - **Photo capture** — attach a photo to each recovery session via camera or gallery
 - **AI photo analysis** — Claude analyses each photo and identifies activity, heart rate zone, duration, and recovery observations
+- **Equipment stats extraction** — reads distance, speed, heart rate, and calories directly from equipment displays in the photo, preserving original units (miles, km, mph, bpm, kcal)
 - **Bulk photo import** — import multiple sessions at once from your camera roll
 - **Duplicate detection** — SHA-256 fingerprinting prevents the same photo being imported twice
 - **Re-analyse** — re-run AI analysis on any individual session or all sessions at once
@@ -51,7 +52,10 @@ This app tracks your Consolidated and Legacy split workouts, logs every set with
 - **Offline-first PWA** — works without a connection once installed
 - **Native Android app** — TWA with black navigation bar, no browser chrome
 - **Calendar view** — monthly overview of training and recovery sessions
-- **Dark theme** — full dark UI optimised for gym lighting
+- **Dark theme** — high-contrast dark UI optimised for gym and outdoor lighting
+- **User manual** — in-app help covering every feature, accessible from Settings
+- **Reps validation** — prevents saving a workout with missing reps
+- **YouTube link monitoring** — weekly GitHub Action checks technique video links and opens an issue if any go dead
 
 ---
 
