@@ -181,40 +181,30 @@ function confirmDelete(id){showSheet('Delete this workout?','This action cannot 
 function refreshCurrent(){if(cur==='home')renderHome();if(cur==='history')renderHistory();if(cur==='settings')renderSettings();if(cur==='insights')renderInsights();if(cur==='guide')renderGuide();}
 function saveClaudeKey(val){const v=val.trim();if(v)localStorage.setItem('hd_claude_key',v);else localStorage.removeItem('hd_claude_key');const statusEl=document.getElementById('claude-key-status');if(statusEl){const has=!!localStorage.getItem('hd_claude_key');statusEl.style.color=has?'var(--green)':'var(--text-3)';statusEl.textContent=has?'✓ API key saved':'No key saved';}else{renderSettings();}}
 function toggleClaudeKeyVisibility(){const input=document.getElementById('claude-key-input');if(!input)return;const masked=input.style.webkitTextSecurity==='disc';input.style.webkitTextSecurity=masked?'none':'disc';}
-function showHelpManual(){const ov=document.createElement('div');ov.id='help-ov';ov.className='wkmod-analysis-overlay';ov.onclick=e=>{if(e.target===ov)ov.remove();};ov.innerHTML=`<div class="wkmod-analysis-sheet" style="max-height:90vh"><div class="wkmod-analysis-head"><div><div class="wkmod-analysis-title">User Manual</div><div class="wkmod-analysis-subtitle">Heavy Duty HIT Tracker</div></div><button style="background:none;border:none;color:var(--text-3);font-size:22px;cursor:pointer;padding:4px" onclick="document.getElementById('help-ov').remove()">&times;</button></div><div class="wkmod-analysis-body"><div class="wkmod-analysis-text" style="font-size:13px;line-height:1.75">
-<h4>Getting Started</h4>
-<p>Tap <strong>Start Workout</strong> on the home screen to log your next session. The app automatically rotates through the Consolidated split (A1 → B1 → A2 → B2) based on your history.</p>
-
-<h4>Logging a Workout</h4>
-<p>For each exercise, tap the <strong>Weight</strong> and <strong>Reps</strong> fields to enter your numbers via the numpad. Weight is pre-filled from your last session — reps must always be entered. Add optional notes (rest-pause sets, tempo, form cues) in the Notes field below each exercise.</p>
-<p>The <strong>"Last:"</strong> hint below each exercise name shows your most recent performance so you can track progressive overload.</p>
-
-<h4>Workout Methods</h4>
-<p>Two built-in methods — Consolidated and Legacy — drawn from exercises within the HIT framework. Follow them as prescribed, modify them to suit your training, or build your own from scratch using <strong>Custom Workouts</strong> in Settings.</p>
-
-<h4>Editing Workouts</h4>
-<p>Tap any workout row's <strong>three-dot menu</strong> (⋮) to modify its exercises. Changes are marked with an <strong>EDITED</strong> badge. Tap the <strong>AI REVIEW</strong> chip to have Claude analyse your modifications through the lens of Heavy Duty principles.</p>
-
-<h4>Exercise Variations</h4>
-<p>Some exercises offer variations (e.g. Pec Deck / Dumbbell Flyes). Select which variation you performed using the chips below the exercise name when logging.</p>
-
-<h4>Body Weight Exercises</h4>
-<p>For exercises like Dips and Pull-ups, toggle the <strong>Weight Belt</strong> switch to log added belt weight. The history detail shows the total (BW + belt).</p>
-
-<h4>Recovery Sessions</h4>
-<p>In the <strong>Insights</strong> tab, log light cardio or movement sessions between training days. Attach a photo and Claude will identify the activity, heart rate zone, and recovery observations.</p>
-
-<h4>AI Insights</h4>
-<p>Go to <strong>Settings → AI Analysis</strong> and paste your Anthropic API key. The key is stored only in your browser — never sent anywhere except directly to Anthropic.</p>
-<p>With a key set, the Insights tab offers deep training analysis, progressive overload trends, and HIT-specific coaching powered by Claude.</p>
-
-<h4>Data & Backups</h4>
-<p><strong>Export JSON</strong> — Downloads all your data (workouts, recovery, photos, profile) as a single file. Do this regularly.</p>
-<p><strong>Import JSON</strong> — Replaces all data from a backup file.</p>
-<p><strong>Google Drive</strong> — Connect to auto-backup after every workout. When the session expires, tap <strong>Backup Now → Connect</strong> to re-authenticate.</p>
-
-<h4>Calendar</h4>
-<p>Tap any date in the History tab to open the calendar view. Red dots mark training days. Tap a dot to jump to that workout.</p>
+function showHelpManual(){const ov=document.createElement('div');ov.id='help-ov';ov.className='wkmod-analysis-overlay';ov.onclick=e=>{if(e.target===ov)ov.remove();};ov.innerHTML=`<div class="wkmod-analysis-sheet" style="max-height:90vh"><div class="wkmod-analysis-head"><div><div class="wkmod-analysis-title">User Manual</div><div class="wkmod-analysis-subtitle">Heavy Duty HIT Tracker</div></div><button style="background:none;border:none;color:var(--text-3);font-size:22px;cursor:pointer;padding:4px" onclick="document.getElementById('help-ov').remove()">&times;</button></div><div class="wkmod-analysis-body"><div style="font-size:13px;line-height:1.6;color:var(--text-2)">
+<h4 style="color:var(--text);font-size:14px;margin:0 0 4px">Getting Started</h4>
+<p style="margin:0 0 14px">Tap <strong>Start Workout</strong> on the home screen to log your next session. The app automatically rotates through the Consolidated split (A1 → B1 → A2 → B2) based on your history.</p>
+<h4 style="color:var(--text);font-size:14px;margin:0 0 4px">Logging a Workout</h4>
+<p style="margin:0 0 6px">For each exercise, tap the <strong>Weight</strong> and <strong>Reps</strong> fields to enter your numbers via the numpad. Weight is pre-filled from your last session — reps must always be entered. Add optional notes (rest-pause sets, tempo, form cues) in the Notes field.</p>
+<p style="margin:0 0 14px">The <strong>"Last:"</strong> hint shows your most recent performance for progressive overload tracking.</p>
+<h4 style="color:var(--text);font-size:14px;margin:0 0 4px">Calendar</h4>
+<p style="margin:0 0 14px">Tap any date in the History tab to open the calendar. Red dots mark training days — tap a dot to jump straight to that session.</p>
+<h4 style="color:var(--text);font-size:14px;margin:0 0 4px">Workout Methods</h4>
+<p style="margin:0 0 14px">Two built-in methods — Consolidated and Legacy — drawn from exercises within the HIT framework. Follow them as prescribed, modify them to suit your training, or build your own from scratch using <strong>Custom Workouts</strong> in Settings.</p>
+<h4 style="color:var(--text);font-size:14px;margin:0 0 4px">Editing Workouts</h4>
+<p style="margin:0 0 14px">Tap any workout row's <strong>three-dot menu</strong> (⋮) to modify its exercises. Changes are marked with an <strong>EDITED</strong> badge. Tap <strong>AI REVIEW</strong> to have Claude analyse your modifications through the lens of Heavy Duty principles.</p>
+<h4 style="color:var(--text);font-size:14px;margin:0 0 4px">Exercise Variations</h4>
+<p style="margin:0 0 14px">Some exercises offer variations (e.g. Pec Deck / Dumbbell Flyes). Select which variation you performed using the chips below the exercise name when logging.</p>
+<h4 style="color:var(--text);font-size:14px;margin:0 0 4px">Body Weight Exercises</h4>
+<p style="margin:0 0 14px">For Dips, Pull-ups and similar, toggle the <strong>Weight Belt</strong> switch to log added belt weight. The history detail shows the total (BW + belt).</p>
+<h4 style="color:var(--text);font-size:14px;margin:0 0 4px">Recovery Sessions</h4>
+<p style="margin:0 0 14px">In the <strong>Insights</strong> tab, log light cardio or movement sessions between training days. Attach a photo and Claude will identify the activity, heart rate zone, equipment stats, and recovery observations.</p>
+<h4 style="color:var(--text);font-size:14px;margin:0 0 4px">AI Insights</h4>
+<p style="margin:0 0 14px">Go to <strong>Settings → AI Analysis</strong> and paste your Anthropic API key. The key stays in your browser only. With a key set, the Insights tab offers training analysis, progressive overload trends, and HIT-specific coaching powered by Claude.</p>
+<h4 style="color:var(--text);font-size:14px;margin:0 0 4px">Data & Backups</h4>
+<p style="margin:0 0 4px"><strong>Export JSON</strong> — Downloads all your data as a single file. Do this regularly.</p>
+<p style="margin:0 0 4px"><strong>Import JSON</strong> — Replaces all data from a backup file.</p>
+<p style="margin:0 0 0"><strong>Google Drive</strong> — Auto-backup after every workout. When the session expires, tap <strong>Backup Now → Connect</strong> to re-authenticate.</p>
 </div></div><div class="wkmod-analysis-footer"><button class="btn-save" style="margin:0;width:100%" onclick="document.getElementById('help-ov').remove()">Done</button></div></div>`;document.body.appendChild(ov);}
 function renderInsights(){const key=localStorage.getItem('hd_claude_key');const profile=getProfile();const editing=!!window._apEditing;document.getElementById('s-insights').innerHTML=`
     <div class="page-top"><div class="page-title" id="ai-title-tap" onclick="aiTitleTap()">Insights</div><div class="page-subtitle">Intensity without intelligence is wasted effort.</div><div class="hd-sub" style="margin-top:10px">"${MENTZER_QUOTES[Math.floor(Math.random()*MENTZER_QUOTES.length)]}"</div></div><div id="ai-log-panel" style="display:none;margin:0 20px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;max-height:320px;overflow-y:auto;font-family:monospace"></div>${editing ? apFormHtml(profile) : apSummaryHtml(profile)}
