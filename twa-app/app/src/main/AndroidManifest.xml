@@ -49,6 +49,17 @@
                 android:name="android.support.customtabs.trusted.NAVIGATION_BAR_DIVIDER_COLOR"
                 android:resource="@color/black" />
 
+            <!-- Splash screen — covers Chrome logo while DAL verifies -->
+            <meta-data
+                android:name="android.support.customtabs.trusted.SPLASH_IMAGE_DRAWABLE"
+                android:resource="@mipmap/ic_launcher_foreground" />
+            <meta-data
+                android:name="android.support.customtabs.trusted.SPLASH_SCREEN_BACKGROUND_COLOR"
+                android:resource="@color/black" />
+            <meta-data
+                android:name="android.support.customtabs.trusted.SPLASH_SCREEN_FADE_OUT_DURATION"
+                android:value="300" />
+
             <!-- Screen orientation -->
             <meta-data
                 android:name="android.support.customtabs.trusted.SCREEN_ORIENTATION"
