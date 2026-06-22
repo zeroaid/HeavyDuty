@@ -107,6 +107,20 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.2.0
+- Added equipment stats extraction to recovery photo analysis — Claude now reads distance, speed, heart rate, and calories directly from equipment displays, preserving original units (miles, km, mph, bpm, kcal)
+- Added User Manual and About sections to Settings
+- Added reps validation — prevents saving a workout with missing reps for any exercise
+- Added weekly YouTube link checker GitHub Action — opens an issue automatically if any technique video links go dead
+- Added branded splash screen to TWA — shows Heavy Duty icon on launch instead of Chrome logo
+- Improved outdoor readability — increased contrast on secondary and tertiary text colours
+- Fixed exercise history pills showing wrong variation name after editing (e.g. "Dumbbell Flyes" instead of "Pec Deck")
+- Fixed `updateWorkout` overwriting the logged exercise variation with the template name
+- Fixed DONE button in numpad sheet not filling the available width
+- Fixed Google Drive auto-backup silently failing after token expiry — now shows "Reconnecting to Google Drive…" contextual toast during token refresh instead of a jarring FedCM flash
+- Fixed Google Drive dirty flag not persisting across app close — unsynced data is now tracked in localStorage and retried on next launch
+- Fixed Static Holds YouTube link pointing to a deleted video
+
 ### v1.1.1
 - Fixed Chrome autofill prompts on all exercise form inputs — weight, reps, body weight, and exercise notes fields are rebuilt to use autofill-immune patterns (tap-to-numpad buttons with hidden inputs; `contenteditable` for notes); Chrome's autofill ML cannot target these elements
 - Fixed exercise history pills showing only the last word of exercise names (e.g. "Downs" → "Pull Downs")
