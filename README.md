@@ -50,7 +50,8 @@ This app gives you everything you need to follow the system: Consolidated and Le
 
 ### App
 - **Offline-first PWA** — works without a connection once installed
-- **Native Android app** — TWA with black navigation bar, no browser chrome
+- **Native Android app** — TWA with branded splash screen, black navigation bar, no browser chrome
+- **Metric / Imperial toggle** — switch between kg and lbs in Settings; all weights, AI analysis, and recovery stats convert on the fly (stored data stays in kg)
 - **Calendar view** — monthly overview of training and recovery sessions
 - **Dark theme** — high-contrast dark UI optimised for gym and outdoor lighting
 - **User manual** — in-app help covering every feature, accessible from Settings
@@ -106,6 +107,15 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 ---
 
 ## Changelog
+
+### v1.3.0
+- Added Metric / Imperial measurement toggle in Settings — all weights throughout the app (workout logging, history, detail, pills, AI analysis) convert between kg and lbs on the fly; data is stored internally in kg
+- Recovery photo stats (distance, speed) now convert on the fly between miles↔km and mph↔kph based on the user's unit preference — no re-analyse needed for existing sessions
+- New recovery analysis prompts instruct Claude to report stats in the user's preferred unit system
+- AI Insights sends workout data with unit-appropriate field names (weight_lbs / weight_kg) so Claude responds in the correct unit
+- Added branded splash screen to TWA — shows Heavy Duty logo on red background instead of Chrome logo on launch
+- Restored // separator in athlete profile training years card
+- Fixed recovery detail stats overflowing into a single row — now wraps into a 3-column grid
 
 ### v1.2.0
 - Added equipment stats extraction to recovery photo analysis — Claude now reads distance, speed, heart rate, and calories directly from equipment displays, preserving original units (miles, km, mph, bpm, kcal)
