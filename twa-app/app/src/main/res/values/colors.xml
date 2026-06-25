@@ -3,4 +3,5 @@
     <color name="black">#000000</color>
     <color name="colorPrimary">#000000</color>
     <color name="colorBackground">#000000</color>
+    <color name="splash_bg">#CC1111</color>
 </resources>
