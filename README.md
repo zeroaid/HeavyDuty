@@ -106,6 +106,14 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.4.0
+- Dark / Light / Auto theme toggle — Dark for the gym, Light for outdoors, Auto follows your phone's system setting
+- Recent Sessions moved above Workouts on the home screen
+- BW exercises with a belt now show the combined total (BW + belt) in the Last hint
+- Google Drive reconnect handled with a full-screen branded overlay instead of a random flash
+- Updated User Manual with Appearance section, reps validation note, and recovery stats conversion
+- Hardcoded dark colours replaced with CSS variables so both themes render cleanly
+
 ### v1.3.0
 - Metric / Imperial toggle in Settings — all weights convert between kg and lbs on the fly, data stored internally in kg
 - Recovery stats (distance, speed) convert on the fly between miles/km and mph/kph based on your unit preference
