@@ -82,10 +82,10 @@ const lbw=desc().find(w=>w.bw);const consolidatedCount=workouts.filter(w=>w.meth
         Heavy Duty College
       </a></div><div class="hero"><div class="hero-tag">Next Workout</div><div class="hero-title">${wk.label}</div><div class="hero-sub">${sub}</div><div class="hero-exs">${exRows}</div><button class="btn-cta" onclick="go('log',{type:'${nt}'})"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
         Start ${nt} Workout
-      </button></div><div class="stat-row">${statChips}</div>${workoutsSection}
+      </button></div><div class="stat-row">${statChips}</div>
 
     <div class="sec"><div class="sec-label">Recent Sessions</div></div>${recent}
-    <div class="link-row"><button class="link-btn" onclick="go('history')">View all history →</button></div><div class="gap"></div>
+    <div class="link-row"><button class="link-btn" onclick="go('history')">View all history →</button></div>${workoutsSection}<div class="gap"></div>
   `;}
 function histCard(w){const wk=resolveWk(w.type)||{desc:w.type,method:w.method||'consolidated'};const isLegacy=w.method==='legacy';const isCustom=w.method==='custom';const badge=isCustom?'CX':w.type;const pills=w.ex.filter(e=>e.r).map(e=>`<span class="pill">${(e.n.includes(' / ')?e.n.split(' / ')[0].trim():e.n).split(' ').slice(-2).join(' ')}: <strong>${fmtW(e.w)} ×${e.r}</strong></span>`).join('');return`<div class="hist-card" onclick="go('detail',{id:'${w.id}'})"><div class="badge ${isLegacy||isCustom?'badge-legacy':''}">${badge}</div><div class="hist-body"><div class="hist-type">${wk.desc}</div><div class="hist-date"><span class="hist-date-link" onclick="event.stopPropagation();showCalendar('${w.date}')">${fmtDate(w.date)}</span>${w.bw?`· ${toDisp(w.bw)}${wUnit()}`:''}</div><div class="hist-pills">${pills}</div></div><div class="hist-arrow">${SVG.chev}</div></div>`;}
 const histCollapsed={consolidated:true,legacy:true};let histFilter='all';function scrollToRecent(id){const el=document.getElementById('recent-'+id);if(!el)return;el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.remove('hist-card-flash');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('hist-card-flash')));}
