@@ -54,7 +54,7 @@ function daysAgo(s){if(!s)return null;const now=new Date();const tod=new Date(no
 function nextType(){const s=asc();if(!s.length)return'A1';const last=s[s.length-1];if(last.method==='legacy'){return last.type==='LA'?'LB':'LA';}
 if(last.method==='consolidated'){const lastC=[...s].reverse().find(w=>w.method==='consolidated');return ROT[(ROT.indexOf(lastC.type)+1)%4];}
 const lastC=[...s].reverse().find(w=>w.method==='consolidated');return lastC?ROT[(ROT.indexOf(lastC.type)+1)%4]:'A1';}
-function lastFor(name,skipId){const alts=name.includes(' / ')?name.split(' / ').map(s=>s.trim()):[];for(const w of desc()){if(w.id===skipId)continue;for(const e of w.ex){if((e.n===name||alts.includes(e.n))&&e.r!=null)return{date:w.date,w:e.w,r:e.r};}}
+function lastFor(name,skipId){const alts=name.includes(' / ')?name.split(' / ').map(s=>s.trim()):[];for(const w of desc()){if(w.id===skipId)continue;for(const e of w.ex){if((e.n===name||alts.includes(e.n))&&e.r!=null)return{date:w.date,w:e.w,r:e.r,belt:e.belt,bar:e.bar};}}
 return null;}
 function isPB(workout,exName){const cur=workout.ex.find(e=>e.n===exName);if(!cur||!cur.w||!cur.r)return false;for(const w of asc()){if(w.date>=workout.date)break;for(const e of w.ex){if(e.n===exName&&e.w!=null&&e.r!=null){if(cur.w>e.w||(cur.w===e.w&&cur.r>e.r))continue;return false;}}}
 return true;}
