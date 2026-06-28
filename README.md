@@ -1,6 +1,6 @@
 # Heavy Duty
 
-The Mike Mentzer HIT workout tracker — log, track and analyse your Heavy Duty training. Built as a single-file PWA with a native Android wrapper. No account, no server, no subscriptions.
+A Mike Mentzer HIT workout tracker. Log, track and analyse your Heavy Duty training — built as a single-file PWA with a native Android wrapper. No account, no server, no subscriptions.
 
 **[Open the app →](https://zeroaid.github.io/HeavyDuty/)**
 
@@ -8,73 +8,71 @@ The Mike Mentzer HIT workout tracker — log, track and analyse your Heavy Duty 
 
 ## What is Heavy Duty?
 
-Heavy Duty is Mike Mentzer's High Intensity Training (HIT) methodology — brief, brutal, and basic. One working set per exercise, taken to absolute muscular failure, with full recovery between sessions. No junk volume, no guesswork.
+Heavy Duty is Mike Mentzer's High Intensity Training methodology — brief, brutal, and basic. One working set per exercise, taken to absolute muscular failure, with full recovery between sessions. No junk volume, no guesswork.
 
-This app gives you everything you need to follow the system: Consolidated and Legacy splits with a full exercise library, progressive overload tracking, rest-pause logging, exercise variation selection, custom workout building, and an in-app guide with form cues and Mentzer quotes for every movement. Log active recovery sessions with photos and have Claude read your equipment stats (distance, speed, heart rate, calories) directly from the display. Get AI-powered training analysis, overload trends, and HIT-specific coaching — all running locally in your browser with your own API key.
+This app gives you everything you need to follow the system. Consolidated and Legacy splits with a full exercise library, progressive overload tracking, rest-pause logging, exercise variations, custom workouts, and an in-app guide with form cues and Mentzer quotes for every movement. Log your active recovery sessions with photos and let Claude pull your equipment stats (distance, speed, heart rate, calories) straight from the display. AI-powered training analysis, overload trends and HIT-specific coaching — all running locally in your browser with your own API key.
 
 ---
 
 ## Features
 
 ### Workout Tracking
-- **Workout logging** — full Heavy Duty exercise library covering HD I, HD II, HIT Mentzer Way, and Consolidated routines; build and log custom workouts too
-- **Exercise variation selection** — for exercises like Pec Deck / Dumbbell Flyes, choose which variation you performed at log time
-- **Progressive overload tracking** — see your last performance on every exercise before you lift
-- **Rest-pause set support** — log RP clusters with the exact cadence Mentzer prescribed
+- **Workout logging** — full Heavy Duty exercise library covering HD I, HD II, HIT Mentzer Way and Consolidated routines, plus custom workouts
+- **Exercise variations** — for exercises like Pec Deck / Dumbbell Flyes, pick which variation you actually performed
+- **Progressive overload** — see your last performance on every exercise before you lift
+- **Rest-pause support** — log RP clusters the way Mentzer prescribed
 - **Workout history** — full session log with calendar view and date filtering
-- **Exercise guide** — cues, technique notes, and Mentzer quotes for every movement; full HD I / HD II / HIT program attribution on every exercise
+- **Exercise guide** — form cues, technique notes and Mentzer quotes for every movement
 
 ### Active Recovery
-- **Recovery session logging** — log light cardio and movement sessions between heavy training days
-- **Photo capture** — attach a photo to each recovery session via camera or gallery
-- **AI photo analysis** — Claude analyses each photo and identifies activity, heart rate zone, duration, and recovery observations
-- **Equipment stats extraction** — reads distance, speed, heart rate, and calories directly from equipment displays in the photo, preserving original units (miles, km, mph, bpm, kcal)
-- **Bulk photo import** — import multiple sessions at once from your camera roll
-- **Duplicate detection** — SHA-256 fingerprinting prevents the same photo being imported twice
-- **Re-analyse** — re-run AI analysis on any individual session or all sessions at once
-- **Recovery filtering** — filter by activity type, zone, time of day, or month
-- **Pull-down to dismiss** — swipe down to close any recovery sheet
+- **Recovery logging** — log light cardio and movement sessions between heavy training days
+- **Photo capture** — attach a photo to each session via camera or gallery
+- **AI photo analysis** — Claude identifies the activity, heart rate zone, duration and recovery observations
+- **Equipment stats** — reads distance, speed, heart rate and calories directly from equipment displays, converting to your preferred unit system on the fly
+- **Bulk import** — import multiple sessions at once from your camera roll
+- **Duplicate detection** — SHA-256 fingerprinting so the same photo can't be imported twice
+- **Re-analyse** — re-run AI analysis on any session or all sessions at once
+- **Filtering** — filter by activity type, zone, time of day or month
 
 ### AI Insights
-- **Training analysis** — Claude-powered deep-dive into your workout history, progressive overload trends, and recovery patterns
+- **Training analysis** — Claude-powered deep-dive into your workout history, progressive overload trends and recovery patterns
 - **HIT-specific coaching** — analysis framed around Heavy Duty principles, not generic fitness advice
-- **Mentzer's Verdict** — when you modify a built-in workout, Claude analyses your changes through the lens of Heavy Duty principles and streams a live verdict
-- **Athlete profile** — age, training history, goal, and lifestyle factors fed into every analysis
+- **Mentzer's Verdict** — modify a built-in workout and Claude analyses your changes through the lens of Heavy Duty principles
+- **Athlete profile** — age, training history, goal and lifestyle factors fed into every analysis
 - **API key management** — bring your own Anthropic key, stored only in `localStorage`
 
 ### Data & Backup
-- **JSON backup / restore** — full export including workouts, recovery logs, photos, and athlete profile (v3 format)
-- **Google Drive auto-backup** — automatic sync after every save when token is valid; pending indicator when re-auth is needed
-- **IndexedDB photo storage** — photos stored in IndexedDB (no localStorage quota limits)
-- **Automatic migration** — existing photos migrate from localStorage to IndexedDB on first launch
+- **JSON backup / restore** — full export including workouts, recovery logs, photos and athlete profile
+- **Google Drive auto-backup** — syncs after every save, surfaces a reconnect prompt when the session expires
+- **IndexedDB photo storage** — no localStorage quota limits
+- **Auto migration** — existing photos move from localStorage to IndexedDB on first launch
 
 ### App
 - **Offline-first PWA** — works without a connection once installed
-- **Native Android app** — TWA with branded splash screen, black navigation bar, no browser chrome
-- **Metric / Imperial toggle** — switch between kg and lbs in Settings; all weights, AI analysis, and recovery stats convert on the fly (stored data stays in kg)
+- **Native Android app** — TWA with branded splash screen, black nav bar, no browser chrome
+- **Metric / Imperial** — switch between kg and lbs in Settings; weights, AI analysis and recovery stats all convert on the fly
 - **Calendar view** — monthly overview of training and recovery sessions
-- **Dark theme** — high-contrast dark UI optimised for gym and outdoor lighting
-- **User manual** — in-app help covering every feature, accessible from Settings
-- **Reps validation** — prevents saving a workout with missing reps
-- **YouTube link monitoring** — weekly GitHub Action checks technique video links and opens an issue if any go dead
+- **Dark theme** — high-contrast UI optimised for gym and outdoor lighting
+- **User manual** — in-app help accessible from Settings
+- **Reps validation** — can't save a workout with missing reps
 
 ---
 
 ## Install
 
 ### Browser (PWA)
-Visit **[zeroaid.github.io/HeavyDuty](https://zeroaid.github.io/HeavyDuty/)** and tap *Add to Home Screen* in your browser menu.
+Visit **[zeroaid.github.io/HeavyDuty](https://zeroaid.github.io/HeavyDuty/)** and tap *Add to Home Screen*.
 
 ### Android (native TWA)
-Download the latest `app-release.apk` from [Releases](https://github.com/zeroaid/HeavyDuty/releases), enable *Install unknown apps* in your Android settings, and install.
+Grab the latest `app-release.apk` from [Releases](https://github.com/zeroaid/HeavyDuty/releases), enable *Install unknown apps* in your Android settings and install.
 
-> The TWA uses Digital Asset Links for verification. Once verified by Chrome, the URL bar disappears and the app runs fully native with a black system navigation bar.
+> The TWA uses Digital Asset Links for verification. Once Chrome verifies the app, the URL bar disappears and it runs fully native with a black system nav bar.
 
 ---
 
 ## AI Insights setup
 
-The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You supply your own key — it is stored only in your browser's `localStorage` and never sent anywhere except directly to Anthropic's API.
+The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You supply your own key — it's stored in your browser's `localStorage` and only ever sent directly to Anthropic's API.
 
 1. Get an API key at [console.anthropic.com](https://console.anthropic.com/)
 2. Open the app → Insights tab → paste your key
@@ -83,11 +81,11 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Data & privacy
 
-- Workout and recovery metadata stored in `localStorage`
-- Photos stored in `IndexedDB` — no quota limits
+- All workout and recovery data stored in `localStorage`
+- Photos stored in `IndexedDB`
 - No server, no account, no analytics
-- Export your data any time: Settings → Export JSON Backup
-- Optional Google Drive backup stores one JSON file in your own Drive account
+- Export your data any time via Settings → Export JSON Backup
+- Optional Google Drive backup — stores one JSON file in your own Drive account
 - Your Claude API key never leaves your device
 
 ---
@@ -109,76 +107,61 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 ## Changelog
 
 ### v1.3.0
-- Added Metric / Imperial measurement toggle in Settings — all weights throughout the app (workout logging, history, detail, pills, AI analysis) convert between kg and lbs on the fly; data is stored internally in kg
-- Recovery photo stats (distance, speed) now convert on the fly between miles↔km and mph↔kph based on the user's unit preference — no re-analyse needed for existing sessions
-- New recovery analysis prompts instruct Claude to report stats in the user's preferred unit system
-- AI Insights sends workout data with unit-appropriate field names (weight_lbs / weight_kg) so Claude responds in the correct unit
-- Added branded splash screen to TWA — shows Heavy Duty logo on red background instead of Chrome logo on launch
-- Restored // separator in athlete profile training years card
-- Fixed recovery detail stats overflowing into a single row — now wraps into a 3-column grid
+- Metric / Imperial toggle in Settings — all weights convert between kg and lbs on the fly, data stored internally in kg
+- Recovery stats (distance, speed) convert on the fly between miles/km and mph/kph based on your unit preference
+- Recovery analysis prompts now report stats in your preferred units
+- AI Insights sends workout data with the right unit field names so Claude responds correctly
+- Branded splash screen on the TWA — Heavy Duty logo on red instead of the Chrome logo
+- Restored the // separator in the athlete profile training years card
+- Fixed recovery detail stats overflowing into one row — wraps into a 3-column grid now
 
 ### v1.2.0
-- Added equipment stats extraction to recovery photo analysis — Claude now reads distance, speed, heart rate, and calories directly from equipment displays, preserving original units (miles, km, mph, bpm, kcal)
-- Added User Manual and About sections to Settings
-- Added reps validation — prevents saving a workout with missing reps for any exercise
-- Added weekly YouTube link checker GitHub Action — opens an issue automatically if any technique video links go dead
-- Added branded splash screen to TWA — shows Heavy Duty icon on launch instead of Chrome logo
-- Improved outdoor readability — increased contrast on secondary and tertiary text colours
-- Fixed exercise history pills showing wrong variation name after editing (e.g. "Dumbbell Flyes" instead of "Pec Deck")
-- Fixed `updateWorkout` overwriting the logged exercise variation with the template name
-- Fixed DONE button in numpad sheet not filling the available width
-- Fixed Google Drive auto-backup silently failing after token expiry — now shows "Reconnecting to Google Drive…" contextual toast during token refresh instead of a jarring FedCM flash
-- Fixed Google Drive dirty flag not persisting across app close — unsynced data is now tracked in localStorage and retried on next launch
+- Equipment stats extraction on recovery photos — Claude reads distance, speed, heart rate and calories directly from equipment displays
+- User Manual and About sections in Settings
+- Reps validation — can't save a workout with missing reps
+- Better outdoor readability — bumped contrast on secondary text colours
+- Fixed exercise pills showing the wrong variation name after editing
+- Fixed updateWorkout overwriting the logged variation with the template name
+- Fixed DONE button in the numpad sheet not filling the width
+- Fixed Google Drive auto-backup failing silently after token expiry
+- Fixed Drive dirty flag not persisting across app close
 - Fixed Static Holds YouTube link pointing to a deleted video
 
 ### v1.1.1
-- Fixed Chrome autofill prompts on all exercise form inputs — weight, reps, body weight, and exercise notes fields are rebuilt to use autofill-immune patterns (tap-to-numpad buttons with hidden inputs; `contenteditable` for notes); Chrome's autofill ML cannot target these elements
-- Fixed exercise history pills showing only the last word of exercise names (e.g. "Downs" → "Pull Downs")
-- Enabled prompt caching on all Claude API calls — reduces token cost and latency on AI Insights, Recovery analysis, and Workout Verdict
+- Fixed Chrome autofill on all exercise form inputs — numpad buttons with hidden inputs and contenteditable for notes
+- Fixed exercise history pills only showing the last word of exercise names
+- Prompt caching on all Claude API calls
 
 ### v1.1.0
-- Added built-in workout editing — modify any Consolidated or Legacy workout; EDITED badge and AI REVIEW chip appear on the home screen
-- Added Mentzer's Verdict — Claude analyses workout modifications in real time through the lens of Heavy Duty principles
-- Added exercise variation selection at log time for dual-exercise movements (e.g. Pec Deck / Dumbbell Flyes)
-- Added full HD I / HD II / HIT Mentzer Way program attribution to every exercise in the Guide
-- Replaced pencil edit button with a subtle three-dot overflow button on workout rows, matching leading fitness app patterns
-- Settings page now refreshes automatically after any change — workouts, API key, and Google Drive state all update in place
-- Exercise search now matches muscle group and muscles, not just exercise name (searching "chest" or "biceps" now works)
-- Fixed exercise picker search rebuilding the DOM on every keystroke — input now keeps focus and cursor while typing
-- Fixed AI verdict sheet rendering in broken columns during streaming (flex container was used instead of block)
-- Fixed custom workout form buttons being cut off — Save and Delete buttons are now pinned to a sticky footer
-- Fixed Chrome autofill prompt on API key field
-- Fixed EDITED badge and AI chip overflowing their row — moved to a dedicated tag row below the exercise list
+- Built-in workout editing with EDITED badge and AI REVIEW chip
+- Mentzer's Verdict — Claude analyses workout modifications in real time
+- Exercise variation selection at log time
+- Full HD I / HD II / HIT Mentzer Way program attribution in the Guide
+- Three-dot overflow menu on workout rows
+- Settings auto-refresh after changes
+- Exercise search now matches muscle groups
+- Various bug fixes (exercise picker focus, AI verdict streaming, custom workout footer, autofill, badge overflow)
 
 ### v1.0.1
-- Fixed HIT Recommendation text contrast — now readable in normal lighting
-- Fixed Google Drive auto-backup triggering a popup in the background
-- Fixed Google Drive auto-backup not firing when token had expired
-- Fixed Android back button — now closes overlays and sheets before leaving the screen
-- Improved "+ Log Session" button — full-width accent CTA inspired by top fitness apps
+- HIT Recommendation text contrast fix
+- Google Drive auto-backup popup and token expiry fixes
+- Android back button now closes overlays before exiting
+- Full-width Log Session button
 
 ### v1.0.0
-- Initial release
-- Workout tracking (Consolidated + Legacy splits)
-- Active Recovery logging with AI photo analysis
-- Google Drive backup
-- JSON export / import (v3 format with photos)
-- IndexedDB photo storage with automatic migration
-- Bulk photo import with duplicate detection and rate-limit retry
-- AI Insights powered by Claude
-- PWA + Android TWA
+- Initial release — workout tracking, active recovery, Google Drive backup, AI Insights, PWA + TWA
 
 ---
 
 ## Contributing
 
-Issues and pull requests are welcome. A few things to know before diving in:
+Issues and PRs are welcome. A few things to know:
 
-- The entire app is `index.html` — one file, intentionally
+- The whole app is `index.html` — one file, intentionally
 - No build step, no bundler, no dependencies
-- CSS design tokens are in `:root` at the top of `<style>`
-- Workout types and exercise definitions are in the JS constants near the top of `<script>`
-- The service worker cache version (`sw.js`, line 1) must be bumped on any change to cached static assets
+- CSS design tokens live in `:root` at the top of `<style>`
+- Workout types and exercises are in the JS constants near the top of `<script>`
+- Bump the service worker cache version in `sw.js` if you change any static assets
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
@@ -192,9 +175,9 @@ MIT — see [LICENSE](LICENSE).
 
 ## Disclaimer
 
-This app has no affiliation with [mikementzer.org](https://mikementzer.org) or Mike Mentzer's estate. It has been created independently to help followers of the Heavy Duty / HIT training methodology track their progress.
+This app has no affiliation with [mikementzer.org](https://mikementzer.org) or Mike Mentzer's estate. Built independently to help followers of the Heavy Duty / HIT methodology track their progress.
 
-If the estate wishes to get in contact, please email: **zeroaid@gmail.com**
+If the estate wishes to get in contact: **zeroaid@gmail.com**
 
 ---
 
