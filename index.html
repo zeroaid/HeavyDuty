@@ -101,7 +101,87 @@ const lbw=desc().find(w=>w.bw);const consolidatedCount=workouts.filter(w=>w.meth
 function histCard(w){const wk=resolveWk(w.type)||{desc:w.type,method:w.method||'consolidated'};const isLegacy=w.method==='legacy';const isCustom=w.method==='custom';const badge=isCustom?'CX':w.type;const pills=w.ex.filter(e=>e.r).map(e=>`<span class="pill">${(e.n.includes(' / ')?e.n.split(' / ')[0].trim():e.n).split(' ').slice(-2).join(' ')}: <strong>${BW_EX.has(e.n)?(e.w>0?(w.bw?toDisp(w.bw+e.w)+wUnit():'BW+'+toDisp(e.w)+wUnit()):'BW'):fmtW(e.w)} ×${e.r}</strong></span>`).join('');return`<div class="hist-card" onclick="go('detail',{id:'${w.id}'})"><div class="badge ${isLegacy||isCustom?'badge-legacy':''}">${badge}</div><div class="hist-body"><div class="hist-type">${wk.desc}</div><div class="hist-date"><span class="hist-date-link" onclick="event.stopPropagation();showCalendar('${w.date}')">${fmtDate(w.date)}</span>${w.bw?`· ${toDisp(w.bw)}${wUnit()}`:''}</div><div class="hist-pills">${pills}</div></div><div class="hist-arrow">${SVG.chev}</div></div>`;}
 const histCollapsed={consolidated:true,legacy:true};let histFilter='all';function scrollToRecent(id){const el=document.getElementById('recent-'+id);if(!el)return;el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.remove('hist-card-flash');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('hist-card-flash')));}
 function goToHistorySection(key){histCollapsed[key]=false;histFilter='all';go('history');requestAnimationFrame(()=>{const el=document.getElementById('hist-body-'+key);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});}
-function showBwHistory(){const entries=desc().filter(w=>w.bw);if(!entries.length)return;history.pushState({overlay:'bw-history'},'');const rows=entries.map((w,i)=>{const prev=entries[i+1];const rawDiff=prev?w.bw-prev.bw:null;const diff=rawDiff!==null?toDisp(w.bw)-toDisp(prev.bw):null;const trend=diff===null?'':diff>0.04?`<span style="color:var(--red);font-size:11px;margin-right:6px">▲ ${Math.abs(diff).toFixed(1)}</span>`:diff<-0.04?`<span style="color:var(--green);font-size:11px;margin-right:6px">▼ ${Math.abs(diff).toFixed(1)}</span>`:'';return`<div onclick="bwHistoryGoDetail('${w.id}')" style="display:flex;justify-content:space-between;align-items:center;padding:13px 20px;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:rgba(255,255,255,0.06)"><div style="font-size:13px;color:var(--text-2)">${fmtDate(w.date)}</div><div style="display:flex;align-items:center">${trend}<div style="font-size:16px;font-weight:600;color:var(--text)">${toDisp(w.bw)}<span style="font-size:12px;color:var(--text-3);margin-left:2px">${wUnit()}</span></div></div></div>`;}).join('');const div=document.createElement('div');div.id='bw-history-overlay';div.style.cssText='position:fixed;inset:0;z-index:1200;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,0.55)';div.onclick=e=>{if(e.target===div)history.back();};div.innerHTML=`<div style="background:var(--surface-1);border-radius:20px 20px 0 0;max-height:72vh;display:flex;flex-direction:column"><div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 14px;border-bottom:1px solid var(--border);flex-shrink:0"><div style="font-size:17px;font-weight:700">Body Weight History</div><button onclick="history.back()" style="background:var(--surface-3);border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;color:var(--text);font-size:16px;display:flex;align-items:center;justify-content:center">✕</button></div><div style="overflow-y:auto;flex:1">${rows}</div></div>`;document.body.appendChild(div);}
+function showBwHistory(){
+  const all=desc().filter(w=>w.bw);
+  if(!all.length)return;
+  history.pushState({overlay:'bw-history'},'');
+  let bwRng='3M';
+  const CW=360,CH=148,pT=12,pB=28,pL=36,pR=10,gH=CH-pT-pB,gW=CW-pL-pR;
+
+  function filt(rng){const n=new Date();const c={'1M':new Date(n.getFullYear(),n.getMonth()-1,n.getDate()),'3M':new Date(n.getFullYear(),n.getMonth()-3,n.getDate()),'6M':new Date(n.getFullYear(),n.getMonth()-6,n.getDate()),'1Y':new Date(n.getFullYear()-1,n.getMonth(),n.getDate()),'All':new Date(0)}[rng];return all.filter(w=>localMidnight(w.date)>=c);}
+
+  function mkPts(asc){const vs=asc.map(w=>toDisp(w.bw));const mn=Math.min(...vs),mx=Math.max(...vs),rng=mx-mn||0.1;return asc.map((w,i)=>({x:pL+(asc.length>1?i/(asc.length-1):0.5)*gW,y:pT+(1-(toDisp(w.bw)-mn)/rng)*gH,v:toDisp(w.bw),d:w.date,mn,mx,rng}));}
+
+  function buildChart(asc){
+    if(!asc.length)return'';
+    const pts=mkPts(asc);
+    const mn=pts[0].mn,mx=pts[0].mx,rng=pts[0].rng;
+    let lp=`M${pts[0].x},${pts[0].y}`;
+    for(let i=0;i<pts.length-1;i++){const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)];lp+=` C${p1.x+(p2.x-p0.x)/6},${p1.y+(p2.y-p0.y)/6} ${p2.x-(p3.x-p1.x)/6},${p2.y-(p3.y-p1.y)/6} ${p2.x},${p2.y}`;}
+    const ap=lp+` L${pts[pts.length-1].x},${pT+gH} L${pts[0].x},${pT+gH} Z`;
+    const lvls=[mn,mn+rng/2,mx];
+    const grid=lvls.map(v=>{const y=pT+(1-(v-mn)/rng)*gH;return`<line x1="${pL}" y1="${y}" x2="${CW-pR}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;}).join('');
+    const yL=lvls.map(v=>{const y=pT+(1-(v-mn)/rng)*gH;return`<text x="${pL-4}" y="${y+3.5}" text-anchor="end" font-size="9" fill="var(--text-3)">${Math.round(v*10)/10}</text>`;}).join('');
+    const xi=asc.length>1?[0,Math.floor((asc.length-1)/2),asc.length-1].filter((v,i,a)=>a.indexOf(v)===i):[];
+    const xL=xi.map(i=>{const p=pts[i];const lb=localMidnight(asc[i].date).toLocaleDateString('en-GB',{day:'numeric',month:'short'});const a=i===0?'start':i===asc.length-1?'end':'middle';return`<text x="${p.x}" y="${CH-6}" text-anchor="${a}" font-size="9" fill="var(--text-3)">${lb}</text>`;}).join('');
+    const dots=asc.length<=25?pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#d41414" stroke="var(--surface-1)" stroke-width="1.5"/>`).join(''):'';
+    return`<div style="position:relative;margin:4px 8px 0;padding-bottom:8px" id="bw-chart-wrap"><svg width="100%" viewBox="0 0 ${CW} ${CH}" style="display:block;overflow:visible;touch-action:none" id="bw-chart-svg"><defs><linearGradient id="bwGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d41414" stop-opacity="0.18"/><stop offset="100%" stop-color="#d41414" stop-opacity="0"/></linearGradient></defs>${grid}<path d="${ap}" fill="url(#bwGrad)"/><path d="${lp}" fill="none" stroke="#d41414" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>${dots}${yL}${xL}<g id="bw-xhair" style="display:none" pointer-events="none"><line id="bw-xhair-line" stroke="rgba(255,255,255,0.35)" stroke-width="1" stroke-dasharray="4,3"/><circle id="bw-xhair-dot" r="5.5" fill="#d41414" stroke="var(--surface-1)" stroke-width="2"/></g></svg><div id="bw-xhair-bubble" style="display:none;position:absolute;top:0;background:var(--surface-2);border:1px solid var(--border-hi);border-radius:8px;padding:5px 9px;pointer-events:none;transform:translateX(-50%);white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.4)"><div id="bw-xhair-val" style="font-size:14px;font-weight:800;color:#d41414;text-align:center;font-family:'Impact','Arial Black',sans-serif"></div><div id="bw-xhair-date" style="font-size:10px;color:var(--text-3);text-align:center;margin-top:1px"></div></div></div>`;
+  }
+
+  function attachTouch(asc){
+    const svg=document.getElementById('bw-chart-svg');
+    if(!svg||!asc.length)return;
+    const pts=mkPts(asc);
+    let ht=null;
+    function show(cx){
+      if(ht){clearTimeout(ht);ht=null;}
+      const rect=svg.getBoundingClientRect();
+      const sx=(cx-rect.left)/rect.width*CW;
+      let ni=0,nd=Infinity;
+      pts.forEach((p,i)=>{const d=Math.abs(p.x-sx);if(d<nd){nd=d;ni=i;}});
+      const p=pts[ni];
+      const xh=document.getElementById('bw-xhair');if(!xh)return;
+      xh.style.display='';
+      const xl=document.getElementById('bw-xhair-line');
+      xl.setAttribute('x1',p.x);xl.setAttribute('y1',pT);xl.setAttribute('x2',p.x);xl.setAttribute('y2',pT+gH);
+      const xd=document.getElementById('bw-xhair-dot');xd.setAttribute('cx',p.x);xd.setAttribute('cy',p.y);
+      const xb=document.getElementById('bw-xhair-bubble');xb.style.display='';
+      const wrap=document.getElementById('bw-chart-wrap');
+      xb.style.left=(p.x/CW*rect.width+(rect.left-wrap.getBoundingClientRect().left))+'px';
+      document.getElementById('bw-xhair-val').textContent=`${p.v} ${wUnit()}`;
+      document.getElementById('bw-xhair-date').textContent=localMidnight(p.d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'});
+    }
+    function hide(){const xh=document.getElementById('bw-xhair');const xb=document.getElementById('bw-xhair-bubble');if(xh)xh.style.display='none';if(xb)xb.style.display='none';}
+    svg.addEventListener('touchstart',e=>{e.preventDefault();show(e.touches[0].clientX);},{passive:false});
+    svg.addEventListener('touchmove',e=>{e.preventDefault();show(e.touches[0].clientX);},{passive:false});
+    svg.addEventListener('touchend',()=>{ht=setTimeout(hide,1200);});
+  }
+
+  function render(){
+    const de=filt(bwRng),ae=[...de].reverse();
+    const ca=document.getElementById('bw-chart-area');
+    const bl=document.getElementById('bw-list');
+    if(!ae.length){ca.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-3);font-size:13px">No data for this period</div>';bl.innerHTML='';return;}
+    const vs=ae.map(w=>toDisp(w.bw));
+    const cur=vs[vs.length-1],low=Math.min(...vs),high=Math.max(...vs);
+    const delta=Math.round((cur-vs[0])*10)/10;
+    const dStr=delta===0?'—':(delta>0?'+':'')+delta+' '+wUnit();
+    const dCol=delta>0?'var(--red)':delta<0?'var(--green)':'var(--text-3)';
+    ca.innerHTML=`<div style="display:flex;border-bottom:1px solid var(--border)"><div style="flex:1;text-align:center;padding:10px 4px"><div style="font-size:22px;font-weight:900;color:var(--accent);font-family:'Impact','Arial Black',sans-serif;line-height:1">${cur}</div><div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;font-weight:700">${wUnit()} now</div></div><div style="flex:1;text-align:center;padding:10px 4px;border-left:1px solid var(--border)"><div style="font-size:17px;font-weight:700;color:${dCol};line-height:1.2">${dStr}</div><div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;font-weight:700">Change</div></div><div style="flex:1;text-align:center;padding:10px 4px;border-left:1px solid var(--border)"><div style="font-size:17px;font-weight:700;color:var(--text-2);line-height:1.2">${low}</div><div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;font-weight:700">Low</div></div><div style="flex:1;text-align:center;padding:10px 4px;border-left:1px solid var(--border)"><div style="font-size:17px;font-weight:700;color:var(--text-2);line-height:1.2">${high}</div><div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;font-weight:700">High</div></div></div>`+buildChart(ae);
+    bl.innerHTML=de.map((w,i)=>{const prev=de[i+1];const diff=prev?Math.round((toDisp(w.bw)-toDisp(prev.bw))*10)/10:null;const trend=diff===null?'':diff>0.04?`<span style="color:var(--red);font-size:11px;margin-right:6px">▲ ${Math.abs(diff).toFixed(1)}</span>`:diff<-0.04?`<span style="color:var(--green);font-size:11px;margin-right:6px">▼ ${Math.abs(diff).toFixed(1)}</span>`:'';return`<div onclick="bwHistoryGoDetail('${w.id}')" style="display:flex;justify-content:space-between;align-items:center;padding:13px 20px;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:rgba(255,255,255,0.06)"><div style="font-size:13px;color:var(--text-2)">${fmtDate(w.date)}</div><div style="display:flex;align-items:center">${trend}<div style="font-size:16px;font-weight:600;color:var(--text)">${toDisp(w.bw)}<span style="font-size:12px;color:var(--text-3);margin-left:2px">${wUnit()}</span></div></div></div>`;}).join('');
+    attachTouch(ae);
+  }
+
+  const div=document.createElement('div');
+  div.id='bw-history-overlay';
+  div.style.cssText='position:fixed;inset:0;z-index:1200;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,0.55)';
+  div.onclick=e=>{if(e.target===div)history.back();};
+  const tabs=['1M','3M','6M','1Y','All'].map(r=>`<button id="bwtab-${r}" class="bar-seg-btn${r===bwRng?' active':''}" onclick="bwSetRange('${r}')" style="flex:1;padding:7px 0;font-size:12px">${r}</button>`).join('');
+  div.innerHTML=`<div style="background:var(--surface-1);border-radius:20px 20px 0 0;max-height:84vh;display:flex;flex-direction:column"><div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid var(--border);flex-shrink:0"><div style="font-size:17px;font-weight:700">Body Weight</div><button onclick="history.back()" style="background:var(--surface-3);border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;color:var(--text);font-size:16px;display:flex;align-items:center;justify-content:center">✕</button></div><div style="padding:10px 12px 8px;flex-shrink:0;border-bottom:1px solid var(--border)"><div class="bar-seg">${tabs}</div></div><div id="bw-chart-area" style="flex-shrink:0"></div><div id="bw-list" style="flex:1;overflow-y:auto"></div></div>`;
+  window.bwSetRange=r=>{bwRng=r;document.querySelectorAll('#bw-history-overlay .bar-seg-btn').forEach(b=>b.classList.toggle('active',b.id==='bwtab-'+r));render();};
+  document.body.appendChild(div);
+  render();
+}
 function closeBwHistoryOverlay(){const el=document.getElementById('bw-history-overlay');if(el)el.remove();}
 function bwHistoryGoDetail(id){const el=document.getElementById('bw-history-overlay');if(el)el.remove();history.replaceState({screen:'detail',opts:{id}},'');go('detail',{id},true);}
 function toggleSection(key){histCollapsed[key]=!histCollapsed[key];const body=document.getElementById('hist-body-'+key);const chev=document.getElementById('hist-chev-'+key);if(histCollapsed[key]){body.style.maxHeight='0';body.classList.add('collapsed');chev.classList.remove('open');}else{body.style.maxHeight='99999px';body.classList.remove('collapsed');chev.classList.add('open');}}
