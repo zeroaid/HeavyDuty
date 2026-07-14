@@ -185,16 +185,17 @@ function showBwHistory(){
 }
 function closeBwHistoryOverlay(){const el=document.getElementById('bw-history-overlay');if(el)el.remove();}
 function bwHistoryGoDetail(id){const el=document.getElementById('bw-history-overlay');if(el)el.remove();history.replaceState({screen:'detail',opts:{id}},'');go('detail',{id},true);}
-function exAliasesFor(name){if(name.includes(' / '))return name.split(' / ').map(s=>s.trim());for(const k in MUSCLE_MAP){if(k.includes(' / ')){const parts=k.split(' / ').map(s=>s.trim());if(parts.includes(name))return parts;}}return[name];}
+function exAliasesFor(name){if(name.includes(' / '))return name.split(' / ').map(s=>s.trim());for(const k in MUSCLE_MAP){if(k.includes(' / ')){const parts=k.split(' / ').map(s=>s.trim());if(parts.includes(name))return[k,...parts];}}return[name];}
 function exLoadVal(w,e){const isBW=BW_EX.has(e.n);if(!isBW)return e.w>0?toDisp(e.w):0;const note=e.note||'';const nb=note.match(/\+?\s*([0-9.]+)\s*kg\s*belt/i);const hasBelt=e.belt===true||!!nb;const beltW=e.belt===true?e.w:(nb?parseFloat(nb[1]):0);if(hasBelt&&w.bw)return toDisp(Math.round((w.bw+beltW)*10)/10);if(w.bw)return toDisp(w.bw);return 0;}
 function showExerciseHistory(name){
   const alts=exAliasesFor(name);
   const rows=[];
   desc().forEach(w=>{const e=w.ex.find(x=>x.r!=null&&alts.includes(x.n));if(e)rows.push({w,e});});
   if(!rows.length){toast('No history yet for this exercise',true);return;}
-  const title=alts.length>1?alts.join(' / '):alts[0];
+  const dispParts=alts.filter(a=>!a.includes(' / '));
+  const title=dispParts.length>1?dispParts.join(' / '):(dispParts[0]||name);
   const anyWeighted=rows.some(r=>{const isBW=BW_EX.has(r.e.n);if(!isBW)return r.e.w>0;const note=r.e.note||'';return r.e.belt===true||/belt/i.test(note);});
-  const mode=anyWeighted?'weight':(BW_EX.has(alts[0])?'reps':'weight');
+  const mode=anyWeighted?'weight':(dispParts.some(p=>BW_EX.has(p))?'reps':'weight');
   history.pushState({overlay:'ex-history'},'');
   let exRng='3M';
   const CW=360,CH=148,pT=12,pB=28,pL=36,pR=10,gH=CH-pT-pB,gW=CW-pL-pR;
