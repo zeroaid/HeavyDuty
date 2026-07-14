@@ -69,7 +69,8 @@ function isPB(workout,exName){const cur=workout.ex.find(e=>e.n===exName);if(!cur
 return true;}
 function go(screen,opts={},fromPop=false){prev=cur;cur=screen;if(!fromPop){history.pushState({screen,opts},'');}
 document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('s-'+screen).classList.add('active');document.getElementById('s-'+screen).scrollTop=0;document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));const t=document.querySelector(`[data-tab="${screen}"]`);if(t)t.classList.add('active');if(screen==='home')renderHome();if(screen==='history')renderHistory();if(screen==='log')renderLog(opts.type||logType);if(screen==='detail')renderDetail(opts.id||detailId);if(screen==='edit')renderEdit(opts.id||editId);if(screen==='settings')renderSettings();if(screen==='guide')renderGuide();if(screen==='insights')renderInsights();}
-window.addEventListener('popstate',e=>{const bwHist=document.getElementById('bw-history-overlay');if(bwHist){bwHist.remove();return;}
+window.addEventListener('popstate',e=>{const exHist=document.getElementById('ex-history-overlay');if(exHist){exHist.remove();return;}
+const bwHist=document.getElementById('bw-history-overlay');if(bwHist){bwHist.remove();return;}
 const lightbox=document.getElementById('photo-lightbox');if(lightbox){document.documentElement.style.touchAction='';document.body.style.touchAction='';document.body.style.overflow='';lightbox.remove();return;}
 const exPicker=document.getElementById('ex-picker-overlay');if(exPicker){exPickerCancel();return;}
 const customForm=document.getElementById('custom-form-overlay');if(customForm){closeCustomWkForm();return;}
@@ -81,7 +82,7 @@ const state=e.state;if(state?.root){go('home',{},true);return;}
 if(state?.screen){go(state.screen,state.opts||{},true);}else{go('home',{},true);}});function renderHome(){const nt=nextType(),wk=resolveWk(nt),s=asc(),last=s[s.length-1];const exRows=wk.exs.map(en=>{const p=lastFor(en,null);const lastStr=p?`<strong>${BW_EX.has(en)?(p.w>0?(p.bw?toDisp(p.bw+p.w)+wUnit():'BW +'+toDisp(p.w)+wUnit()):'BW'):fmtW(p.w)}</strong> × ${p.r}`:'—';const muscles=muscleFor(en);return`<div class="hero-ex"><div class="hero-ex-left"><span class="hero-ex-name" onclick="goToGuideExercise('${en.replace(/'/g,"\\'")}')" style="cursor:pointer">${en}</span>${muscles?`<span class="hero-ex-muscles">${muscles}</span>`:''}</div><span class="hero-ex-last">${lastStr}</span></div>`;}).join('');let sub='No previous workouts';if(last){const d=daysAgo(last.date);const lastWk=resolveWk(last.type);sub=`<span class="hero-sub-link" onclick="scrollToRecent('${last.id}')">Last: ${lastWk?.short||last.type} · ${fmtShort(last.date)} · <strong style="color:var(--text)">${d} day${d!==1?'s':''} ago</strong></span>`;}
 const lbw=desc().find(w=>w.bw);const consolidatedCount=workouts.filter(w=>w.method==='consolidated').length;const lastConsolidated=asc().filter(w=>w.method==='consolidated').slice(-1)[0];const driveChip=localStorage.getItem('hd_gd_email')&&!gdIsConnected()?`<div class="stat-chip stat-chip-btn" onclick="gdConnect()" style="border-color:rgba(212,20,20,0.45);background:rgba(212,20,20,0.08)" title="Tap to reconnect Drive"><div class="stat-val" style="font-size:15px;color:var(--accent)">↻</div><div class="stat-lbl" style="color:var(--accent)">Drive</div></div>`:'';const statChips=`
     <div class="stat-chip stat-chip-btn" onclick="goToHistorySection('consolidated')"><div class="stat-val">${consolidatedCount}</div><div class="stat-lbl">Sessions</div></div><div class="stat-chip stat-chip-btn" onclick="showCalendar()"><div class="stat-val">${lastConsolidated?daysAgo(lastConsolidated.date):'—'}</div><div class="stat-lbl">Days Rest</div></div>${lbw?`<div class="stat-chip stat-chip-btn" onclick="showBwHistory()"><div class="stat-val">${toDisp(lbw.bw)}</div><div class="stat-lbl">${wUnit()} BW</div></div>`:''} ${driveChip}
-  `;const recent=asc().slice(-3).reverse().map(w=>{const wkDef=resolveWk(w.type);const pills=w.ex.filter(e=>e.r).map(e=>`<span class="pill">${(e.n.includes(' / ')?e.n.split(' / ')[0].trim():e.n).split(' ').slice(-2).join(' ')}: <strong>${BW_EX.has(e.n)?(e.w>0?(w.bw?toDisp(w.bw+e.w)+wUnit():'BW+'+toDisp(e.w)+wUnit()):'BW'):fmtW(e.w)} ×${e.r}</strong></span>`).join('');return`<div class="hist-card" id="recent-${w.id}" onclick="go('detail',{id:'${w.id}'})"><div class="badge${w.method==='custom'?' badge-legacy':''}">${w.method==='custom'?'CX':w.type}</div><div class="hist-body"><div class="hist-type">${wkDef?.desc||w.type}</div><div class="hist-date"><span class="hist-date-link" onclick="event.stopPropagation();showCalendar('${w.date}')">${fmtDate(w.date)}</span>${w.bw?`· ${toDisp(w.bw)}${wUnit()}`:''}</div><div class="hist-pills">${pills}</div></div><div class="hist-arrow">${SVG.chev}</div></div>`;}).join('');const builtInRow=(t,isLegacy)=>{const wk=WK[t];const isNext=t===nt;const isEdited=!!wkMods[t];const bg=isLegacy?'rgba(148,163,184,0.1)':'var(--accent-2)';const fg=isLegacy?'#94a3b8':'var(--accent)';const badge=isNext?' <span class="next-pill">NEXT</span>':'';const hasAnalysis=isEdited&&wkModAnalysis[t];const tagsRow=isEdited?`<div class="cw-row-tags"><span class="next-pill" style="background:rgba(255,255,255,0.15);color:var(--text-2)">EDITED</span><span class="wk-analysis-chip" onclick="event.stopPropagation();showWkModAnalysis('${t}')">${hasAnalysis ? '✦ AI REVIEW' : '✦ ANALYSE'}</span></div>`:'';return`<div class="cw-row" onclick="go('log',{type:'${t}'})"><div class="cw-row-icon" style="background:${bg};color:${fg}">${WK_ICON[t]}</div><div class="cw-row-body"><div class="cw-row-name">${wk.label}${badge}</div><div class="cw-row-sub">${resolveWk(t).desc}</div>${tagsRow}
+  `;const recent=asc().slice(-3).reverse().map(w=>{const wkDef=resolveWk(w.type);const pills=w.ex.filter(e=>e.r).map(e=>`<span class="pill" onclick="event.stopPropagation();showExerciseHistory('${e.n.replace(/'/g,"\\'")}')">${(e.n.includes(' / ')?e.n.split(' / ')[0].trim():e.n).split(' ').slice(-2).join(' ')}: <strong>${BW_EX.has(e.n)?(e.w>0?(w.bw?toDisp(w.bw+e.w)+wUnit():'BW+'+toDisp(e.w)+wUnit()):'BW'):fmtW(e.w)} ×${e.r}</strong></span>`).join('');return`<div class="hist-card" id="recent-${w.id}" onclick="go('detail',{id:'${w.id}'})"><div class="badge${w.method==='custom'?' badge-legacy':''}">${w.method==='custom'?'CX':w.type}</div><div class="hist-body"><div class="hist-type">${wkDef?.desc||w.type}</div><div class="hist-date"><span class="hist-date-link" onclick="event.stopPropagation();showCalendar('${w.date}')">${fmtDate(w.date)}</span>${w.bw?`· ${toDisp(w.bw)}${wUnit()}`:''}</div><div class="hist-pills">${pills}</div></div><div class="hist-arrow">${SVG.chev}</div></div>`;}).join('');const builtInRow=(t,isLegacy)=>{const wk=WK[t];const isNext=t===nt;const isEdited=!!wkMods[t];const bg=isLegacy?'rgba(148,163,184,0.1)':'var(--accent-2)';const fg=isLegacy?'#94a3b8':'var(--accent)';const badge=isNext?' <span class="next-pill">NEXT</span>':'';const hasAnalysis=isEdited&&wkModAnalysis[t];const tagsRow=isEdited?`<div class="cw-row-tags"><span class="next-pill" style="background:rgba(255,255,255,0.15);color:var(--text-2)">EDITED</span><span class="wk-analysis-chip" onclick="event.stopPropagation();showWkModAnalysis('${t}')">${hasAnalysis ? '✦ AI REVIEW' : '✦ ANALYSE'}</span></div>`:'';return`<div class="cw-row" onclick="go('log',{type:'${t}'})"><div class="cw-row-icon" style="background:${bg};color:${fg}">${WK_ICON[t]}</div><div class="cw-row-body"><div class="cw-row-name">${wk.label}${badge}</div><div class="cw-row-sub">${resolveWk(t).desc}</div>${tagsRow}
       </div><button class="cw-row-edit-btn" onclick="event.stopPropagation();openWkEditForm('${t}')">${SVG.dots}</button></div>`;};const workoutsSection=`
     <div class="sec" style="margin-top:4px"><div class="sec-label">Workouts</div></div><div class="cw-card">${ROT.map(t => builtInRow(t, false)).join('')}
       <div class="cw-section-label">Legacy Method</div>${['LA','LB'].map(t => builtInRow(t, true)).join('')}
@@ -98,7 +99,7 @@ const lbw=desc().find(w=>w.bw);const consolidatedCount=workouts.filter(w=>w.meth
     <div class="sec"><div class="sec-label">Recent Sessions</div></div>${recent||'<div class="empty" style="padding:32px 20px">No sessions logged yet. Hit the button above to start your first workout.</div>'}
     ${recent?'<div class="link-row"><button class="link-btn" onclick="go(\'history\')">View all history →</button></div>':''}${workoutsSection}<div class="gap"></div>
   `;}
-function histCard(w){const wk=resolveWk(w.type)||{desc:w.type,method:w.method||'consolidated'};const isLegacy=w.method==='legacy';const isCustom=w.method==='custom';const badge=isCustom?'CX':w.type;const pills=w.ex.filter(e=>e.r).map(e=>`<span class="pill">${(e.n.includes(' / ')?e.n.split(' / ')[0].trim():e.n).split(' ').slice(-2).join(' ')}: <strong>${BW_EX.has(e.n)?(e.w>0?(w.bw?toDisp(w.bw+e.w)+wUnit():'BW+'+toDisp(e.w)+wUnit()):'BW'):fmtW(e.w)} ×${e.r}</strong></span>`).join('');return`<div class="hist-card" onclick="go('detail',{id:'${w.id}'})"><div class="badge ${isLegacy||isCustom?'badge-legacy':''}">${badge}</div><div class="hist-body"><div class="hist-type">${wk.desc}</div><div class="hist-date"><span class="hist-date-link" onclick="event.stopPropagation();showCalendar('${w.date}')">${fmtDate(w.date)}</span>${w.bw?`· ${toDisp(w.bw)}${wUnit()}`:''}</div><div class="hist-pills">${pills}</div></div><div class="hist-arrow">${SVG.chev}</div></div>`;}
+function histCard(w){const wk=resolveWk(w.type)||{desc:w.type,method:w.method||'consolidated'};const isLegacy=w.method==='legacy';const isCustom=w.method==='custom';const badge=isCustom?'CX':w.type;const pills=w.ex.filter(e=>e.r).map(e=>`<span class="pill" onclick="event.stopPropagation();showExerciseHistory('${e.n.replace(/'/g,"\\'")}')">${(e.n.includes(' / ')?e.n.split(' / ')[0].trim():e.n).split(' ').slice(-2).join(' ')}: <strong>${BW_EX.has(e.n)?(e.w>0?(w.bw?toDisp(w.bw+e.w)+wUnit():'BW+'+toDisp(e.w)+wUnit()):'BW'):fmtW(e.w)} ×${e.r}</strong></span>`).join('');return`<div class="hist-card" onclick="go('detail',{id:'${w.id}'})"><div class="badge ${isLegacy||isCustom?'badge-legacy':''}">${badge}</div><div class="hist-body"><div class="hist-type">${wk.desc}</div><div class="hist-date"><span class="hist-date-link" onclick="event.stopPropagation();showCalendar('${w.date}')">${fmtDate(w.date)}</span>${w.bw?`· ${toDisp(w.bw)}${wUnit()}`:''}</div><div class="hist-pills">${pills}</div></div><div class="hist-arrow">${SVG.chev}</div></div>`;}
 const histCollapsed={consolidated:true,legacy:true};let histFilter='all';function scrollToRecent(id){const el=document.getElementById('recent-'+id);if(!el)return;el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.remove('hist-card-flash');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('hist-card-flash')));}
 function goToHistorySection(key){histCollapsed[key]=false;histFilter='all';go('history');requestAnimationFrame(()=>{const el=document.getElementById('hist-body-'+key);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});}
 function showBwHistory(){
@@ -184,6 +185,98 @@ function showBwHistory(){
 }
 function closeBwHistoryOverlay(){const el=document.getElementById('bw-history-overlay');if(el)el.remove();}
 function bwHistoryGoDetail(id){const el=document.getElementById('bw-history-overlay');if(el)el.remove();history.replaceState({screen:'detail',opts:{id}},'');go('detail',{id},true);}
+function exAliasesFor(name){if(name.includes(' / '))return name.split(' / ').map(s=>s.trim());for(const k in MUSCLE_MAP){if(k.includes(' / ')){const parts=k.split(' / ').map(s=>s.trim());if(parts.includes(name))return parts;}}return[name];}
+function exLoadVal(w,e){const isBW=BW_EX.has(e.n);if(!isBW)return e.w>0?toDisp(e.w):0;const note=e.note||'';const nb=note.match(/\+?\s*([0-9.]+)\s*kg\s*belt/i);const hasBelt=e.belt===true||!!nb;const beltW=e.belt===true?e.w:(nb?parseFloat(nb[1]):0);if(hasBelt&&w.bw)return toDisp(Math.round((w.bw+beltW)*10)/10);if(w.bw)return toDisp(w.bw);return 0;}
+function showExerciseHistory(name){
+  const alts=exAliasesFor(name);
+  const rows=[];
+  desc().forEach(w=>{const e=w.ex.find(x=>x.r!=null&&alts.includes(x.n));if(e)rows.push({w,e});});
+  if(!rows.length){toast('No history yet for this exercise',true);return;}
+  const title=alts.length>1?alts.join(' / '):alts[0];
+  const anyWeighted=rows.some(r=>{const isBW=BW_EX.has(r.e.n);if(!isBW)return r.e.w>0;const note=r.e.note||'';return r.e.belt===true||/belt/i.test(note);});
+  const mode=anyWeighted?'weight':(BW_EX.has(alts[0])?'reps':'weight');
+  history.pushState({overlay:'ex-history'},'');
+  let exRng='3M';
+  const CW=360,CH=148,pT=12,pB=28,pL=36,pR=10,gH=CH-pT-pB,gW=CW-pL-pR;
+
+  function valOf(r){return mode==='reps'?r.e.r:exLoadVal(r.w,r.e);}
+  function unitLbl(){return mode==='reps'?'reps':wUnit();}
+
+  function filt(rng){const n=new Date();const c={'1M':new Date(n.getFullYear(),n.getMonth()-1,n.getDate()),'3M':new Date(n.getFullYear(),n.getMonth()-3,n.getDate()),'6M':new Date(n.getFullYear(),n.getMonth()-6,n.getDate()),'1Y':new Date(n.getFullYear()-1,n.getMonth(),n.getDate()),'All':new Date(0)}[rng];return rows.filter(r=>localMidnight(r.w.date)>=c);}
+
+  function mkPts(asc){const vs=asc.map(valOf);const mn=Math.min(...vs),mx=Math.max(...vs),rng=mx-mn||0.1;return asc.map((r,i)=>({x:pL+(asc.length>1?i/(asc.length-1):0.5)*gW,y:pT+(1-(valOf(r)-mn)/rng)*gH,v:valOf(r),d:r.w.date,mn,mx,rng}));}
+
+  function buildChart(asc){
+    if(!asc.length)return'';
+    const pts=mkPts(asc);
+    const mn=pts[0].mn,mx=pts[0].mx,rng=pts[0].rng;
+    let lp=`M${pts[0].x},${pts[0].y}`;
+    for(let i=0;i<pts.length-1;i++){const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)];lp+=` C${p1.x+(p2.x-p0.x)/6},${p1.y+(p2.y-p0.y)/6} ${p2.x-(p3.x-p1.x)/6},${p2.y-(p3.y-p1.y)/6} ${p2.x},${p2.y}`;}
+    const ap=lp+` L${pts[pts.length-1].x},${pT+gH} L${pts[0].x},${pT+gH} Z`;
+    const lvls=[mn,mn+rng/2,mx];
+    const grid=lvls.map(v=>{const y=pT+(1-(v-mn)/rng)*gH;return`<line x1="${pL}" y1="${y}" x2="${CW-pR}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;}).join('');
+    const yL=lvls.map(v=>{const y=pT+(1-(v-mn)/rng)*gH;return`<text x="${pL-4}" y="${y+3.5}" text-anchor="end" font-size="9" fill="var(--text-3)">${Math.round(v*10)/10}</text>`;}).join('');
+    const xi=asc.length>1?[0,Math.floor((asc.length-1)/2),asc.length-1].filter((v,i,a)=>a.indexOf(v)===i):[];
+    const xL=xi.map(i=>{const p=pts[i];const lb=localMidnight(asc[i].w.date).toLocaleDateString('en-GB',{day:'numeric',month:'short'});const a=i===0?'start':i===asc.length-1?'end':'middle';return`<text x="${p.x}" y="${CH-6}" text-anchor="${a}" font-size="9" fill="var(--text-3)">${lb}</text>`;}).join('');
+    const dots=asc.length<=25?pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#d41414" stroke="var(--surface-1)" stroke-width="1.5"/>`).join(''):'';
+    return`<div style="position:relative;margin:4px 8px 0;padding-bottom:8px" id="ex-chart-wrap"><svg width="100%" viewBox="0 0 ${CW} ${CH}" style="display:block;overflow:visible;touch-action:none" id="ex-chart-svg"><defs><linearGradient id="exGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d41414" stop-opacity="0.18"/><stop offset="100%" stop-color="#d41414" stop-opacity="0"/></linearGradient></defs>${grid}<path d="${ap}" fill="url(#exGrad)"/><path d="${lp}" fill="none" stroke="#d41414" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>${dots}${yL}${xL}<g id="ex-xhair" style="display:none" pointer-events="none"><line id="ex-xhair-line" stroke="rgba(255,255,255,0.35)" stroke-width="1" stroke-dasharray="4,3"/><circle id="ex-xhair-dot" r="5.5" fill="#d41414" stroke="var(--surface-1)" stroke-width="2"/></g></svg><div id="ex-xhair-bubble" style="display:none;position:absolute;top:0;background:var(--surface-2);border:1px solid var(--border-hi);border-radius:8px;padding:5px 9px;pointer-events:none;transform:translateX(-50%);white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.4)"><div id="ex-xhair-val" style="font-size:14px;font-weight:800;color:#d41414;text-align:center;font-family:'Impact','Arial Black',sans-serif"></div><div id="ex-xhair-date" style="font-size:10px;color:var(--text-3);text-align:center;margin-top:1px"></div></div></div>`;
+  }
+
+  function attachTouch(asc){
+    const svg=document.getElementById('ex-chart-svg');
+    if(!svg||!asc.length)return;
+    const pts=mkPts(asc);
+    let ht=null;
+    function show(cx){
+      if(ht){clearTimeout(ht);ht=null;}
+      const rect=svg.getBoundingClientRect();
+      const sx=(cx-rect.left)/rect.width*CW;
+      let ni=0,nd=Infinity;
+      pts.forEach((p,i)=>{const d=Math.abs(p.x-sx);if(d<nd){nd=d;ni=i;}});
+      const p=pts[ni];
+      const xh=document.getElementById('ex-xhair');if(!xh)return;
+      xh.style.display='';
+      const xl=document.getElementById('ex-xhair-line');
+      xl.setAttribute('x1',p.x);xl.setAttribute('y1',pT);xl.setAttribute('x2',p.x);xl.setAttribute('y2',pT+gH);
+      const xd=document.getElementById('ex-xhair-dot');xd.setAttribute('cx',p.x);xd.setAttribute('cy',p.y);
+      const xb=document.getElementById('ex-xhair-bubble');xb.style.display='';
+      const wrap=document.getElementById('ex-chart-wrap');
+      xb.style.left=(p.x/CW*rect.width+(rect.left-wrap.getBoundingClientRect().left))+'px';
+      document.getElementById('ex-xhair-val').textContent=`${p.v} ${unitLbl()}`;
+      document.getElementById('ex-xhair-date').textContent=localMidnight(p.d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'});
+    }
+    function hide(){const xh=document.getElementById('ex-xhair');const xb=document.getElementById('ex-xhair-bubble');if(xh)xh.style.display='none';if(xb)xb.style.display='none';}
+    svg.addEventListener('touchstart',e=>{e.preventDefault();show(e.touches[0].clientX);},{passive:false});
+    svg.addEventListener('touchmove',e=>{e.preventDefault();show(e.touches[0].clientX);},{passive:false});
+    svg.addEventListener('touchend',()=>{ht=setTimeout(hide,1200);});
+  }
+
+  function render(){
+    const de=filt(exRng),ae=[...de].reverse();
+    const ca=document.getElementById('ex-chart-area');
+    const bl=document.getElementById('ex-list');
+    if(!ae.length){ca.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-3);font-size:13px">No data for this period</div>';bl.innerHTML='';return;}
+    const vs=ae.map(valOf);
+    const cur=vs[vs.length-1],low=Math.min(...vs),high=Math.max(...vs);
+    const delta=Math.round((cur-vs[0])*10)/10;
+    const dStr=delta===0?'—':(delta>0?'+':'')+delta+' '+unitLbl();
+    const dCol=delta>0?'var(--green)':delta<0?'var(--red)':'var(--text-3)';
+    ca.innerHTML=`<div style="display:flex;border-bottom:1px solid var(--border)"><div style="flex:1;text-align:center;padding:10px 4px"><div style="font-size:22px;font-weight:900;color:var(--accent);font-family:'Impact','Arial Black',sans-serif;line-height:1">${cur}</div><div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;font-weight:700">${unitLbl()} now</div></div><div style="flex:1;text-align:center;padding:10px 4px;border-left:1px solid var(--border)"><div style="font-size:17px;font-weight:700;color:${dCol};line-height:1.2">${dStr}</div><div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;font-weight:700">Change</div></div><div style="flex:1;text-align:center;padding:10px 4px;border-left:1px solid var(--border)"><div style="font-size:17px;font-weight:700;color:var(--text-2);line-height:1.2">${low}</div><div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;font-weight:700">Low</div></div><div style="flex:1;text-align:center;padding:10px 4px;border-left:1px solid var(--border)"><div style="font-size:17px;font-weight:700;color:var(--text-2);line-height:1.2">${high}</div><div style="font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;font-weight:700">High</div></div></div>`+buildChart(ae);
+    bl.innerHTML=de.map((r,i)=>{const prev=de[i+1];const diff=prev?Math.round((valOf(r)-valOf(prev))*10)/10:null;const trend=diff===null?'':diff>0.04?`<span style="color:var(--green);font-size:11px;margin-right:6px">▲ ${Math.abs(diff).toFixed(1)}</span>`:diff<-0.04?`<span style="color:var(--red);font-size:11px;margin-right:6px">▼ ${Math.abs(diff).toFixed(1)}</span>`:'';const secondary=mode==='reps'?'':` <span style="font-size:12px;color:var(--text-3);margin-left:2px">× ${r.e.r} reps</span>`;const unitTag=mode==='reps'?'<span style="font-size:12px;color:var(--text-3);margin-left:2px"> reps</span>':`<span style="font-size:12px;color:var(--text-3);margin-left:2px">${wUnit()}</span>`;return`<div onclick="exHistoryGoDetail('${r.w.id}')" style="display:flex;justify-content:space-between;align-items:center;padding:13px 20px;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:rgba(255,255,255,0.06)"><div style="font-size:13px;color:var(--text-2)">${fmtDate(r.w.date)}</div><div style="display:flex;align-items:center">${trend}<div style="font-size:16px;font-weight:600;color:var(--text)">${valOf(r)}${unitTag}${secondary}</div></div></div>`;}).join('');
+    attachTouch(ae);
+  }
+
+  const div=document.createElement('div');
+  div.id='ex-history-overlay';
+  div.style.cssText='position:fixed;inset:0;z-index:1200;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,0.55)';
+  div.onclick=e=>{if(e.target===div)history.back();};
+  const tabs=['1M','3M','6M','1Y','All'].map(r=>`<button id="extab-${r}" class="bar-seg-btn${r===exRng?' active':''}" onclick="exSetRange('${r}')" style="flex:1;padding:7px 0;font-size:12px">${r}</button>`).join('');
+  div.innerHTML=`<div style="background:var(--surface-1);border-radius:20px 20px 0 0;max-height:84vh;display:flex;flex-direction:column"><div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid var(--border);flex-shrink:0"><div style="font-size:17px;font-weight:700">${title}</div><button onclick="history.back()" style="background:var(--surface-3);border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;color:var(--text);font-size:16px;display:flex;align-items:center;justify-content:center">✕</button></div><div style="padding:10px 12px 8px;flex-shrink:0;border-bottom:1px solid var(--border)"><div class="bar-seg">${tabs}</div></div><div id="ex-chart-area" style="flex-shrink:0"></div><div id="ex-list" style="flex:1;overflow-y:auto"></div></div>`;
+  window.exSetRange=r=>{exRng=r;document.querySelectorAll('#ex-history-overlay .bar-seg-btn').forEach(b=>b.classList.toggle('active',b.id==='extab-'+r));render();};
+  document.body.appendChild(div);
+  render();
+}
+function exHistoryGoDetail(id){const el=document.getElementById('ex-history-overlay');if(el)el.remove();history.replaceState({screen:'detail',opts:{id}},'');go('detail',{id},true);}
 function toggleSection(key){histCollapsed[key]=!histCollapsed[key];const body=document.getElementById('hist-body-'+key);const chev=document.getElementById('hist-chev-'+key);if(histCollapsed[key]){body.style.maxHeight='0';body.classList.add('collapsed');chev.classList.remove('open');}else{body.style.maxHeight='99999px';body.classList.remove('collapsed');chev.classList.add('open');}}
 function setHistFilter(f){histFilter=f;renderHistory();}
 function renderHistory(){const allConsolidated=desc().filter(w=>w.method==='consolidated');const allLegacy=desc().filter(w=>w.method==='legacy');const allCustom=desc().filter(w=>w.method==='custom');if(!allConsolidated.length&&!allLegacy.length&&!allCustom.length){document.getElementById('s-history').innerHTML=`<div class="page-top"><div class="page-title">History</div></div><div class="empty">No workouts logged yet.</div>`;return;}
@@ -200,7 +293,7 @@ const consolidated=histFilter==='all'?allConsolidated:allConsolidated.filter(w=>
   `;}
 const histCollapsedCustom={custom:true};Object.assign(histCollapsed,histCollapsedCustom);function renderDetail(id){detailId=id;const w=workouts.find(x=>x.id===id);if(!w){go('history');return;}
 const wk=resolveWk(w.type)||{label:w.type,short:'CX',desc:w.type,method:w.method||'custom',exs:w.ex.map(e=>e.n)};const metaParts=[w.bw?`${toDisp(w.bw)} ${wUnit()} body weight`:null,w.bf?`${w.bf}% body fat`:null].filter(Boolean);const backTo=prev==='home'?'home':'history';const exRows=w.ex.map(e=>{const note=e.note||'';const rpMatch=note.match(/rest[\s-]?pause[:\s]+([0-9]+\s*[+&]\s*[0-9]+(?:\s*[+&]\s*[0-9]+)*)/i);const rpSets=rpMatch?rpMatch[1].replace(/\s+/g,''):null;const otherNote=note.replace(/rest[\s-]?pause[:\s]*[0-9+\s&]+/i,'').trim();const isBW=BW_EX.has(e.n);const noteBelt=note.match(/\+?\s*([0-9.]+)\s*kg\s*belt/i);const hasBelt=e.belt===true||(isBW&&!!noteBelt);const beltW=e.belt===true?e.w:(noteBelt?parseFloat(noteBelt[1]):0);const addedW=hasBelt?beltW:(e.w>0?e.w:0);const totalW=isBW&&hasBelt&&w.bw?Math.round((w.bw+addedW)*10)/10:null;let weightDisplay,unitDisplay;if(isBW&&hasBelt&&w.bw){weightDisplay=toDisp(totalW);unitDisplay=`${wUnit()} <span style="font-size:12px;color:var(--text-3);font-weight:500">(BW ${toDisp(w.bw)} + ${toDisp(addedW)}${wUnit()} belt)</span> × ${e.r != null ? e.r + ' reps' : '—'}`;}else if(isBW){weightDisplay='BW';unitDisplay=` × ${e.r != null ? e.r + ' reps' : '—'}`;}else{weightDisplay=e.w>0?toDisp(e.w):'BW';unitDisplay=`${e.w > 0 ? ' '+wUnit() : ''} × ${e.r != null ? e.r + ' reps' : '—'}`;}
-const muscles=muscleFor(e.n);return`<div class="ex-row"><div class="ex-row-name">${e.n}${muscles?`<div class="ex-row-muscles">${muscles}</div>`:''}</div><div class="ex-row-val">${weightDisplay}<span class="ex-row-unit">${unitDisplay}</span></div>${e.bar?`<div class="ex-row-note"style="color:var(--text-3)">${e.bar==='olympic'?'Olympic bar':'Trap bar'}</div>`:''}
+const muscles=muscleFor(e.n);return`<div class="ex-row" onclick="showExerciseHistory('${e.n.replace(/'/g,"\\'")}')" style="cursor:pointer"><div class="ex-row-name">${e.n}${muscles?`<div class="ex-row-muscles">${muscles}</div>`:''}</div><div class="ex-row-val">${weightDisplay}<span class="ex-row-unit">${unitDisplay}</span></div>${e.bar?`<div class="ex-row-note"style="color:var(--text-3)">${e.bar==='olympic'?'Olympic bar':'Trap bar'}</div>`:''}
       ${rpSets?`<div class="ex-row-rp"><span class="ex-row-rp-label">Rest-Pause</span><span class="ex-row-rp-sets">${rpSets}</span></div>`:''}
       ${otherNote?`<div class="ex-row-note">${otherNote}</div>`:''}
     </div>`;}).join('');document.getElementById('s-detail').innerHTML=`
