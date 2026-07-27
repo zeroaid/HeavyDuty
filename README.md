@@ -106,6 +106,17 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.5.0
+- Per-exercise history — tap any exercise name or pill to see its own progress chart, stats (current/change/low/high), and every logged session, matching the Strong/Hevy pattern of drilling into a single exercise
+- Body weight history — tap the BW stat on the home screen for a range-filterable chart (1M/3M/6M/1Y/All) with a touch crosshair, same chart engine reused for exercise history
+- Tap the "Next Workout" title on the home screen to jump straight to your last session of that same workout
+- Full-screen photo lightbox on recovery entries, reworked with pinch-to-zoom, pan, and double-tap gestures matching standard app conventions
+- Fixed "No previous data" and missing muscle-group subtitles for variant exercises (e.g. Pec Deck / Dumbbell Flyes) — history and muscle info now correctly combine across all variant names, including sessions logged before the variant picker existed
+- Fixed recovery analysis reading the hourly calorie rate instead of total calories burned
+- Fixed BW exercise weight display showing belt weight alone instead of the combined bodyweight + belt total
+- Google Drive reconnect reworked: tries a fast silent reconnect first, falls back to the account picker only if needed, instead of always forcing a full re-authorization
+- Equipment Units toggle added to the recovery log sheet
+
 ### v1.4.0
 - Dark / Light / Auto theme toggle — Dark for the gym, Light for outdoors, Auto follows your phone's system setting
 - Recent Sessions moved above Workouts on the home screen
