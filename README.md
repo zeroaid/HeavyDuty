@@ -106,6 +106,15 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.6.0
+- History stats replaced with progression-based insight — PBs (personal bests) This Month and Improved vs Last replace the old frequency stats (This Month / Avg Gap / Longest Gap); both tiles drill down into a sheet listing the underlying exercises, tapping through to that exercise's full history chart
+- History heatmap replaced with a collapsible mini-calendar — defaults to collapsed, with inline month navigation, Today link, and training days colour-coded red for Consolidated / grey for Legacy; tap a day to jump to that session, tap the month label to open the full calendar
+- Active Recovery gets its own collapsible mini-calendar, same pattern as History — tap a day to open that recovery session's detail
+- Consolidated Method now auto-expands on the History screen by default; Legacy stays collapsed
+- Renamed PRs to PBs (personal bests) across History UI text
+- Fixed stale version number in Settings — two hardcoded version strings (footer and About row) could drift out of sync; both now read from a single APP_VERSION constant
+- Android APK version bumped to match
+
 ### v1.5.0
 - Per-exercise history — tap any exercise name or pill to see its own progress chart, stats (current/change/low/high), and every logged session, matching the Strong/Hevy pattern of drilling into a single exercise
 - Body weight history — tap the BW stat on the home screen for a range-filterable chart (1M/3M/6M/1Y/All) with a touch crosshair, same chart engine reused for exercise history
