@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.6.4
+- History search now matches full month/weekday names too — "August" and "Sunday" work alongside the short forms "Aug" and "Sun"
+
 ### v1.6.3
 - History search now also matches dates — the raw date (e.g. "2026-08") and the displayed format (e.g. "9 aug", "sun") both work, alongside exercise/muscle/note search
 
