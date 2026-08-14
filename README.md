@@ -106,6 +106,10 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.6.5
+- History search made bigger (larger padding/font) and collapsible — defaults to a compact single-row pill (shows the active query and match count if you're mid-search), tap to expand into the full search field, matching the same collapse pattern already used by the mini-calendar and method sections
+- Search now appears above the calendar instead of below it
+
 ### v1.6.4
 - History search now matches full month/weekday names too — "August" and "Sunday" work alongside the short forms "Aug" and "Sun"
 
