@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.6.3
+- History search now also matches dates — the raw date (e.g. "2026-08") and the displayed format (e.g. "9 aug", "sun") both work, alongside exercise/muscle/note search
+
 ### v1.6.2
 - Search added to History — live filter by exercise name, muscle group, or note text (including per-exercise notes, so e.g. searching "rest-pause" surfaces every session where you used it), reusing the same search pattern as the Custom Workout exercise picker
 - Search works alongside the existing A1/B1/etc. type filter; sections auto-expand while searching so matches in a collapsed section (e.g. Legacy) aren't hidden
