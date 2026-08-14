@@ -106,6 +106,10 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.6.2
+- Search added to History — live filter by exercise name, muscle group, or note text (including per-exercise notes, so e.g. searching "rest-pause" surfaces every session where you used it), reusing the same search pattern as the Custom Workout exercise picker
+- Search works alongside the existing A1/B1/etc. type filter; sections auto-expand while searching so matches in a collapsed section (e.g. Legacy) aren't hidden
+
 ### v1.6.1
 - Fixed Rest-Pause not showing on the workout detail screen for common note phrasings — the parser only recognised `rest-pause: 22+6+3` (number after the phrase, joined with `+`/`&`); it now also catches the number written before the phrase (e.g. "1 rep rest-pause"), a single trailing number, and commas/`x` as separators, without matching unrelated numbers elsewhere in the note
 - Notes field placeholder and the Rest-Pause guide entry now show the actual `rest-pause: 22+6+3` syntax so it's discoverable while logging
