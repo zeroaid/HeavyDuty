@@ -106,6 +106,10 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.6.1
+- Fixed Rest-Pause not showing on the workout detail screen for common note phrasings — the parser only recognised `rest-pause: 22+6+3` (number after the phrase, joined with `+`/`&`); it now also catches the number written before the phrase (e.g. "1 rep rest-pause"), a single trailing number, and commas/`x` as separators, without matching unrelated numbers elsewhere in the note
+- Notes field placeholder and the Rest-Pause guide entry now show the actual `rest-pause: 22+6+3` syntax so it's discoverable while logging
+
 ### v1.6.0
 - History stats replaced with progression-based insight — PBs (personal bests) This Month and Improved vs Last replace the old frequency stats (This Month / Avg Gap / Longest Gap); both tiles drill down into a sheet listing the underlying exercises, tapping through to that exercise's full history chart
 - History heatmap replaced with a collapsible mini-calendar — defaults to collapsed, with inline month navigation, Today link, and training days colour-coded red for Consolidated / grey for Legacy; tap a day to jump to that session, tap the month label to open the full calendar
