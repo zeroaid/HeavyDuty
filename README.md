@@ -106,6 +106,10 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.0
+- Active Recovery moved out of Insights into a new "Workouts / Recovery" segmented tab at the top of History, instead of a 6th bottom-nav icon — keeps the nav at 5 icons (the iOS/Material practical cap) and pairs Recovery with the other session log it's structurally closest to. Insights is back to just Athlete Profile + AI chat, which decluttered it as intended
+- Same interaction pattern as the Guide tab's Exercises/Techniques toggle, so it should feel immediately familiar
+
 ### v1.6.5
 - History search made bigger (larger padding/font) and collapsible — defaults to a compact single-row pill (shows the active query and match count if you're mid-search), tap to expand into the full search field, matching the same collapse pattern already used by the mini-calendar and method sections
 - Search now appears above the calendar instead of below it
