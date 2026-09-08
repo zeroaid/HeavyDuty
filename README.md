@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.1
+- Log Workout now autosaves as a draft while you fill it in — every weight, rep, note, belt/bar choice, and variation pick is silently persisted, so exiting by accident (Cancel, back button, closing the app) no longer loses your entries. Reopening the same workout type restores exactly where you left off, with a small "Restored your unfinished entry" banner and a Discard option. Clears automatically once you save
+
 ### v1.7.0
 - Active Recovery moved out of Insights into a new "Workouts / Recovery" segmented tab at the top of History, instead of a 6th bottom-nav icon — keeps the nav at 5 icons (the iOS/Material practical cap) and pairs Recovery with the other session log it's structurally closest to. Insights is back to just Athlete Profile + AI chat, which decluttered it as intended
 - Same interaction pattern as the Guide tab's Exercises/Techniques toggle, so it should feel immediately familiar
