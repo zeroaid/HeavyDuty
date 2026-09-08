@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.2
+- "Press back again to exit" on the Android app — pressing back from Home no longer closes the app immediately; the first press shows a toast, and only a second press within 2 seconds actually exits. Implemented via the History API (no native Android code exists in this bubblewrap-generated project to hook into directly)
+
 ### v1.7.1
 - Log Workout now autosaves as a draft while you fill it in — every weight, rep, note, belt/bar choice, and variation pick is silently persisted, so exiting by accident (Cancel, back button, closing the app) no longer loses your entries. Reopening the same workout type restores exactly where you left off, with a small "Restored your unfinished entry" banner and a Discard option. Clears automatically once you save
 
