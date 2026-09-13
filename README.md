@@ -106,6 +106,10 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.3
+- Fixed PBs This Month and Exercises Improved not registering a rep increase at an unchanged weight — both only compared raw weight before, so months of climbing reps at the same weight (e.g. 117.5kg ×5 → ×6 → ×7 → ×8) never counted as progress. Now a same-weight session with more reps than ever counts as a PB, and "vs Last Session" shows a reps delta instead of "flat" when weight didn't change
+- Fixed Edit Workout showing blank weight/reps/notes for any exercise with variations (e.g. Pec Deck / Dumbbell Flyes) — it was looking up saved values by the combined template name instead of whichever variant was actually logged, so editing a session with a variant exercise silently discarded its values unless you happened to re-enter them from memory
+
 ### v1.7.2
 - "Press back again to exit" on the Android app — pressing back from Home no longer closes the app immediately; the first press shows a toast, and only a second press within 2 seconds actually exits. Implemented via the History API (no native Android code exists in this bubblewrap-generated project to hook into directly)
 
