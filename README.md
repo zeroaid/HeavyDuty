@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.4
+- Extended the Rest-Pause note-parsing to all six Guide techniques — Slow Negatives ("4 sec negatives"), Forced Reps ("2 forced reps"), Static Holds ("8 sec hold"), Pre-Exhaustion, and Drop Sets are now all recognised from your session notes and shown as chips on the workout detail screen, same as Rest-Pause. A note can mention several at once (e.g. "2 sec negatives, 2 reps forced") and each gets its own chip. Added logging hints to the Forced Reps, Static Holds, and Pre-Exhaustion Guide entries so the syntax is discoverable
+
 ### v1.7.3
 - Fixed PBs This Month and Exercises Improved not registering a rep increase at an unchanged weight — both only compared raw weight before, so months of climbing reps at the same weight (e.g. 117.5kg ×5 → ×6 → ×7 → ×8) never counted as progress. Now a same-weight session with more reps than ever counts as a PB, and "vs Last Session" shows a reps delta instead of "flat" when weight didn't change
 - Fixed Edit Workout showing blank weight/reps/notes for any exercise with variations (e.g. Pec Deck / Dumbbell Flyes) — it was looking up saved values by the combined template name instead of whichever variant was actually logged, so editing a session with a variant exercise silently discarded its values unless you happened to re-enter them from memory
