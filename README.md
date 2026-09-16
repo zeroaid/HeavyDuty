@@ -106,6 +106,10 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.7
+- Confirmed the v1.7.6 safe-area fix resolved the bottom white bar on Samsung Galaxy S26 Ultra
+- Nudged the bottom nav icons down slightly to use up some of the extra safe-area buffer instead of leaving it all as empty space beneath them
+
 ### v1.7.6
 - Increased the bottom safe-area floor from 20px to 34px — the white bar at the bottom of the installed app reappeared on newer Samsung hardware (confirmed on Galaxy S26 Ultra), where `env(safe-area-inset-bottom)` under-reports the actual gesture-bar height and the fixed floor was the only thing protecting against a gap. Not confirmed fixed yet — worth a look after updating
 
