@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.6
+- Increased the bottom safe-area floor from 20px to 34px — the white bar at the bottom of the installed app reappeared on newer Samsung hardware (confirmed on Galaxy S26 Ultra), where `env(safe-area-inset-bottom)` under-reports the actual gesture-bar height and the fixed floor was the only thing protecting against a gap. Not confirmed fixed yet — worth a look after updating
+
 ### v1.7.5
 - Fixed a Google Drive reconnect debug line showing permanently in Settings with no way to hide it — it was writing to localStorage as a developer troubleshooting aid but rendered unconditionally rather than behind a debug toggle. Now gated behind the same hidden gesture as the Insights debug log (tap the "Settings" title 5 times), with a Clear button once revealed
 
