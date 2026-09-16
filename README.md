@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.10
+- Fixed the v1.7.9 em-dash replacement itself: 106 of the ~111 conversions in index.html had silently dropped the space after the new hyphen ("stimulate growth -not to demonstrate it" instead of "growth - not to demonstrate it") - a tool-call quirk trimmed trailing whitespace on that particular edit, and my own verification pass was too narrow to catch it. Re-verified every single instance against the pre-change text this time rather than spot-checking, and confirmed all 111 (index.html) and 69 (README) are now correctly spaced with zero mismatches
+
 ### v1.7.9
 - Replaced em dashes with plain hyphens throughout the app's copy (Mentzer quotes, guide cues, UI text) and this README/changelog. Left the placeholder "—" glyphs shown for empty fields (e.g. weight/reps not yet entered) untouched, since those are functional UI, not prose
 
