@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.8
+- Made the Settings debug toggle (tap "Settings" 5 times) give visible confirmation either way — a toast on every toggle, and the debug row now shows "no Drive reconnect issues recorded" instead of nothing when there's no debug value stored. Previously, toggling it on with nothing recorded looked identical to the gesture not working at all
+
 ### v1.7.7
 - Confirmed the v1.7.6 safe-area fix resolved the bottom white bar on Samsung Galaxy S26 Ultra
 - Nudged the bottom nav icons down slightly to use up some of the extra safe-area buffer instead of leaving it all as empty space beneath them
