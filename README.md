@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.5
+- Fixed a Google Drive reconnect debug line showing permanently in Settings with no way to hide it — it was writing to localStorage as a developer troubleshooting aid but rendered unconditionally rather than behind a debug toggle. Now gated behind the same hidden gesture as the Insights debug log (tap the "Settings" title 5 times), with a Clear button once revealed
+
 ### v1.7.4
 - Extended the Rest-Pause note-parsing to all six Guide techniques — Slow Negatives ("4 sec negatives"), Forced Reps ("2 forced reps"), Static Holds ("8 sec hold"), Pre-Exhaustion, and Drop Sets are now all recognised from your session notes and shown as chips on the workout detail screen, same as Rest-Pause. A note can mention several at once (e.g. "2 sec negatives, 2 reps forced") and each gets its own chip. Added logging hints to the Forced Reps, Static Holds, and Pre-Exhaustion Guide entries so the syntax is discoverable
 
