@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.11
+- Fixed a real data-loss bug: a captured Active Recovery photo lived only in memory until you tapped "Save Session" - if the app got backgrounded or reloaded mid-flow (handing off to the camera, a device rotation), the photo was gone with no way to recover it. The photo is now written to storage the instant it's captured (and the date/note/equipment-units/AI analysis autosave as you go), so reopening "Log Recovery Session" after an interruption restores exactly where you left off, with a "Restored your unfinished entry" banner and a Discard option - same pattern as the Log Workout draft fix from a few versions back
+
 ### v1.7.10
 - Fixed the v1.7.9 em-dash replacement itself: 106 of the ~111 conversions in index.html had silently dropped the space after the new hyphen ("stimulate growth -not to demonstrate it" instead of "growth - not to demonstrate it") - a tool-call quirk trimmed trailing whitespace on that particular edit, and my own verification pass was too narrow to catch it. Re-verified every single instance against the pre-change text this time rather than spot-checking, and confirmed all 111 (index.html) and 69 (README) are now correctly spaced with zero mismatches
 
