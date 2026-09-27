@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.12
+- Bottom nav active-tab indicator redesigned to match the Material 3 pattern used by WhatsApp and most Android apps - a rounded pill-shaped background behind the selected icon, replacing the old flat underline dash beneath the label
+
 ### v1.7.11
 - Fixed a real data-loss bug: a captured Active Recovery photo lived only in memory until you tapped "Save Session" - if the app got backgrounded or reloaded mid-flow (handing off to the camera, a device rotation), the photo was gone with no way to recover it. The photo is now written to storage the instant it's captured (and the date/note/equipment-units/AI analysis autosave as you go), so reopening "Log Recovery Session" after an interruption restores exactly where you left off, with a "Restored your unfinished entry" banner and a Discard option - same pattern as the Log Workout draft fix from a few versions back
 
