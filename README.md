@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.14
+- The v1.7.13 unit-conversion fix was correct for the default case, but the "Equipment units" toggle gave no indication of which option actually matched the AI's reading of the photo - picking the wrong one by hand (e.g. "KM" when the equipment was really in miles) silently produced an unconverted, wrong-looking result. The toggle now auto-selects whichever option the AI actually detected and shows a "Detected from photo: Miles/KM" hint, so a manual change reads as a deliberate override rather than a guess
+
 ### v1.7.13
 - Fixed Active Recovery showing the wrong distance/speed units - e.g. a treadmill reporting miles getting labelled "km" with no actual conversion applied. The AI photo analysis previously reported bare numbers and the app assumed they were already in your preferred unit; it now also reads the unit labels printed on the equipment display itself (MPH/KPH, MI/KM) and converts from the real source unit instead of guessing. Re-analysing an existing session picks up the fix
 - Added editing for Active Recovery sessions - date, note, equipment units and photo can now be changed after saving, the same as workouts. New "Edit Session" button on the recovery detail screen
