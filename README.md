@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.8.1
+- The Insights chat and Generate Full Training Report would show a raw, confusing browser error (e.g. "Failed to fetch") when a request to Claude got cut off mid-flight - most commonly when the app was moved to the background during a request and the OS suspended the connection. Both now detect that specific case (no HTTP response ever came back) and show a clear "Connection dropped... tap to try again" message with an actual Try Again button, instead of a cryptic error. Nothing is lost either way - the chat keeps your typed question, and retrying the report no longer stacks a second report screen on top
+
 ### v1.8.0
 - Added a "Generate Full Training Report" button in Insights - asks Claude to write a complete, structured report (Training Summary, Progressive Overload Analysis, Recovery Assessment, Technique Usage, Warning Signs, Recommendations) covering your full log at once, rather than one chat answer at a time. Export it as a standalone, nicely formatted HTML file you can keep, print or share
 - Tightened the regular Insights chat responses - explicit "no preamble, no restating the question, no hedging" instruction and a ~250-word target unless the question genuinely needs a detailed breakdown, instead of just a vague "keep it focused" ask. Also taught it about Quality focus (Slow Negatives/Static Hold weight drops aren't regressions)
