@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.8.2
+- v1.8.1's fix only caught a connection failing before any response arrived. The more common case for a backgrounded report - a long-running stream that gets a 200 OK, then has its connection dropped mid-stream while reading the body - throws a different error ("network error") that the v1.8.1 check didn't recognise, so it still fell through to the raw message. Error detection now also matches on the error text itself, so this case gets the same friendly "Connection dropped... tap to try again" treatment
+
 ### v1.8.1
 - The Insights chat and Generate Full Training Report would show a raw, confusing browser error (e.g. "Failed to fetch") when a request to Claude got cut off mid-flight - most commonly when the app was moved to the background during a request and the OS suspended the connection. Both now detect that specific case (no HTTP response ever came back) and show a clear "Connection dropped... tap to try again" message with an actual Try Again button, instead of a cryptic error. Nothing is lost either way - the chat keeps your typed question, and retrying the report no longer stacks a second report screen on top
 
