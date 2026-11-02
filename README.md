@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.8.3
+- Hold a screen wake lock for the duration of any Insights chat question or full report generation, so the screen doesn't auto-lock and the request doesn't get treated as backgrounded while you're just waiting on it - the most common real-world trigger for the connection-drop issue fixed in v1.8.1/v1.8.2. This can't help if you deliberately switch to another app (the lock releases the instant the tab is hidden, by design - the OS intentionally doesn't let web pages override that), but it should cover the far more common case of the phone timing out while sitting idle
+
 ### v1.8.2
 - v1.8.1's fix only caught a connection failing before any response arrived. The more common case for a backgrounded report - a long-running stream that gets a 200 OK, then has its connection dropped mid-stream while reading the body - throws a different error ("network error") that the v1.8.1 check didn't recognise, so it still fell through to the raw message. Error detection now also matches on the error text itself, so this case gets the same friendly "Connection dropped... tap to try again" treatment
 
