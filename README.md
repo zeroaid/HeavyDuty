@@ -106,6 +106,10 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.8.0
+- Added a "Generate Full Training Report" button in Insights - asks Claude to write a complete, structured report (Training Summary, Progressive Overload Analysis, Recovery Assessment, Technique Usage, Warning Signs, Recommendations) covering your full log at once, rather than one chat answer at a time. Export it as a standalone, nicely formatted HTML file you can keep, print or share
+- Tightened the regular Insights chat responses - explicit "no preamble, no restating the question, no hedging" instruction and a ~250-word target unless the question genuinely needs a detailed breakdown, instead of just a vague "keep it focused" ask. Also taught it about Quality focus (Slow Negatives/Static Hold weight drops aren't regressions)
+
 ### v1.7.15
 - "vs Last Session" no longer flags a dropped weight as a decline when it's paired with a logged Slow Negatives or Static Hold note on that exercise - those techniques inherently mean handling less weight in exchange for more control, not regression. Shown as a neutral "Quality focus" note instead of a red ▼, and excluded from the Exercises Improved ratio rather than counted against it
 
