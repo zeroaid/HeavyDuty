@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-java@v5
         with:
@@ -51,7 +51,9 @@ jobs:
           echo "==============================================================="
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
 
       - name: Build release APK
         working-directory: twa-app
@@ -63,20 +65,20 @@ jobs:
           KEY_PASSWORD: heavyduty2024
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: heavy-duty-twa-v${{ github.run_number }}
           path: twa-app/app/build/outputs/apk/release/*.apk
 
       - name: Upload keystore as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: keystore
           path: twa-app/keystore.jks
 
       - name: Create Release
         if: github.event_name == 'workflow_dispatch'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: twa-v${{ github.run_number }}
           name: "Heavy Duty TWA v${{ github.run_number }}"
