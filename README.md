@@ -106,6 +106,9 @@ The AI tab uses the [Anthropic Claude API](https://console.anthropic.com/). You 
 
 ## Changelog
 
+### v1.7.15
+- "vs Last Session" no longer flags a dropped weight as a decline when it's paired with a logged Slow Negatives or Static Hold note on that exercise - those techniques inherently mean handling less weight in exchange for more control, not regression. Shown as a neutral "Quality focus" note instead of a red ▼, and excluded from the Exercises Improved ratio rather than counted against it
+
 ### v1.7.14
 - The v1.7.13 unit-conversion fix was correct for the default case, but the "Equipment units" toggle gave no indication of which option actually matched the AI's reading of the photo - picking the wrong one by hand (e.g. "KM" when the equipment was really in miles) silently produced an unconverted, wrong-looking result. The toggle now auto-selects whichever option the AI actually detected and shows a "Detected from photo: Miles/KM" hint, so a manual change reads as a deliberate override rather than a guess
 
